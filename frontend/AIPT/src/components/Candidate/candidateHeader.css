@@ -1,0 +1,34 @@
+/* src/styles/candidateHeader.css */
+.header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 20px; 
+    background-color: #32007d; 
+    color: white; 
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1); 
+    position: sticky; 
+    top: 0; 
+    width: 100%; 
+    z-index: 1000; 
+}
+.header-title h1 {
+    margin: 0;
+    font-size: 24px; 
+    font-family: 'Arial', sans-serif; 
+}
+
+.logout-btn {
+    padding: 10px 20px;
+    background-color: #bbdefb;
+    color: #1976d2;
+    border: none;
+    border-radius: 5px;
+    cursor: pointer;
+    transition: background-color 0.3s, transform 0.3s;
+}
+
+.logout-btn:hover {
+    background-color: #90caf9;
+    transform: scale(1.05);
+}

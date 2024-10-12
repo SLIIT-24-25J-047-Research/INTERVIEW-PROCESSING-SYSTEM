@@ -1,0 +1,35 @@
+.sidebar {
+    width: 240px; 
+    height: 100vh;
+    background-color: #e0f2ff; 
+    padding: 20px; 
+  padding-top: 6%;
+    box-shadow: 2px 0 5px rgba(0, 0, 0, 0.1);
+    position: fixed; 
+    left: 0;
+    top: 5;
+    overflow-y: auto; 
+}
+.menu-list {
+    
+    list-style: none; 
+    padding: 0; 
+}
+
+.menu-item {
+    display: flex; 
+    align-items: center; 
+    padding: 10px 0; 
+    transition: background-color 0.3s; 
+    cursor: pointer; 
+}
+
+.menu-item:hover {
+    background-color: #cce7ff; 
+}
+
+.menu-icon {
+    margin-right: 10px; 
+    font-size: 1.5em; 
+    color: #32007d; 
+}
