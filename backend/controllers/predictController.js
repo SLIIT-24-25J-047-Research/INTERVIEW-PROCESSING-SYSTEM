@@ -7,7 +7,7 @@ exports.predictConfidence = async (req, res) => {
     try {
         // Check for text input
         if (req.body.text) {
-            const flaskResponse = await axios.post('http://127.0.0.1:5000/predict', {
+            const flaskResponse = await axios.post('http://127.0.0.1:3000/predict', {
                 text: req.body.text
             });
 
@@ -24,7 +24,7 @@ exports.predictConfidence = async (req, res) => {
             const form = new FormData();
             form.append('audio', fs.createReadStream(filePath));
 
-            const flaskResponse = await axios.post('http://127.0.0.1:5000/predict', form, {
+            const flaskResponse = await axios.post('http://127.0.0.1:3000/predict', form, {
                 headers: {
                     ...form.getHeaders()
                 }
