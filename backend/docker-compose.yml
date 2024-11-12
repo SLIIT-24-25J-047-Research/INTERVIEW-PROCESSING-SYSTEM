@@ -1,0 +1,41 @@
+version: '3.8'
+
+services:
+  backend:
+    build: ./  
+    ports:
+      - "5000:5000"
+    env_file:
+      - .env
+    depends_on:
+      - voice-confidence  
+      #- service2 #indu
+      #- service3 #shehela
+      #- service4 #deneth
+
+
+  voice-confidence: 
+    build:
+      context: ./voice-confidence-service  # Path to the voice-confidence-service folder
+    ports:
+      - "3000:3000"
+
+  # service-2:
+  #   build:
+  #     context: ./service-2     # Path to the service-2 folder 
+  #   ports:
+  #     - "3001:3001"
+
+  # service-3:
+  #   build:
+  #     context: ./service-3      # Path to the service-3 folder
+  #   ports:
+  #     - "3002:3002"
+
+  # service-4:
+  #   build:
+  #     context: ./service-4      # Path to the service-4 folder
+  #   ports:
+  #     - "3003:3003"
+
+
