@@ -39,11 +39,17 @@ def predict():
 
         predicted_class = model.predict(features_reshaped)
         predicted_label = predicted_class[0]  # Assuming binary classification
+        predicted_proba = model.predict_proba(features_reshaped) 
+        predicted_confidence = np.max(predicted_proba)
 
         # Clean up the temporary audio file
         os.remove('temp_audio.wav')
 
-        return jsonify({'confidence_level': int(predicted_label)})
+        return jsonify({
+            'confidence_level': int(predicted_label),
+            'confidence_score': float(predicted_confidence)  # Send the confidence score
+        })
+
 
     elif 'text' in request.json:
         text_message = request.json['text']
