@@ -4,6 +4,7 @@ const mongoose = require('mongoose');
 const app = express();
 const cors = require('cors');
 
+
 // Middleware
 app.use(express.json());
 app.use(cors());
@@ -11,6 +12,7 @@ app.use(cors());
 // Routes
 app.use('/api/auth', require('./routes/auth'));
 app.use('/api/jobs', require('./routes/employer/JobsRoutes')); // Added job routes
+app.use('/api/questions', require('./routes/employer/questionRoutes')); // Added question routes
 
 // voice confidence routes
 app.use('/api', require('./routes/voiceConfidenceRoutes'));
