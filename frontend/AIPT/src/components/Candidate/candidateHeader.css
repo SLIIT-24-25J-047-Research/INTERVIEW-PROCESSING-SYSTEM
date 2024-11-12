@@ -19,16 +19,19 @@
 }
 
 .logout-btn {
-    padding: 10px 20px;
-    background-color: #bbdefb;
-    color: #1976d2;
+    padding: 8px 12px;
+    background-color: #e0e0e0;
+    color: #333;
     border: none;
     border-radius: 5px;
+    font-size: 0.9rem;
     cursor: pointer;
-    transition: background-color 0.3s, transform 0.3s;
+    transition: background-color 0.3s ease;
+    align-self: flex-start; /* Aligns the button to the start */
+    margin-top: auto; /* Pushes button to the bottom of sidebar */
 }
 
 .logout-btn:hover {
-    background-color: #90caf9;
+    background-color: #c4c4c4;
     transform: scale(1.05);
 }
