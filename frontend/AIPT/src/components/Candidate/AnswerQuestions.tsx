@@ -137,11 +137,11 @@ const handleSendText = async () => {
                     <button onClick={stopRecording} disabled={!isRecording}>Stop Recording</button>
                     
                     {/* Audio File Upload Section */}
-                    <input 
+                    {/* <input 
                         type="file" 
                         accept="audio/*" 
                         onChange={handleFileChange} 
-                    />
+                    /> */}
                     <button 
                         onClick={handleNextQuestion} 
                         disabled={!audioBlob && !uploadedAudio}
@@ -150,7 +150,7 @@ const handleSendText = async () => {
                     </button>
                     
                     {/* Text Input Section */}
-                    <div>
+                    {/* <div>
                         <input 
                             type="text" 
                             value={inputText} 
@@ -158,7 +158,7 @@ const handleSendText = async () => {
                             placeholder="Type your answer..." 
                         />
                         <button onClick={handleSendText}>Send Text</button>
-                    </div>
+                    </div> */}
                 </div>
             ) : (
                 <p>Loading questions...</p>
