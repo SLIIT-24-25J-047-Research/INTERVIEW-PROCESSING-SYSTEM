@@ -10,7 +10,9 @@ const CandidateProfile: React.FC = () => {
             <div className="main-content">
                 <Header title="Profile" />
                 <div className="content">
+
                     <h2>Profile Information</h2>
+                    
                     <p>Here you can update your profile details.</p>
                     {/* Add profile editing form or display info here */}
                 </div>
