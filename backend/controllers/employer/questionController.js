@@ -17,7 +17,7 @@ exports.createQuestion = async (req, res) => {
 // Get all questions
 exports.getAllQuestions = async (req, res) => {
     try {
-      const questions = await Question.find().populate('skillGroupId', 'name');  // Optionally populate skill group name
+      const questions = await Question.find().populate('skillGroupId', 'name');  
       res.status(200).json(questions);
     } catch (error) {
       res.status(500).json({ error: error.message });
