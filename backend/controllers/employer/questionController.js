@@ -4,23 +4,25 @@ const Question = require('../../models/employer/Question');
 
 exports.createQuestion = async (req, res) => {
     try {
-        const question = new Question(req.body);
-        await question.save();
-        res.status(201).json(question);
+      const { skillGroupId, text, answers } = req.body;
+      const question = new Question({ skillGroupId, text, answers });
+      await question.save();
+      res.status(201).json(question);
     } catch (error) {
-        res.status(400).json({ message: error.message });
+      res.status(400).json({ error: error.message });
     }
-};
+  };
 
 
+// Get all questions
 exports.getAllQuestions = async (req, res) => {
     try {
-        const questions = await Question.find();
-        res.json(questions);
+      const questions = await Question.find().populate('skillGroupId', 'name');  // Optionally populate skill group name
+      res.status(200).json(questions);
     } catch (error) {
-        res.status(500).json({ message: error.message });
+      res.status(500).json({ error: error.message });
     }
-};
+  };
 
 
 exports.getQuestionById = async (req, res) => {
