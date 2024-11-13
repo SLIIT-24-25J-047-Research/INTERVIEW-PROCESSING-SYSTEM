@@ -37,15 +37,22 @@ exports.getAllQuestions = async (req, res) => {
     }
   };
 
-exports.updateQuestion = async (req, res) => {
+  exports.updateQuestion = async (req, res) => {
     try {
-        const question = await Question.findByIdAndUpdate(req.params.id, req.body, { new: true });
-        if (!question) return res.status(404).json({ message: 'Question not found' });
-        res.json(question);
+      const { text, answers } = req.body;
+      const question = await Question.findByIdAndUpdate(
+        req.params.id,
+        { text, answers },
+        { new: true }
+      );
+      if (!question) {
+        return res.status(404).json({ error: 'Question not found' });
+      }
+      res.status(200).json(question);
     } catch (error) {
-        res.status(400).json({ message: error.message });
+      res.status(400).json({ error: error.message });
     }
-};
+  };
 
 
 exports.deleteQuestion = async (req, res) => {
