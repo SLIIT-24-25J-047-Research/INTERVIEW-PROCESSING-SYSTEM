@@ -44,7 +44,7 @@ exports.updateQuestion = async (req, res) => {
     }
 };
 
-// Delete a question
+
 exports.deleteQuestion = async (req, res) => {
     try {
         const question = await Question.findByIdAndDelete(req.params.id);
