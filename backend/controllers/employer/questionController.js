@@ -17,7 +17,7 @@ exports.createQuestion = async (req, res) => {
 
 exports.getAllQuestions = async (req, res) => {
     try {
-      const questions = await Question.find().populate('skillGroupId', 'name');  
+      const questions = await Question.find().populate('skillGroupId', 'groupId');  
       res.status(200).json(questions);
     } catch (error) {
       res.status(500).json({ error: error.message });
@@ -25,16 +25,17 @@ exports.getAllQuestions = async (req, res) => {
   };
 
 
-exports.getQuestionById = async (req, res) => {
+  exports.getQuestionById = async (req, res) => {
     try {
-        const question = await Question.findById(req.params.id);
-        if (!question) return res.status(404).json({ message: 'Question not found' });
-        res.json(question);
+      const question = await Question.findById(req.params.id).populate('skillGroupId', 'groupId');
+      if (!question) {
+        return res.status(404).json({ error: 'Question not found' });
+      }
+      res.status(200).json(question);
     } catch (error) {
-        res.status(500).json({ message: error.message });
+      res.status(500).json({ error: error.message });
     }
-};
-
+  };
 
 exports.updateQuestion = async (req, res) => {
     try {
