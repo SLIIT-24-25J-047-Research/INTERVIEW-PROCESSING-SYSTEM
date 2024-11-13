@@ -1,4 +1,5 @@
 const SkillGroup = require('../../models/employer/SkillGroup');
+const Question = require('../../models/employer/Question');
 
 
 const getLastGroupIdInRange = async (focus) => {
@@ -51,12 +52,26 @@ exports.createSkillGroup = async (req, res) => {
 
 exports.getAllSkillGroups = async (req, res) => {
   try {
-    const skillGroups = await SkillGroup.find();
-    res.status(200).json(skillGroups);
+   
+      const skillGroups = await SkillGroup.find();
+      if (skillGroups.length === 0) {
+          return res.status(404).json({ message: 'No skill groups found.' });
+      }
+
+      // count the number of related questions
+      const skillGroupsWithQuestionCount = await Promise.all(skillGroups.map(async (group) => {
+          const questionCount = await Question.countDocuments({ skillGroupId: group._id });
+          return { ...group.toObject(), questionCount };
+      }));
+
+      res.status(200).json(skillGroupsWithQuestionCount);
   } catch (error) {
-    res.status(500).json({ error: error.message });
+      console.error('Error fetching skill groups:', error);
+      res.status(500).json({ message: 'Error fetching skill groups', error });
   }
 };
+
+
 
 exports.getSkillGroupById = async (req, res) => {
   try {
