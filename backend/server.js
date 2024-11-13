@@ -11,23 +11,17 @@ app.use(cors());
 
 // Routes
 app.use('/api/auth', require('./routes/auth'));
-app.use('/api/jobs', require('./routes/employer/JobsRoutes')); // Added job routes
-app.use('/api/questions', require('./routes/employer/questionRoutes')); // Added question routes
+app.use('/api/jobs', require('./routes/employer/JobsRoutes')); 
+app.use('/api/questions', require('./routes/employer/questionRoutes')); 
+app.use('/api/skillGroups', require('./routes/employer/skillGroupRoutes')); 
 
-// voice confidence routes
-app.use('/api', require('./routes/voiceConfidenceRoutes'));
-//test
-app.get('/api/test', (req, res) => {
-  res.status(200).json({ message: "Node.js backend is running" });
-});
+
 
 
 // voice confidence routes
 app.use('/api', require('./routes/voiceConfidenceRoutes'));
-//test
-app.get('/api/test', (req, res) => {
-  res.status(200).json({ message: "Node.js backend is running" });
-});
+
+
 
 
 // MongoDB Connection
