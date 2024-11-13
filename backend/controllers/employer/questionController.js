@@ -56,7 +56,7 @@ exports.deleteQuestion = async (req, res) => {
 };
 
 
-// Controller to get random questions
+
 exports.getRandomQuestions = async (req, res) => {
    
     try {
