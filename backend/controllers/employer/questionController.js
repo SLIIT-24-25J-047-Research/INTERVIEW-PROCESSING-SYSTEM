@@ -87,3 +87,29 @@ exports.getRandomQuestions = async (req, res) => {
     }
 };
 
+
+//new 
+exports.getRandomQuestions2 = async (req, res) => {
+    try {
+       
+        const { skillGroupId } = req.query;
+
+        let questionsQuery = {};
+        if (skillGroupId) {
+            questionsQuery.skillGroupId = skillGroupId; 
+        }
+        const questions = await Question.find(questionsQuery);
+        
+        if (questions.length === 0) {
+            return res.status(404).json({ message: 'No questions available.' });
+        }
+        const shuffledQuestions = questions.sort(() => 0.5 - Math.random());
+        const numQuestionsToFetch = 3;
+        const randomQuestions = shuffledQuestions.slice(0, numQuestionsToFetch);
+
+        res.status(200).json(randomQuestions);
+    } catch (error) {
+        console.error('Error fetching random questions:', error);
+        res.status(500).json({ message: 'Error fetching random questions', error });
+    }
+};
