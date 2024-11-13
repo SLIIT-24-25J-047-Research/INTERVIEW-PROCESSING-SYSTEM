@@ -33,7 +33,7 @@ exports.getQuestionById = async (req, res) => {
     }
 };
 
-// Update a question
+
 exports.updateQuestion = async (req, res) => {
     try {
         const question = await Question.findByIdAndUpdate(req.params.id, req.body, { new: true });
