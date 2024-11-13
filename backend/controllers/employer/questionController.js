@@ -22,7 +22,7 @@ exports.getAllQuestions = async (req, res) => {
     }
 };
 
-// Get a single question by ID
+
 exports.getQuestionById = async (req, res) => {
     try {
         const question = await Question.findById(req.params.id);
