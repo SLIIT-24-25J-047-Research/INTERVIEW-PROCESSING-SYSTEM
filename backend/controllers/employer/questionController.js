@@ -1,7 +1,7 @@
 // controllers/questionController.js
 const Question = require('../../models/employer/Question');
 
-// Create a new question
+
 exports.createQuestion = async (req, res) => {
     try {
         const question = new Question(req.body);
