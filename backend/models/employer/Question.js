@@ -1,6 +1,9 @@
 const mongoose = require('mongoose');
 
 const questionSchema = new mongoose.Schema({
+    skillGroupId: {
+     type: mongoose.Schema.Types.ObjectId, ref: 'SkillGroup', required: true
+    },
     text: {
         type: String,
         required: true
