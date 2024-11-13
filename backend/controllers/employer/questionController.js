@@ -14,7 +14,7 @@ exports.createQuestion = async (req, res) => {
   };
 
 
-// Get all questions
+
 exports.getAllQuestions = async (req, res) => {
     try {
       const questions = await Question.find().populate('skillGroupId', 'name');  
