@@ -4,13 +4,25 @@ const mongoose = require('mongoose');
 const app = express();
 const cors = require('cors');
 
+
 // Middleware
 app.use(express.json());
 app.use(cors());
 
 // Routes
 app.use('/api/auth', require('./routes/auth'));
-app.use('/api/jobs', require('./routes/employer/JobsRoutes')); // Added job routes
+app.use('/api/jobs', require('./routes/employer/JobsRoutes')); 
+app.use('/api/questions', require('./routes/employer/questionRoutes')); 
+app.use('/api/skillGroups', require('./routes/employer/skillGroupRoutes')); 
+
+
+
+
+// voice confidence routes
+app.use('/api', require('./routes/voiceConfidenceRoutes'));
+
+
+
 
 // voice confidence routes
 app.use('/api', require('./routes/voiceConfidenceRoutes'));

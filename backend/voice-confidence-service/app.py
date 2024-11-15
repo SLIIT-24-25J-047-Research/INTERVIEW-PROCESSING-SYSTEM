@@ -1,13 +1,16 @@
+
+# venv\Scripts\activate
+
 from flask import Flask, request, jsonify
 import joblib
 import librosa
 import numpy as np
+import os
 
 app = Flask(__name__)
 
 # Load the trained model
-# model = joblib.load('')  
-model = joblib.load(r'C:\Users\Lenovo\Downloads\3y2s\4Y\INTERVIEW-PROCESSING-SYSTEM\backend\voice-confidence-service\models\confidence_model.pkl')
+model = joblib.load(r'/app/models/confidence_model.pkl')
 
 
 def preprocess_audio(file_path):
@@ -25,29 +28,8 @@ def preprocess_audio(file_path):
         features = np.append(features, 0)
     return features
 
-# @app.route('/predict', methods=['POST'])
-# def predict():
-#     if 'audio' not in request.files:
-#         return jsonify({'error': 'No audio file provided'}), 400
-
-#     audio_file = request.files['audio']
-#     audio_file.save('temp_audio.wav')  # Save the audio temporarily
-#     features = preprocess_audio('temp_audio.wav')
-#     features_reshaped = features.reshape(1, -1)
-
-#     predicted_class = model.predict(features_reshaped)
-#     predicted_label = predicted_class[0]  # Assuming binary classification
-
-#     return jsonify({'confidence_level': int(predicted_label)})
-
-
-
-
-
 @app.route('/predict', methods=['POST'])
 def predict():
-
-  
     # Check if there's an audio file or text message in the request
     if 'audio' in request.files:
         audio_file = request.files['audio']
@@ -57,8 +39,17 @@ def predict():
 
         predicted_class = model.predict(features_reshaped)
         predicted_label = predicted_class[0]  # Assuming binary classification
+        predicted_proba = model.predict_proba(features_reshaped) 
+        predicted_confidence = np.max(predicted_proba)
 
-        return jsonify({'confidence_level': int(predicted_label)})
+        # Clean up the temporary audio file
+        os.remove('temp_audio.wav')
+
+        return jsonify({
+            'confidence_level': int(predicted_label),
+            'confidence_score': float(predicted_confidence)  # Send the confidence score
+        })
+
 
     elif 'text' in request.json:
         text_message = request.json['text']
@@ -71,4 +62,4 @@ def predict():
         return jsonify({'error': 'No audio file or text provided'}), 400
 
 if __name__ == '__main__':
-    app.run(port=3000)
+   app.run(host='0.0.0.0', port=3000)
