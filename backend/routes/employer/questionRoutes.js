@@ -5,6 +5,7 @@ const questionController = require('../../controllers/employer/questionControlle
 
 
 router.get('/random', questionController.getRandomQuestions); 
+router.get('/random2', questionController.getRandomQuestions2); 
 router.post('/', questionController.createQuestion);  
 router.get('/', questionController.getAllQuestions);   
 router.get('/:id', questionController.getQuestionById); 
