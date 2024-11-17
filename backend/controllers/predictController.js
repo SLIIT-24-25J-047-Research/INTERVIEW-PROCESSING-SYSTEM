@@ -3,6 +3,7 @@ const FormData = require('form-data');
 const fs = require('fs');
 const path = require('path');
 const ffmpeg = require('fluent-ffmpeg'); // Import fluent-ffmpeg
+const Prediction = require('../models/candidate/Prediction');
 
 exports.predictConfidence = async (req, res) => {
     try {
@@ -44,6 +45,13 @@ exports.predictConfidence = async (req, res) => {
 
                         console.log('Flask response:', flaskResponse.data); // Log Flask response
 
+                        // Save prediction in the database
+                        const newPrediction = new Prediction({
+                            email: req.body.email,
+                            prediction: flaskResponse.data.prediction
+                        });
+                        await newPrediction.save();
+
                         // Clean up the temporary converted audio file
                         fs.unlink(tempFilePath, (err) => {
                             if (err) {
@@ -55,7 +63,7 @@ exports.predictConfidence = async (req, res) => {
 
                         return res.status(200).json({
                             success: true,
-                            prediction: flaskResponse.data
+                            prediction: flaskResponse.data.prediction
                         });
                     } catch (error) {
                         console.error('Error in Flask response:', error.message);
