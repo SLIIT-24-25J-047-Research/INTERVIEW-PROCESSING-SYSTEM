@@ -27,7 +27,7 @@ print("Model loaded successfully in VS Code!")
 
 # BERT model and tokenizer 
 tokenizer = BertTokenizer.from_pretrained('bert-base-uncased')
-model = BertModel.from_pretrained('bert-base-uncased')
+bert_model  = BertModel.from_pretrained('bert-base-uncased')
 
 
 def preprocess_audio(file_path):
@@ -82,7 +82,9 @@ def transcribe():
             return jsonify({'error': 'No audio file provided'}), 400
 
         audio_file = request.files['audio']
-        audio_file_path = 'C:\\Users\\Lenovo\\Downloads\\3y2s\\4Y\\INTERVIEW-PROCESSING-SYSTEM\\backend\\voice-confidence-service\\uploads\\audio_file.wav'
+        # audio_file_path = 'C:\\Users\\Lenovo\\Downloads\\3y2s\\4Y\\INTERVIEW-PROCESSING-SYSTEM\\backend\\voice-confidence-service\\uploads\\audio_file.wav'
+        audio_file_path = os.path.join('/app/uploads', 'audio_file.wav')
+
         audio_file.save(audio_file_path)
 
         #check
@@ -130,7 +132,7 @@ def get_embedding(text):
     inputs = tokenizer(text, return_tensors="pt", truncation=True, padding=True, max_length=512)
     # Pass the tokenized input to BERT model
     with torch.no_grad():
-        outputs = model(**inputs)
+        outputs = bert_model (**inputs)
     last_hidden_states = outputs.last_hidden_state  # Get the embeddings from the last hidden layer
     sentence_embedding = last_hidden_states.mean(dim=1).squeeze().numpy()  # We average the token embeddings to get a fixed-size sentence embedding
     return sentence_embedding
