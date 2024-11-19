@@ -128,7 +128,7 @@ def get_embedding(text):
     """
     This function takes a text and returns its BERT embedding.
     """
-    # Tokenize the input 
+   
     inputs = tokenizer(text, return_tensors="pt", truncation=True, padding=True, max_length=512)
     # Pass the tokenized input to BERT model
     with torch.no_grad():
