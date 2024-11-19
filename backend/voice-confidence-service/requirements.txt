@@ -1,5 +1,9 @@
 Flask==2.0.1
 joblib
-librosa
-numpy
 werkzeug==2.0.3
+transformers
+openai-whisper
+scikit-learn
+
+
+
