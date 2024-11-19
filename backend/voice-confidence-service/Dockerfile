@@ -4,9 +4,11 @@ FROM python-base:latest
 # working directory
 WORKDIR /app
 
-# Install ffmpeg
-RUN apt-get update && apt-get install -y ffmpeg
+# Install ffmpeg and required system packages
+RUN apt-get update && apt-get install -y ffmpeg libsndfile1 && rm -rf /var/lib/apt/lists/*
 
+# Create the uploads directory
+RUN mkdir -p /app/uploads
 
 # Copy only the requirements.txt first to leverage Docker's cache
 COPY requirements.txt .
