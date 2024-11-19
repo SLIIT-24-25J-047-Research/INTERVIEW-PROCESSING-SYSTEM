@@ -1,6 +1,5 @@
 
 # venv\Scripts\activate
-
 from flask import Flask, request, jsonify
 from sklearn.metrics.pairwise import cosine_similarity
 import joblib
