@@ -132,8 +132,8 @@ def get_embedding(text):
     inputs = tokenizer(text, return_tensors="pt", truncation=True, padding=True, max_length=512)
     with torch.no_grad():
         outputs = bert_model (**inputs)
-    last_hidden_states = outputs.last_hidden_state  # Get the embeddings from the last hidden layer
-    sentence_embedding = last_hidden_states.mean(dim=1).squeeze().numpy()  # We average the token embeddings to get a fixed-size sentence embedding
+    last_hidden_states = outputs.last_hidden_state 
+    sentence_embedding = last_hidden_states.mean(dim=1).squeeze().numpy() 
     return sentence_embedding
 
 def compare_answers(candidate_answer, actual_answers):
