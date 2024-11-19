@@ -3,15 +3,13 @@ const express = require('express');
 const router = express.Router();
 const questionController = require('../../controllers/employer/questionController');
 
-// CRUD operations
-router.get('/random', questionController.getRandomQuestions); // Use the controller for this route
 
-
-
-router.post('/', questionController.createQuestion);  // Create a question
-router.get('/', questionController.getAllQuestions);   // Get all questions
-router.get('/:id', questionController.getQuestionById); // Get a question by ID
-router.put('/:id', questionController.updateQuestion);  // Update a question
-router.delete('/:id', questionController.deleteQuestion); // Delete a question
+router.get('/random', questionController.getRandomQuestions); 
+router.get('/random2', questionController.getRandomQuestions2); 
+router.post('/', questionController.createQuestion);  
+router.get('/', questionController.getAllQuestions);   
+router.get('/:id', questionController.getQuestionById); 
+router.put('/:id', questionController.updateQuestion);  
+router.delete('/:id', questionController.deleteQuestion); 
 
 module.exports = router;

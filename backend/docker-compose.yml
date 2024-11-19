@@ -19,6 +19,13 @@ services:
       context: ./voice-confidence-service  # Path to the voice-confidence-service folder
     ports:
       - "3000:3000"
+    volumes:
+      - ./voice-confidence-service/uploads:/app/uploads  # Mount uploads folder
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:3000"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
 
   # service-2:
   #   build:
