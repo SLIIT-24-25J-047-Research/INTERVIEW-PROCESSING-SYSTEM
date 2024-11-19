@@ -147,9 +147,8 @@ def compare_answers(candidate_answer, actual_answers):
 
     max_similarity = similarities.max()
     is_correct = max_similarity > 0.7  
-    
     return {
-        'similarity_scores': similarities.tolist(),  # Convert numpy array to list
+        'similarity_scores': similarities.tolist(),  
         'is_correct': bool(is_correct)  
     }
 
