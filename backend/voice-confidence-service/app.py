@@ -24,7 +24,6 @@ whisper_model = whisper.load_model("tiny")
 print("Whisper model loaded successfully!")
 print("Model loaded successfully in VS Code!")
 
-
 # BERT model and tokenizer 
 tokenizer = BertTokenizer.from_pretrained('bert-base-uncased')
 bert_model  = BertModel.from_pretrained('bert-base-uncased')
