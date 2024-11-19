@@ -12,8 +12,6 @@ from transformers import BertTokenizer, BertModel
 from difflib import SequenceMatcher
 import torch
 
-
-
 app = Flask(__name__)
 
 # Load the trained model
