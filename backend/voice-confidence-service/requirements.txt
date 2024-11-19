@@ -4,6 +4,6 @@ werkzeug==2.0.3
 transformers
 openai-whisper
 scikit-learn
-
+ffmpeg-python
 
 
