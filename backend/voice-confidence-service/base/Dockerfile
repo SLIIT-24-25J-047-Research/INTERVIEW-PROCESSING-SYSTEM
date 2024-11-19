@@ -10,5 +10,3 @@ RUN pip install --no-cache-dir \
     torch \
     numpy \
     librosa
-
-# Keep the base image lightweight and reusable
