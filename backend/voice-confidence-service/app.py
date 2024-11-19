@@ -130,7 +130,6 @@ def get_embedding(text):
     """
    
     inputs = tokenizer(text, return_tensors="pt", truncation=True, padding=True, max_length=512)
-    # Pass the tokenized input to BERT model
     with torch.no_grad():
         outputs = bert_model (**inputs)
     last_hidden_states = outputs.last_hidden_state  # Get the embeddings from the last hidden layer
