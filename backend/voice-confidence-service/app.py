@@ -141,13 +141,12 @@ def compare_answers(candidate_answer, actual_answers):
     This function compares the candidate's answer with a list of actual answers
     using BERT-based embeddings and cosine similarity.
     """
-   
-    candidate_embedding = get_embedding(candidate_answer)  # Get the embedding for the candidate's answer
-    actual_embeddings = np.array([get_embedding(ans) for ans in actual_answers]) # Get the embeddings for each of the actual answers
-    similarities = cosine_similarity([candidate_embedding], actual_embeddings)   # Compute cosine similarities between the candidate's answer and all possible answers
+    candidate_embedding = get_embedding(candidate_answer)  
+    actual_embeddings = np.array([get_embedding(ans) for ans in actual_answers]) 
+    similarities = cosine_similarity([candidate_embedding], actual_embeddings)   
 
     max_similarity = similarities.max()
-    is_correct = max_similarity > 0.7  # threshold 
+    is_correct = max_similarity > 0.7  
     
     return {
         'similarity_scores': similarities.tolist(),  # Convert numpy array to list
