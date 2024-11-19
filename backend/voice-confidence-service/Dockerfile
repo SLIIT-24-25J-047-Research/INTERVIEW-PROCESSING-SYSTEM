@@ -1,21 +1,26 @@
-# Use an official Python runtime as a base image
-FROM python:3.8-slim
+# prebuilt base image with large dependencies
+FROM python-base:latest
 
-# Set the working directory
+# working directory
 WORKDIR /app
 
-# Copy the requirements file and install dependencies
-COPY requirements.txt .
-RUN pip install -r requirements.txt
+# Install ffmpeg
+RUN apt-get update && apt-get install -y ffmpeg
 
-# Copy the rest of the application code
+
+# Copy only the requirements.txt first to leverage Docker's cache
+COPY requirements.txt .
+
+RUN pip install --no-cache-dir -r requirements.txt
+
+# Copy the rest of the application code (excluding models first to leverage cache)
 COPY . .
 
 # Copy the models directory into the container
 COPY models /app/models
 
-# Expose the port that Flask will run on
+
 EXPOSE 3000
 
-# Command to start Flask server
+
 CMD ["python", "app.py"]
