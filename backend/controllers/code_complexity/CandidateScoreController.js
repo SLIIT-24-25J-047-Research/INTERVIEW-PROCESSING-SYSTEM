@@ -1,4 +1,3 @@
-// controllers/code_complexity/CandidateScoreController.js
 const CandidateScore = require('../../models/code_complexity/CandidateScoreModels');
 
 // Create a new candidate score
