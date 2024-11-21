@@ -16,7 +16,8 @@ app.use('/api/questions', require('./routes/employer/questionRoutes'));
 app.use('/api/skillGroups', require('./routes/employer/skillGroupRoutes')); 
 app.use('/api/audio', require('./routes/audioRoutes'));
 
-
+// code complexity routes
+app.use('/api', require('./routes/code_complexity/SubmissionRoutes'));
 
 
 // voice confidence routes
