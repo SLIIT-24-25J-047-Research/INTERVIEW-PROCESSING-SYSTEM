@@ -19,10 +19,9 @@ app.use('/api/audio', require('./routes/audioRoutes'));
 
 
 
+
 // voice confidence routes
 app.use('/api', require('./routes/voiceConfidenceRoutes'));
-
-
 
 
 // MongoDB Connection
