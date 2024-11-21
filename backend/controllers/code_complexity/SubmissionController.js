@@ -1,10 +1,8 @@
-// Description: Handles all the business logic of code complexity submission module.
 const SubmissionModels = require('../../models/code_complexity/SubmissionModels');  // Import SubmissionModels correctly
 const Question = require('../../models/employer/Question');
 const User = require('../../models/User');
 const axios = require('axios');
 const path = require('path');
-
 
 
 // Create a new submission
