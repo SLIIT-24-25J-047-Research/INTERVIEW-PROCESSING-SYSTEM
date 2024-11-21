@@ -83,8 +83,13 @@ const handleNextQuestion = async () => {
                     'Content-Type': 'multipart/form-data',
                 },
             });
+            const response2 = await axios.post('http://localhost:5000/api/audio/audio', formData, {
+                headers: {
+                    'Content-Type': 'multipart/form-data',
+                },
+            });
 
-            if (response.status !== 200) {
+            if ( response.status ! == 200 || response2.status !== 200) {
                 throw new Error('Failed to send audio');
             }
         } catch (error) {
