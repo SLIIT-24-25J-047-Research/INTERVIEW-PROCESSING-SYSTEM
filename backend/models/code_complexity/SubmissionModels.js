@@ -1,6 +1,4 @@
 const mongoose = require('mongoose');
-
-// Define the schema using mongoose.Schema
 const submissionSchema = new mongoose.Schema({
   userId: {  
     type: mongoose.Schema.Types.ObjectId, 
@@ -14,7 +12,7 @@ const submissionSchema = new mongoose.Schema({
     required: true
   },
 
-  
+
   code: {
     type: String,
     required: true
