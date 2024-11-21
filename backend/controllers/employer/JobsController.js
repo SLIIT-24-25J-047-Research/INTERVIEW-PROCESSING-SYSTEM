@@ -25,6 +25,7 @@ const getAllJobs = async (req, res) => {
   }
 };
 
+
 // Get a job by MongoDB ObjectId
 const getJobById = async (req, res) => {
   try {
