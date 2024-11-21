@@ -4,9 +4,9 @@ const CandidateScoreController = require('../../controllers/code_complexity/Cand
 
 // CRUD endpoints
 router.post('/', CandidateScoreController.createCandidateScore);
-router.get('/:id', CandidateScoreController.getCandidateScore);
-router.put('/:id', CandidateScoreController.updateCandidateScore);
-router.delete('/:id', CandidateScoreController.deleteCandidateScore);
+router.get('/', CandidateScoreController.getCandidateScore);
+router.put('/', CandidateScoreController.updateCandidateScore);
+router.delete('/', CandidateScoreController.deleteCandidateScore);
 
 // List and sort candidate scores
 router.get('/', CandidateScoreController.listCandidateScores);
