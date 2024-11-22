@@ -3,7 +3,7 @@ import { Routes, Route, Navigate } from 'react-router-dom';
 import Login from './components/Login';
 import Register from './components/Register';
 import InterviewerHome from './pages/Interviewer/InterviewerHome';
-import CandidateHome from './pages/Candidate/CandidateHome';
+import CandidateDashboard from './pages/Candidate/CandidateDashboard';
 import PrivateRoute from './components/PrivateRoute';
 import Home from './pages/Home';
 import Profile from './pages/Interviewer/Profile';
@@ -11,6 +11,7 @@ import Interviews from './pages/Interviewer/Interviews';
 import Assignments from './pages/Candidate/Assignments';
 import CandidateProfile from './pages/Candidate/CandidateProfile';
 import Settings from './pages/Candidate/Settings';
+import CandidateHome from './pages/Candidate/CandidateHome';
 
 const App: React.FC = () => {
 
@@ -63,7 +64,7 @@ const App: React.FC = () => {
         path="/dashboard"
         element={
           <PrivateRoute allowedRoles={['candidate']}>
-            <CandidateHome />
+            <CandidateDashboard />
           </PrivateRoute>
         }
       />
