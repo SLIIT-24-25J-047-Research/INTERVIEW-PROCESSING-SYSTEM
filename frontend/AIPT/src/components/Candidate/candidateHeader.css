@@ -57,7 +57,6 @@
     background-color: #f4f4f4;
 }
 
-/* Profile icon styles */
 .profile-icon-container svg {
     color: white; /* Matches the header text color */
     cursor: pointer;
