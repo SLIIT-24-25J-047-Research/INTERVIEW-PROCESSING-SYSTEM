@@ -6,7 +6,7 @@
 }
 
 body {
-    font-family: 'Arial', sans-serif;
+    font-family: 'Arial', sans-serif, 'Poppins';
     background-color: #f0f4f8;
     color: #333;
     width: 100%;
@@ -18,87 +18,95 @@ body {
     flex-direction: column;
     justify-content: center;
     align-items: center;
-    width: 100%; /* Ensure it takes full width */
-    min-height: 100vh; /* Full height of the viewport */
+    width: 100%;
+    /* Ensure it takes full width */
+    min-height: 100vh;
+    /* Full height of the viewport */
     font-family: Arial, sans-serif;
     background-color: #f0f4f8;
+    position: relative;
+    min-height: 100vh;
 }
+
 
 /* Job Section */
 .job-section {
-    width: 100%; /* Ensure it takes full width */
-    max-width: 1200px; /* Max width of content */
     margin-top: 40px;
-    text-align: center;
+    padding-bottom: 40px;
+    width: 80%;
 }
 
-h2 {
+.job-section h2 {
     font-size: 2rem;
-    font-weight: 600;
-    color: #2e3a59;
-    margin-bottom: 30px;
+    text-align: center;
+    margin-bottom: 20px;
 }
 
-/* Job Post Card Styles */
 .job-list {
-    display: flex;
-    flex-direction: column;
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(250px, 2fr)); /* 3 or 4 columns */
     gap: 20px;
-    width: 100%; /* Ensure job posts take full width */
+    margin: 0 auto;
+    padding: 0 10px;
 }
 
-.job-item {
+.job-card {
     background-color: #ffffff;
-    padding: 20px;
+    border: 1px solid #ddd;
     border-radius: 8px;
-    box-shadow: 0px 4px 20px rgba(0, 0, 0, 0.1);
-    transition: all 0.3s ease;
-    transform: scale(1);
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+    padding: 20px;
+    transition: transform 0.3s, box-shadow 0.3s;
 }
 
-.job-item:hover {
-    transform: scale(1.05);
-    box-shadow: 0px 10px 30px rgba(0, 0, 0, 0.1);
+.job-card:hover {
+    transform: translateY(-5px);
+    box-shadow: 0 6px 12px rgba(0, 0, 0, 0.2);
 }
 
-.job-item h3 {
-    font-size: 1.6rem;
-    font-weight: 600;
-    color: #3b4c6b;
+.job-title {
+    font-size: 1.5rem;
+    color: #32007d;
+    margin-bottom: 10px;
 }
 
-.job-item p {
-    font-size: 1.1rem;
-    color: #727d92;
-    margin-top: 10px;
+.job-description {
+    font-size: 1rem;
+    color: #333;
+    margin-bottom: 20px;
 }
 
 .apply-button {
-    margin-top: 20px;
-    padding: 12px 24px;
-    font-size: 1.1rem;
+    background-color: #32007d;
     color: white;
-    background-color: #4e8e8e;
     border: none;
+    padding: 10px 20px;
     border-radius: 5px;
     cursor: pointer;
-    transition: background-color 0.3s ease;
+    transition: background-color 0.3s;
 }
 
 .apply-button:hover {
-    background-color: #407b7b;
+    background-color: #5c1a8e;
 }
 
 /* Header Section Styles */
-header {
+.header {
+    position: absolute;
+    top: 0;
+    left: 0;
     width: 100%;
+    padding: 20px;
     background-color: #3e72a6;
     color: white;
-    padding: 30px;
-    text-align: center;
-    border-radius: 8px;
-    margin-bottom: 40px;
-}
+     /* Initially hide the header */
+    z-index: 2; /* Ensures it's above the banner */
+    transition: opacity 0.3s ease;
+  }
+
+  .header-banner:hover .header {
+    display: block; /* Show the header on hover */
+  }
 
 header h1 {
     font-size: 2.5rem;
@@ -111,51 +119,99 @@ header p {
 }
 
 /* Header Banner Section */
+
 .header-banner {
-    display: flex; /* Use flexbox */
-    justify-content: space-between;
+    position: relative;
+    display: flex;
+    justify-content: center;
     align-items: center;
-    width: 100%; /* Ensure it takes full width */
-    height: 30vw;
-    background-color: #f4fdfd; /* Light background */
-    padding: 40px 20px;
-    border-radius: 10px;
+    width: 100%;
+    height: 70vh;
+    /* Set your desired height */
+    background-image: url('../../images/BG.jpg');
+    /* Set your background image here */
+    background-size: cover;
+    background-position: center;
+
+
     margin-bottom: 40px;
+    color: white;
+    /* Ensure text is white on dark background */
+    text-align: center;
+    /* Center the text */
 }
+
+.header-banner::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background-color: rgba(0, 0, 0, 0.5);
+    /* Dark semi-transparent overlay */
+    border-radius: 10px;
+    z-index: 0;
+    /* Ensure the overlay stays behind the text */
+}
+
 
 .banner-text {
     flex: 1;
     max-width: 60%;
-padding-left: 90px;
+    padding-left: 90px;
+    z-index: 1;
 }
 
 .banner-text h1 {
-    font-size: 36px;
+    font-size: 50px;
     font-weight: bold;
     margin-bottom: 15px;
-    color: #333;
+    color: white;
+    font-family: 'Poppins', sans-serif;
+    /* White text */
 }
 
 .banner-text p {
     font-size: 18px;
-    color: #666;
+    color: white;
+    /* White text */
     margin-bottom: 10px;
+    font-weight: lighter
 }
 
-.banner-text h2 {
-    font-size: 22px;
-    font-weight: 500;
-    color: #2d9cdb;
+/* Filter Section */
+.filter-section {
+    margin-top: 30px;
+    text-align: center;
 }
 
-.banner-image {
-    flex: 1;
-    max-width: 35%;
+.filter-section h2 {
+    font-size: 1.8rem;
+    margin-bottom: 20px;
 }
 
-.banner-image img {
-    width: 200%;
-    max-width: 400px;
-    height: auto;
-    border-radius: 10px;
+.filter-options {
+    display: flex;
+    justify-content: center;
+    gap: 15px;
 }
+
+.filter-options button {
+    padding: 10px 20px;
+    background-color: #32007d;
+    color: white;
+    border: none;
+    border-radius: 5px;
+    cursor: pointer;
+    transition: background-color 0.3s;
+}
+
+.filter-options button:hover {
+    background-color: #5c1a8e;
+}
+
+.filter-options button.active {
+    background-color: #5c1a8e;
+}
+
