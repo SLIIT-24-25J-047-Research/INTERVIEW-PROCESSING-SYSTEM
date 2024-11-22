@@ -31,7 +31,6 @@
     position: relative; /* Positions the dropdown relative to the icon */
 }
 
-/* Dropdown menu styles */
 .dropdown-menu {
     position: absolute;
     top: 40px; /* Adjust based on the icon size */
@@ -45,7 +44,6 @@
     min-width: 150px; /* Minimum width for consistent size */
 }
 
-/* Dropdown menu item styles */
 .dropdown-item {
     padding: 10px 15px;
     color: #333;
