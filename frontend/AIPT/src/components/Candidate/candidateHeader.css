@@ -33,7 +33,7 @@
 
 .dropdown-menu {
     position: absolute;
-    top: 40px; /* Adjust based on the icon size */
+    top: 40px; 
     right: 0;
     background-color: white;
     border: 1px solid #ddd;
