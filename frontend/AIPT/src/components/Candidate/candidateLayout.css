@@ -1,68 +1,14 @@
-.sidebar {
-  width: 240px;
-  height: 100vh;
-  background-color: #e0f2ff;
-  padding-top: 20px;
-  box-shadow: 2px 0 5px rgba(0, 0, 0, 0.1);
-  position: fixed;
-  left: 0;
-  top: 0;
-  overflow-y: auto;
-  transition: width 0.3s ease;
+.dashboard-layout {
+  display:flex; /* Arrange sidebar and main content in a row */
+  height: 100vh; /* Full viewport height */
+  overflow: hidden; /* Prevent unintended overflow of the layout */
 }
 
-.sidebar.collapsed {
-  width: 80px; /* Collapsed width to show icons only */
+.content {
+  flex-grow: 1; /* Take up all remaining vertical space */
+  overflow-y: auto; /* Enable vertical scrolling for content */
+  overflow-x: auto; /* Enable horizontal scrolling for wide content */
+  padding: 20px;
+  background-color: #f9f9f9; /* Optional background color for contrast */
 }
 
-/* .hamburger-icon {
-  font-size: 1.5em;
-  color: #32007d;
-  cursor: pointer;
-  display: flex;
-  align-items: center;
-  margin-bottom: 20px;
-  margin-left: 10px;
-  margin-top: 80px;
-} */
-
-.menu-list {
-  list-style: none;
-  padding: 0;
-  margin: 99px 0 0 0; 
-  display: flex;
-  flex-direction: column;
-  gap: 15px;
-}
-
-.menu-item {
-  display: flex;
-  align-items: center;
-  padding: 10px;
-  transition: background-color 0.3s;
-  cursor: pointer;
-  border-radius: 4px;
-}
-
-.menu-item:hover {
-  background-color: #cce7ff;
-}
-
-.menu-icon {
-  font-size: 1.5em;
-  color: #32007d;
-  margin-right: 10px;
-}
-
-.sidebar.collapsed .menu-item {
-  justify-content: center;
-  padding: 10px;
-}
-
-.sidebar.collapsed .menu-icon {
-  margin-right: 0;
-}
-
-.sidebar.collapsed .menu-item a {
-  display: none;
-}
