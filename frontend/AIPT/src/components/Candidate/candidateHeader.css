@@ -1,22 +1,67 @@
-/* src/styles/candidateHeader.css */
+
 .header {
     display: flex;
     justify-content: space-between;
     align-items: center;
-    padding: 20px; 
-    background-color: #32007d; 
-    color: white; 
-    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1); 
-    position: sticky; 
-    top: 0; 
+    padding: 20px;
+    background-color: #32007d;
+    color: white;
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+    position: sticky;
+    top: 0;
+    z-index: 1000;
     width: 100%; 
-    z-index: 1000; 
+    box-sizing: border-box; 
 }
+
 .header-title h1 {
     margin: 0;
-    font-size: 24px; 
-    font-family: 'Arial', sans-serif; 
+    font-size: 18px;
+    font-family: 'Arial', sans-serif;
 }
+
+.header-buttons {
+    display: flex;
+    align-items: center;
+    position: relative; 
+}
+
+.profile-icon-container {
+    cursor: pointer;
+    position: relative; 
+}
+
+.dropdown-menu {
+    position: absolute;
+    top: 40px; 
+    right: 0;
+    background-color: white;
+    border: 1px solid #ddd;
+    box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+    border-radius: 8px;
+    overflow: hidden;
+    z-index: 1010; 
+    min-width: 150px; 
+}
+
+.dropdown-item {
+    padding: 10px 15px;
+    color: #333;
+    text-decoration: none;
+    font-size: 14px;
+    display: block;
+    transition: background-color 0.3s ease;
+}
+
+.dropdown-item:hover {
+    background-color: #f4f4f4;
+}
+
+.profile-icon-container svg {
+    color: white; 
+    cursor: pointer;
+}
+
 
 .logout-btn {
     padding: 8px 12px;
@@ -27,8 +72,6 @@
     font-size: 0.9rem;
     cursor: pointer;
     transition: background-color 0.3s ease;
-    align-self: flex-start; /* Aligns the button to the start */
-    margin-top: auto; /* Pushes button to the bottom of sidebar */
 }
 
 .logout-btn:hover {
