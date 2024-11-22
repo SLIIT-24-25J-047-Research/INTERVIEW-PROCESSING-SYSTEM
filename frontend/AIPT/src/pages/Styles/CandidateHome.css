@@ -1,77 +1,79 @@
-/* assignments.css */
-
 /* Global Reset */
 * {
     margin: 0;
     padding: 0;
     box-sizing: border-box;
-  }
-  
-  body {
+}
+
+body {
     font-family: 'Arial', sans-serif;
     background-color: #f0f4f8;
     color: #333;
-  }
-  
-  /* Assignments Page Styles */
-  .landing-page {
+    width: 100%;
+}
+
+/* Landing Page Styles */
+.landing-page {
     display: flex;
     flex-direction: column;
-    justify-content: flex-start;
+    justify-content: center;
     align-items: center;
-    width: 100%;
-    min-height: 100vh;
-
+    width: 100%; /* Ensure it takes full width */
+    min-height: 100vh; /* Full height of the viewport */
+    font-family: Arial, sans-serif;
     background-color: #f0f4f8;
-  }
-  .job-section {
-    width: 100%;
-    max-width: 900px;
+}
+
+/* Job Section */
+.job-section {
+    width: 100%; /* Ensure it takes full width */
+    max-width: 1200px; /* Max width of content */
     margin-top: 40px;
     text-align: center;
-  }
-  
-  h2 {
+}
+
+h2 {
     font-size: 2rem;
     font-weight: 600;
     color: #2e3a59;
     margin-bottom: 30px;
-  }
-  
-  /* Job Post Card Styles */
-  .job-list {
+}
+
+/* Job Post Card Styles */
+.job-list {
     display: flex;
     flex-direction: column;
     gap: 20px;
-  }
-  
-  .job-item {
+    width: 100%; /* Ensure job posts take full width */
+}
+
+.job-item {
     background-color: #ffffff;
     padding: 20px;
     border-radius: 8px;
     box-shadow: 0px 4px 20px rgba(0, 0, 0, 0.1);
     transition: all 0.3s ease;
     transform: scale(1);
-  }
-  
-  .job-item:hover {
+}
+
+.job-item:hover {
     transform: scale(1.05);
     box-shadow: 0px 10px 30px rgba(0, 0, 0, 0.1);
-  }
-  
-  .job-item h3 {
+}
+
+.job-item h3 {
     font-size: 1.6rem;
     font-weight: 600;
     color: #3b4c6b;
-  }
-  
-  .job-item p {
+}
+
+.job-item p {
     font-size: 1.1rem;
     color: #727d92;
     margin-top: 10px;
-  }
-  
-  .apply-button {
+}
+
+.apply-button {
     margin-top: 20px;
     padding: 12px 24px;
     font-size: 1.1rem;
@@ -81,14 +83,14 @@
     border-radius: 5px;
     cursor: pointer;
     transition: background-color 0.3s ease;
-  }
-  
-  .apply-button:hover {
+}
+
+.apply-button:hover {
     background-color: #407b7b;
-  }
-  
-  /* Header Section Styles */
-  header {
+}
+
+/* Header Section Styles */
+header {
     width: 100%;
     background-color: #3e72a6;
     color: white;
@@ -96,15 +98,64 @@
     text-align: center;
     border-radius: 8px;
     margin-bottom: 40px;
-  }
-  
-  header h1 {
+}
+
+header h1 {
     font-size: 2.5rem;
     margin-bottom: 10px;
-  }
-  
-  header p {
+}
+
+header p {
     font-size: 1.2rem;
     margin-bottom: 20px;
-  }
-  
+}
+
+/* Header Banner Section */
+.header-banner {
+    display: flex; /* Use flexbox */
+    justify-content: space-between;
+    align-items: center;
+    width: 100%; /* Ensure it takes full width */
+    height: 30vw;
+    background-color: #f4fdfd; /* Light background */
+    padding: 40px 20px;
+    border-radius: 10px;
+    margin-bottom: 40px;
+}
+
+.banner-text {
+    flex: 1;
+    max-width: 60%;
+padding-left: 90px;
+}
+
+.banner-text h1 {
+    font-size: 36px;
+    font-weight: bold;
+    margin-bottom: 15px;
+    color: #333;
+}
+
+.banner-text p {
+    font-size: 18px;
+    color: #666;
+    margin-bottom: 10px;
+}
+
+.banner-text h2 {
+    font-size: 22px;
+    font-weight: 500;
+    color: #2d9cdb;
+}
+
+.banner-image {
+    flex: 1;
+    max-width: 35%;
+}
+
+.banner-image img {
+    width: 200%;
+    max-width: 400px;
+    height: auto;
+    border-radius: 10px;
+}
