@@ -1,4 +1,4 @@
-/* Header container */
+
 .header {
     display: flex;
     justify-content: space-between;
@@ -10,8 +10,8 @@
     position: sticky;
     top: 0;
     z-index: 1000;
-    width: 100%; /* Ensures it spans the full width of its container */
-    box-sizing: border-box; /* Includes padding in width calculation */
+    width: 100%; 
+    box-sizing: border-box; 
 }
 
 .header-title h1 {
@@ -23,7 +23,7 @@
 .header-buttons {
     display: flex;
     align-items: center;
-    position: relative; /* Required for dropdown positioning */
+    position: relative; 
 }
 
 .profile-icon-container {
