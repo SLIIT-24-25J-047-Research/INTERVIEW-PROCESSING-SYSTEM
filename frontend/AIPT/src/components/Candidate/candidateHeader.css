@@ -14,7 +14,6 @@
     box-sizing: border-box; /* Includes padding in width calculation */
 }
 
-/* Header title styles */
 .header-title h1 {
     margin: 0;
     font-size: 24px;
