@@ -1,22 +1,72 @@
-/* src/styles/candidateHeader.css */
+/* Header container */
 .header {
     display: flex;
     justify-content: space-between;
     align-items: center;
-    padding: 20px; 
-    background-color: #32007d; 
-    color: white; 
-    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1); 
-    position: sticky; 
-    top: 0; 
-    width: 100%; 
-    z-index: 1000; 
+    padding: 20px;
+    background-color: #32007d;
+    color: white;
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+    position: sticky;
+    top: 0;
+    z-index: 1000;
+    width: 100%; /* Ensures it spans the full width of its container */
+    box-sizing: border-box; /* Includes padding in width calculation */
 }
+
+/* Header title styles */
 .header-title h1 {
     margin: 0;
-    font-size: 24px; 
-    font-family: 'Arial', sans-serif; 
+    font-size: 24px;
+    font-family: 'Arial', sans-serif;
 }
+
+/* Profile icon container */
+.header-buttons {
+    display: flex;
+    align-items: center;
+    position: relative; /* Required for dropdown positioning */
+}
+
+.profile-icon-container {
+    cursor: pointer;
+    position: relative; /* Positions the dropdown relative to the icon */
+}
+
+/* Dropdown menu styles */
+.dropdown-menu {
+    position: absolute;
+    top: 40px; /* Adjust based on the icon size */
+    right: 0;
+    background-color: white;
+    border: 1px solid #ddd;
+    box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+    border-radius: 8px;
+    overflow: hidden;
+    z-index: 1010; /* Ensure it appears above other elements */
+    min-width: 150px; /* Minimum width for consistent size */
+}
+
+/* Dropdown menu item styles */
+.dropdown-item {
+    padding: 10px 15px;
+    color: #333;
+    text-decoration: none;
+    font-size: 14px;
+    display: block;
+    transition: background-color 0.3s ease;
+}
+
+.dropdown-item:hover {
+    background-color: #f4f4f4;
+}
+
+/* Profile icon styles */
+.profile-icon-container svg {
+    color: white; /* Matches the header text color */
+    cursor: pointer;
+}
+
 
 .logout-btn {
     padding: 8px 12px;
@@ -27,8 +77,6 @@
     font-size: 0.9rem;
     cursor: pointer;
     transition: background-color 0.3s ease;
-    align-self: flex-start; /* Aligns the button to the start */
-    margin-top: auto; /* Pushes button to the bottom of sidebar */
 }
 
 .logout-btn:hover {
