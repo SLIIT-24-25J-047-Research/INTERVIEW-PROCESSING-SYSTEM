@@ -58,6 +58,17 @@ const App: React.FC = () => {
           </PrivateRoute>
         }
       />
+
+      <Route
+        path="/dashboard"
+        element={
+          <PrivateRoute allowedRoles={['candidate']}>
+            <CandidateHome />
+          </PrivateRoute>
+        }
+      />
+
+
       <Route
         path="/assignments"
         element={
@@ -87,7 +98,7 @@ const App: React.FC = () => {
         path="/settings"
         element={
           <PrivateRoute allowedRoles={['candidate']}>
-           <Settings />
+            <Settings />
           </PrivateRoute>
         }
       />
