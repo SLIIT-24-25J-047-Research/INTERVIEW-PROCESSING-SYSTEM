@@ -28,7 +28,7 @@
 
 .profile-icon-container {
     cursor: pointer;
-    position: relative; /* Positions the dropdown relative to the icon */
+    position: relative; 
 }
 
 .dropdown-menu {
