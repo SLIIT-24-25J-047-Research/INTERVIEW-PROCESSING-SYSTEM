@@ -1,14 +1,14 @@
 .dashboard-layout {
-  display:flex; /* Arrange sidebar and main content in a row */
-  height: 100vh; /* Full viewport height */
-  overflow: hidden; /* Prevent unintended overflow of the layout */
+  display:flex; 
+  height: 100vh;
+  overflow: hidden; 
 }
 
 .content {
-  flex-grow: 1; /* Take up all remaining vertical space */
-  overflow-y: auto; /* Enable vertical scrolling for content */
-  overflow-x: auto; /* Enable horizontal scrolling for wide content */
+  flex-grow: 1; 
+  overflow-y: auto;
+  overflow-x: auto; 
   padding: 20px;
-  background-color: #f9f9f9; /* Optional background color for contrast */
+  background-color: #f9f9f9; 
 }
 
