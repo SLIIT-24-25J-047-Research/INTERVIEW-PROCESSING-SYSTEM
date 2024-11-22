@@ -58,7 +58,7 @@
 }
 
 .profile-icon-container svg {
-    color: white; /* Matches the header text color */
+    color: white; 
     cursor: pointer;
 }
 
