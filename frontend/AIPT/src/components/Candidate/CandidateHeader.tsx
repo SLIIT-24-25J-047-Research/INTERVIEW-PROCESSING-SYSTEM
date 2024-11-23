@@ -20,29 +20,28 @@ const CandidateHeader: React.FC<HeaderProps> = ({ title }) => {
     setIsDropdownOpen(!isDropdownOpen);
   };
 
+  const isCandidatePage = location.pathname === '/candidate-home'; // Check if we're on candidate-home page
+
   return (
-    <div className="header">
+    <div className={`header ${isCandidatePage ? 'header-hover' : ''}`}>
       <div className="header-title">
-       
         {location.pathname !== '/candidate-home' && (
           <Link to="/candidate-home" className="logo-container">
             <img src="/path-to-your-logo.png" alt="Logo" className="logo" />
           </Link>
         )}
 
-      
         {location.pathname === '/candidate-home' && (
           <Link to="/candidate-home" className="logo-container">
             <img src="/path-to-your-candidate-home-logo.png" alt="Home Logo" className="home-logo" />
           </Link>
         )}
-        
-        <h1>{title}</h1>
 
+        <h1>{title}</h1>
       </div>
       <div className="header-buttons">
         <div className="profile-icon-container">
-          <FaUserCircle size={30} onClick={toggleDropdown} />  {/* Profile icon */}
+          <FaUserCircle size={30} onClick={toggleDropdown} /> {/* Profile icon */}
           {isDropdownOpen && (
             <div className="dropdown-menu">
               <Link to="/dashboard" className="dropdown-item">Dashboard</Link>
