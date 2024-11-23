@@ -6,60 +6,30 @@
     justify-content: space-between;
     align-items: center;
     padding: 20px;
-    background-color: #32007d;
-    /* Default background color */
-    color: white;
-    /* Default text color */
+    background-color: #32007d; /* Default background color */
+    color: white; /* Default text color */
     box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
     position: fixed;
     top: 0;
     z-index: 1000;
     width: 100%;
     box-sizing: border-box;
-    opacity: 1;
-    /* Always visible on other pages */
-    transition: opacity 0.3s ease;
-    /* Smooth transition for opacity */
-    transition: background-color 0.3s ease, box-shadow 0.3s ease;
-    /* Smooth transition for BG and shadow */
+    transition: background-color 0.3s ease, box-shadow 0.3s ease; /* Smooth transitions */
     left: 0;
 }
 
-/* Specific to candidate-home page */
-.header-hover {
-    opacity: 0;
-    /* Initially hidden on candidate-home */
-    background-color: transparent;
-    /* Remove background color on candidate-home */
+/* Transparent header for candidate-home page */
+.transparent-header {
+    background-color: transparent !important;
     color: white;
-    /* Make text color white for visibility */
     box-shadow: none;
-    /* Remove shadow for transparency */
 }
 
-/* When hovering on candidate-home */
-.header-hover:hover {
-    opacity: 1;
-    /* Visible only on hover for candidate-home */
-    background-color: transparent;
-    /* Keep background transparent */
-}
-
-/* Adjust header title text color */
-.header-hover h1 {
+/* Adjust header title text color for transparent header */
+.transparent-header h1 {
     color: white;
-    /* Make the header title text white on candidate-home */
 }
 
-.header-title h1 {
-    margin: 0;
-    font-size: 18px;
-    font-family: 'Arial', sans-serif;
-    color: white;
-    /* Ensure the title text color is white by default */
-}
-
-/* Dropdown and profile icon styles */
 .header-buttons {
     display: flex;
     align-items: center;
@@ -125,7 +95,7 @@
     left: 0;
     width: 100%;
     z-index: 9999;
-    background-color: #32007d;
+    background-color: transparent;
     box-shadow: 0 2px 4px rgba(0, 0, 0, 0.2);
     opacity: 1;
 }
