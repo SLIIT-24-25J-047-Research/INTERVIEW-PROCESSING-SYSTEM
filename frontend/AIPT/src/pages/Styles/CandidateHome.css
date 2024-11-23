@@ -1,9 +1,4 @@
 /* Global Reset */
-* {
-    margin: 0;
-    padding: 0;
-    box-sizing: border-box;
-}
 
 body {
     font-family: 'Arial', sans-serif, 'Poppins';
@@ -19,9 +14,7 @@ body {
     justify-content: center;
     align-items: center;
     width: 100%;
-    /* Ensure it takes full width */
     min-height: 100vh;
-    /* Full height of the viewport */
     font-family: Arial, sans-serif;
     background-color: #f0f4f8;
     position: relative;
