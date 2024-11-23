@@ -23,7 +23,7 @@ const CandidateHeader: React.FC<HeaderProps> = ({ title }) => {
   const isCandidatePage = location.pathname === '/candidate-home'; // Check if we're on candidate-home page
 
   return (
-    <div className={`header ${isCandidatePage ? 'header-hover' : ''}`}>
+    <div className={`header ${isCandidatePage ? 'transparent-header' : ''}`}>
       <div className="header-title">
         {location.pathname !== '/candidate-home' && (
           <Link to="/candidate-home" className="logo-container">
