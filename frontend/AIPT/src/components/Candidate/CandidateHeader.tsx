@@ -1,3 +1,4 @@
+
 import React, { useEffect, useState } from 'react';
 import './candidateHeader.css';
 import { Link, useLocation } from 'react-router-dom';
@@ -14,6 +15,7 @@ function logout() {
 
 const CandidateHeader: React.FC<HeaderProps> = ({ title }) => {
   const [isDropdownOpen, setIsDropdownOpen] = useState(false);
+
   const [isScrolled, setIsScrolled] = useState(false);
 
   const location = useLocation();
@@ -42,6 +44,7 @@ const CandidateHeader: React.FC<HeaderProps> = ({ title }) => {
   console.log("Is scrolled?", isScrolled);
 
   return (
+    
     <div
       className={`header ${isCandidatePage ? (isScrolled ? 'header-scrolled' : 'transparent-header') : ''}`}
     >
