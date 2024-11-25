@@ -1,5 +1,8 @@
 import React from 'react';
-import { Mail, Phone, MapPin, Facebook, Twitter, Instagram, ArrowUpCircle } from 'lucide-react';
+
+import { AiFillInstagram,AiOutlineWhatsApp,AiFillFacebook ,AiOutlineMail, AiOutlinePhone } from "react-icons/ai";
+import { BsArrowUpCircleFill } from "react-icons/bs";
+import { BiSolidMap } from "react-icons/bi";
 import './footer.css';
 
 const Footer = () => {
@@ -61,15 +64,15 @@ const Footer = () => {
               <h4 className="text-lg font-semibold mb-4">Contact Us</h4>
               <div className="space-y-4">
                 <div className="flex items-center gap-3 text-gray-400">
-                  <Mail size={18} />
+                  <AiOutlineMail size={18} />
                   <span>info@AIPT.com</span>
                 </div>
                 <div className="flex items-center gap-3 text-gray-400">
-                  <Phone size={18} />
+                  <AiOutlinePhone size={18} />
                   <span>+94 (76) 123-4567</span>
                 </div>
                 <div className="flex items-center gap-3 text-gray-400">
-                  <MapPin size={18} />
+                  <BiSolidMap size={18} />
                   <span>123 Malabe, Malabe<br />Sri Lanaka, SL 10001</span>
                 </div>
               </div>
@@ -81,25 +84,25 @@ const Footer = () => {
         <div className="mt-12 pt-8 border-t border-gray-700">
           <div className="flex flex-col md:flex-row justify-between items-center gap-6">
             <div className="flex gap-6">
-              {[Facebook, Twitter, Instagram].map((Icon, index) => (
+              {[AiFillFacebook , AiOutlineWhatsApp, AiFillInstagram].map((Icon, index) => (
                 <a
                   key={index}
                   href="#"
-                  className="text-gray-400 hover:text-white transition duration-300"
+                  className="SocialIcon hover:text-white transition duration-300"
                 >
                   <Icon size={24} />
                 </a>
               ))}
             </div>
             <div className="text-gray-400 text-sm">
-              © {new Date().getFullYear()} CompanyName. All rights reserved.
+              © {new Date().getFullYear()} AIPT. All rights reserved.
             </div>
             <button
               onClick={scrollToTop}
-              className="text-gray-400 hover:text-white transition duration-300"
+              className="topBtn hover:text-white transition duration-300"
               aria-label="Scroll to top"
             >
-              <ArrowUpCircle size={24} />
+              <BsArrowUpCircleFill size={24} />
             </button>
           </div>
         </div>
