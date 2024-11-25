@@ -1,31 +1,34 @@
-/* candidateHeader.css */
 
-/* Default header style */
 .header {
     display: flex;
     justify-content: space-between;
     align-items: center;
     padding: 20px;
-    background-color: #32007d; /* Default background color */
-    color: white; /* Default text color */
+    background-color: #32007d; 
+    color: white; 
     box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
     position: fixed;
     top: 0;
     z-index: 1000;
     width: 100%;
     box-sizing: border-box;
-    transition: background-color 0.3s ease, box-shadow 0.3s ease; /* Smooth transitions */
+    transition: background-color 0.3s ease, box-shadow 0.3s ease; 
     left: 0;
 }
 
-/* Transparent header for candidate-home page */
+
 .transparent-header {
     background-color: transparent !important;
     color: white;
     box-shadow: none;
 }
 
-/* Adjust header title text color for transparent header */
+.header-scrolled {
+    background-color: #d3d3d3; 
+    transition: background-color 0.3s ease;
+  }
+
+
 .transparent-header h1 {
     color: white;
 }
