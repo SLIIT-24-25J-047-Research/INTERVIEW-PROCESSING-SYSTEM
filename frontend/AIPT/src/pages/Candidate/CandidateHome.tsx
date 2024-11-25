@@ -1,5 +1,4 @@
 import React, { useState } from 'react';
-import React, { useState } from 'react';
 import '../Styles/CandidateHome.css';
 import Header from '../../components/Candidate/CandidateHeader';
 import { Search, Calendar, ArrowUpDown, Filter } from 'lucide-react';
@@ -154,8 +153,8 @@ const CandidateHome: React.FC = () => {
                                                 {new Date(job.date).toLocaleDateString()}
                                             </div>
                                             <div>
-                                                <button className="bg-gray-200 hover:bg-gray-300 mr-2">Save</button>
-                                                <button className="bg-blue-500 text-white hover:bg-blue-600">Apply Now</button>
+                                                <Button className="bg-gray-200 hover:bg-gray-300 mr-2">Save</Button>
+                                                <Button className="bg-blue-500 text-white hover:bg-blue-600">Apply Now</Button>
                                             </div>
                                         </div>
                                     </div>
