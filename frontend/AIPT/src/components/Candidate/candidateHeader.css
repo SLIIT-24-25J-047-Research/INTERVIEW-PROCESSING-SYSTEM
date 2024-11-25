@@ -1,6 +1,4 @@
-/* candidateHeader.css */
 
-/* Default header style */
 .header {
     display: flex;
     justify-content: space-between;
@@ -88,7 +86,6 @@
     transform: scale(1.05);
 }
 
-/* Sticky header when scrolled */
 .sticky-header {
     position: fixed;
     top: 0;
