@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useEffect, useState } from 'react';
 import './candidateHeader.css';
 import { Link, useLocation } from 'react-router-dom';
 import { FaUserCircle } from 'react-icons/fa';
@@ -14,16 +14,41 @@ function logout() {
 
 const CandidateHeader: React.FC<HeaderProps> = ({ title }) => {
   const [isDropdownOpen, setIsDropdownOpen] = useState(false);
+  const [isScrolled, setIsScrolled] = useState(false);
+
   const location = useLocation();
 
   const toggleDropdown = () => {
     setIsDropdownOpen(!isDropdownOpen);
   };
 
-  const isCandidatePage = location.pathname === '/candidate-home'; // Check if we're on candidate-home page
+  // Handle scroll event
+  const handleScroll = () => {
+    if (location.pathname === '/candidate-home' && window.scrollY > 50) {
+      setIsScrolled(true);
+    } else {
+      setIsScrolled(false);
+    }
+  };
+
+  useEffect(() => {
+    window.addEventListener('scroll', handleScroll);
+    return () => {
+      window.removeEventListener('scroll', handleScroll);
+    };
+  }, [location.pathname]); 
+
+  const isCandidatePage = location.pathname === '/candidate-home';
+  console.log("Is scrolled?", isScrolled);
 
   return (
+<<<<<<< Updated upstream
     <div className={`header ${isCandidatePage ? 'transparent-header' : ''}`}>
+=======
+    <div
+      className={`header ${isCandidatePage ? (isScrolled ? 'header-scrolled' : 'transparent-header') : ''}`}
+    >
+>>>>>>> Stashed changes
       <div className="header-title">
         {location.pathname !== '/candidate-home' && (
           <Link to="/candidate-home" className="logo-container">
