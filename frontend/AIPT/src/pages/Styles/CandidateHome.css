@@ -23,6 +23,17 @@ body {
 
 
 /* Job Section */
+
+.left-side {
+    flex: 1;
+    background-color: #f9f9f9;
+    padding: 15px;
+    border-radius: 8px;
+}
+
+.right-side {
+    flex: 3;
+}
 .job-section {
     margin-top: 40px;
     padding-bottom: 40px;
@@ -44,13 +55,28 @@ body {
 }
 
 .job-card {
-    background-color: #ffffff;
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+    padding: 15px;
     border: 1px solid #ddd;
     border-radius: 8px;
-    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
-    padding: 20px;
-    transition: transform 0.3s, box-shadow 0.3s;
+    margin-bottom: 15px;
 }
+.job-image {
+    max-width: 100%;
+    border-radius: 5px;
+}
+.job-actions {
+    display: flex;
+    justify-content: space-between;
+}
+.main-content {
+    display: flex;
+    gap: 20px;
+    padding: 20px;
+}
+
 
 .job-card:hover {
     transform: translateY(-5px);
@@ -69,47 +95,31 @@ body {
     margin-bottom: 20px;
 }
 
-.apply-button {
-    background-color: #32007d;
-    color: white;
+.apply-button, .save-button {
+    padding: 10px;
     border: none;
-    padding: 10px 20px;
-    border-radius: 5px;
     cursor: pointer;
-    transition: background-color 0.3s;
+    border-radius: 5px;
 }
 
-.apply-button:hover {
-    background-color: #5c1a8e;
-}
-
-/* Header Section Styles */
-.header {
-    position: absolute;
-    top: 0;
-    left: 0;
-    width: 100%;
-    padding: 20px;
-    background-color: #3e72a6;
+.apply-button {
+    background-color: #4caf50;
     color: white;
-     /* Initially hide the header */
-    z-index: 2; /* Ensures it's above the banner */
-    transition: opacity 0.3s ease;
-  }
+}
+
+.save-button {
+    background-color: #f1c40f;
+    color: white;
+}
+
+
+
+
 
   .header-banner:hover .header {
     display: block; /* Show the header on hover */
   }
 
-header h1 {
-    font-size: 2.5rem;
-    margin-bottom: 10px;
-}
-
-header p {
-    font-size: 1.2rem;
-    margin-bottom: 20px;
-}
 
 /* Header Banner Section */
 
