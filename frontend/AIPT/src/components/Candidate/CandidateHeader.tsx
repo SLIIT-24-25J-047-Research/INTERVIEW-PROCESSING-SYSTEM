@@ -24,6 +24,7 @@ const CandidateHeader: React.FC<HeaderProps> = ({ title }) => {
 
   // Handle scroll event
   const handleScroll = () => {
+    // Only trigger scroll effect on /candidate-home page
     if (location.pathname === '/candidate-home' && window.scrollY > 50) {
       setIsScrolled(true);
     } else {
@@ -32,23 +33,24 @@ const CandidateHeader: React.FC<HeaderProps> = ({ title }) => {
   };
 
   useEffect(() => {
+    // Adding the scroll event listener
     window.addEventListener('scroll', handleScroll);
+
+    // Clean up event listener when the component is unmounted
     return () => {
       window.removeEventListener('scroll', handleScroll);
     };
-  }, [location.pathname]); 
+  }, [location.pathname]); // Re-run effect if pathname changes
 
   const isCandidatePage = location.pathname === '/candidate-home';
+
+  // Check if the class is applied
   console.log("Is scrolled?", isScrolled);
 
   return (
-<<<<<<< Updated upstream
-    <div className={`header ${isCandidatePage ? 'transparent-header' : ''}`}>
-=======
     <div
       className={`header ${isCandidatePage ? (isScrolled ? 'header-scrolled' : 'transparent-header') : ''}`}
     >
->>>>>>> Stashed changes
       <div className="header-title">
         {location.pathname !== '/candidate-home' && (
           <Link to="/candidate-home" className="logo-container">
