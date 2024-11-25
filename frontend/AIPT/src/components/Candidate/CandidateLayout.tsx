@@ -1,7 +1,7 @@
 import React, { PropsWithChildren } from 'react';
 import CandidateSidebar from './CandidateSidebar';
 import CandidateHeader from './CandidateHeader';
-import './candidateLayout.css'; // Create this CSS file
+import './candidateLayout.css'; 
 
 const CandidateLayout: React.FC<PropsWithChildren<{}>> = ({ children }) => {
     return (
