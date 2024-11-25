@@ -1,4 +1,5 @@
 import React, { useState } from 'react';
+import React, { useState } from 'react';
 import '../Styles/CandidateHome.css';
 import Header from '../../components/Candidate/CandidateHeader';
 import { Search, Calendar, ArrowUpDown, Filter } from 'lucide-react';

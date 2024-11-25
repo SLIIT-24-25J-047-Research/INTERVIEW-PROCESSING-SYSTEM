@@ -148,14 +148,18 @@ body {
     z-index: 0;
 }
 
+
 .banner-text {
     flex: 1;
     max-width: 60%;
     padding-left: 90px;
     z-index: 1;
+    padding-left: 90px;
+    z-index: 1;
 }
 
 .banner-text h1 {
+    font-size: 50px;
     font-size: 50px;
     font-weight: bold;
     margin-bottom: 15px;
