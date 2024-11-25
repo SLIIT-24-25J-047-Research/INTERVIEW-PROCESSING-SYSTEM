@@ -1,23 +1,38 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import '../Styles/CandidateHome.css';
 import Header from '../../components/Candidate/CandidateHeader';
+import Footer from '../../components/Candidate/Footer';
 import { Search, Calendar, ArrowUpDown, Filter } from 'lucide-react';
 import { Card, CardHeader, CardContent, CardFooter } from "../../components/ui/card";
 import { Input } from "../../components/ui/input";
 import { Button } from "../../components/ui/button";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "../../components/ui/select";
+import axios from 'axios';
+
 
 
 const CandidateHome: React.FC = () => {
     { Header }
-    const jobPosts = [
-        { jobID: 1, jobRole: "Frontend Developer", description: "Create beautiful, responsive user interfaces with React and TypeScript.", company: "TechCorp", location: "New York", salary: 90000, jobType: "Full-time", date: "2021-09-01" },
-        { jobID: 2, jobRole: "Backend Developer", description: "Build scalable backend systems using Python, Django, and SQL.", company: "TechCorp", location: "San Francisco", salary: 95000, jobType: "Full-time", date: "2021-09-05" },
-        { jobID: 3, jobRole: "Full Stack Developer", description: "Join our team to work on both front-end and back-end development.", company: "TechCorp", location: "Chicago", salary: 105000, jobType: "Full-time", date: "2021-09-10" },
-        { jobID: 4, jobRole: "UX/UI Designer", description: "Design and improve the user experience and interface of the platform.", company: "TechCorp", location: "Los Angeles", salary: 85000, jobType: "Full-time", date: "2021-09-15" },
-        { jobID: 5, jobRole: "Data Scientist", description: "Analyze data and build predictive models to guide business decisions.", company: "TechCorp", location: "Austin", salary: 120000, jobType: "Full-time", date: "2021-09-20" },
-        { jobID: 6, jobRole: "DevOps Engineer", description: "Manage and improve our deployment pipelines and infrastructure.", company: "TechCorp", location: "Dallas", salary: 110000, jobType: "Full-time", date: "2021-09-25" },
-    ];
+
+    const [jobPosts, setJobPosts] = useState<any[]>([]);
+    useEffect(() => {
+        axios.get('http://localhost:5000/api/jobs/all')
+            .then(response => {
+                setJobPosts(response.data);
+            })
+            .catch(error => {
+                console.error("There was an error fetching the jobs:", error);
+            });
+    }, []);
+
+    // const jobPosts = [
+    //     { jobID: 1, jobRole: "Frontend Developer", description: "Create beautiful, responsive user interfaces with React and TypeScript.", company: "TechCorp", location: "New York", salary: 90000, jobType: "Full-time", date: "2021-09-01" },
+    //     { jobID: 2, jobRole: "Backend Developer", description: "Build scalable backend systems using Python, Django, and SQL.", company: "TechCorp", location: "San Francisco", salary: 95000, jobType: "Full-time", date: "2021-09-05" },
+    //     { jobID: 3, jobRole: "Full Stack Developer", description: "Join our team to work on both front-end and back-end development.", company: "TechCorp", location: "Chicago", salary: 105000, jobType: "Full-time", date: "2021-09-10" },
+    //     { jobID: 4, jobRole: "UX/UI Designer", description: "Design and improve the user experience and interface of the platform.", company: "TechCorp", location: "Los Angeles", salary: 85000, jobType: "Full-time", date: "2021-09-15" },
+    //     { jobID: 5, jobRole: "Data Scientist", description: "Analyze data and build predictive models to guide business decisions.", company: "TechCorp", location: "Austin", salary: 120000, jobType: "Full-time", date: "2021-09-20" },
+    //     { jobID: 6, jobRole: "DevOps Engineer", description: "Manage and improve our deployment pipelines and infrastructure.", company: "TechCorp", location: "Dallas", salary: 110000, jobType: "Full-time", date: "2021-09-25" },
+    // ];
 
     const [searchQuery, setSearchQuery] = useState('');
     const [dateFilter, setDateFilter] = useState('all');
@@ -167,6 +182,7 @@ const CandidateHome: React.FC = () => {
                     </div>
                 </div>
             </div>
+            <Footer />
         </div>
     );
 };
