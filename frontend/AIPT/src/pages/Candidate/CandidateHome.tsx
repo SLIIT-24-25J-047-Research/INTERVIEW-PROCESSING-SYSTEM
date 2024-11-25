@@ -7,6 +7,7 @@ import { Input } from "../../components/ui/input";
 import { Button } from "../../components/ui/button";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "../../components/ui/select";
 
+
 const CandidateHome: React.FC = () => {
     { Header }
     const jobPosts = [
@@ -53,6 +54,7 @@ const CandidateHome: React.FC = () => {
                 <div className="banner-text">
                     <p>Find your dream job and kickstart your career with us today.</p>
                     <h1>Welcome to Our Job Portal</h1>
+                    
                 </div>
             </section>
             {/* Main content area */}
