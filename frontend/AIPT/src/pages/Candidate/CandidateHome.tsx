@@ -46,7 +46,7 @@ const CandidateHome: React.FC = () => {
 
     return (
         <div className="min-h-screen bg-gray-50">
-            <Header title="Candidate Dashboard" />
+            <Header title="Candidate Home" />
 
             {/* Header Banner Section */}
             <section className="header-banner">
