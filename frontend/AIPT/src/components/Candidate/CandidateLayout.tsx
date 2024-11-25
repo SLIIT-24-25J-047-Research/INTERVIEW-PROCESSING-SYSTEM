@@ -8,7 +8,7 @@ const CandidateLayout: React.FC<PropsWithChildren<{}>> = ({ children }) => {
       <div className="dashboard-layout">
         <CandidateSidebar />
         <div className="main-content">
-          <CandidateHeader title="Your Title Here" />
+          <CandidateHeader title="Dashboard" />
           <div className="content">
             {children}
           </div>

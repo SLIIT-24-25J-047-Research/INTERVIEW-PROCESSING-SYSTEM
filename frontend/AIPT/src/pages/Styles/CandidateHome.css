@@ -1,0 +1,220 @@
+/* Global Reset */
+
+body {
+    font-family: 'Arial', sans-serif, 'Poppins';
+    background-color: #f0f4f8;
+    color: #333;
+    width: 100%;
+}
+
+/* Landing Page Styles */
+.landing-page {
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+    width: 100%;
+    min-height: 100vh;
+    font-family: Arial, sans-serif;
+    background-color: #f0f4f8;
+    position: relative;
+    min-height: 100vh;
+}
+
+
+/* Job Section */
+
+.left-side {
+    flex: 1;
+    background-color: #f9f9f9;
+    padding: 15px;
+    border-radius: 8px;
+}
+
+.right-side {
+    flex: 3;
+}
+.job-section {
+    margin-top: 40px;
+    padding-bottom: 40px;
+    width: 80%;
+}
+
+.job-section h2 {
+    font-size: 2rem;
+    text-align: center;
+    margin-bottom: 20px;
+}
+
+.job-list {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(250px, 2fr)); /* 3 or 4 columns */
+    gap: 20px;
+    margin: 0 auto;
+    padding: 0 10px;
+}
+
+.job-card {
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+    padding: 15px;
+    border: 1px solid #ddd;
+    border-radius: 8px;
+    margin-bottom: 15px;
+}
+.job-image {
+    max-width: 100%;
+    border-radius: 5px;
+}
+.job-actions {
+    display: flex;
+    justify-content: space-between;
+}
+.main-content {
+    display: flex;
+    gap: 20px;
+    padding: 20px;
+}
+
+
+.job-card:hover {
+    transform: translateY(-5px);
+    box-shadow: 0 6px 12px rgba(0, 0, 0, 0.2);
+}
+
+.job-title {
+    font-size: 1.5rem;
+    color: #32007d;
+    margin-bottom: 10px;
+}
+
+.job-description {
+    font-size: 1rem;
+    color: #333;
+    margin-bottom: 20px;
+}
+
+.apply-button, .save-button {
+    padding: 10px;
+    border: none;
+    cursor: pointer;
+    border-radius: 5px;
+}
+
+.apply-button {
+    background-color: #4caf50;
+    color: white;
+}
+
+.save-button {
+    background-color: #f1c40f;
+    color: white;
+}
+
+
+
+
+
+  .header-banner:hover .header {
+    display: block; /* Show the header on hover */
+  }
+
+
+/* Header Banner Section */
+
+.header-banner {
+    position: relative;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    width: 100%;
+    height: 70vh;
+    /* Set your desired height */
+    background-image: url('../../images/BG.jpg');
+    /* Set your background image here */
+    background-size: cover;
+    background-position: center;
+
+
+    margin-bottom: 40px;
+    color: white;
+    /* Ensure text is white on dark background */
+    text-align: center;
+    /* Center the text */
+}
+
+.header-banner::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background-color: rgba(0, 0, 0, 0.5);
+    /* Dark semi-transparent overlay */
+    border-radius: 10px;
+    z-index: 0;
+    /* Ensure the overlay stays behind the text */
+}
+
+
+.banner-text {
+    flex: 1;
+    max-width: 60%;
+    padding-left: 90px;
+    z-index: 1;
+}
+
+.banner-text h1 {
+    font-size: 50px;
+    font-weight: bold;
+    margin-bottom: 15px;
+    color: white;
+    font-family: 'Poppins', sans-serif;
+    /* White text */
+}
+
+.banner-text p {
+    font-size: 18px;
+    color: white;
+    /* White text */
+    margin-bottom: 10px;
+    font-weight: lighter
+}
+
+/* Filter Section */
+.filter-section {
+    margin-top: 30px;
+    text-align: center;
+}
+
+.filter-section h2 {
+    font-size: 1.8rem;
+    margin-bottom: 20px;
+}
+
+.filter-options {
+    display: flex;
+    justify-content: center;
+    gap: 15px;
+}
+
+.filter-options button {
+    padding: 10px 20px;
+    background-color: #32007d;
+    color: white;
+    border: none;
+    border-radius: 5px;
+    cursor: pointer;
+    transition: background-color 0.3s;
+}
+
+.filter-options button:hover {
+    background-color: #5c1a8e;
+}
+
+.filter-options button.active {
+    background-color: #5c1a8e;
+}
+

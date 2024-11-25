@@ -1,5 +1,6 @@
 // controllers/questionController.js
 const Question = require('../../models/employer/Question');
+const SkillGroup = require('../../models/employer/SkillGroup');
 
 
 exports.createQuestion = async (req, res) => {
@@ -39,21 +40,37 @@ exports.getAllQuestions = async (req, res) => {
 
   exports.updateQuestion = async (req, res) => {
     try {
-      const { text, answers } = req.body;
-      const question = await Question.findByIdAndUpdate(
-        req.params.id,
-        { text, answers },
-        { new: true }
-      );
+      const { skillGroupId, text, answers } = req.body;
+  
+      // Find the existing question
+      const question = await Question.findById(req.params.id);
       if (!question) {
         return res.status(404).json({ error: 'Question not found' });
       }
-      res.status(200).json(question);
+  
+      // If the skillGroupId has changed, ensure the new skill group exists
+      if (skillGroupId && skillGroupId !== question.skillGroupId.toString()) {
+        const newSkillGroup = await SkillGroup.findById(skillGroupId);
+        if (!newSkillGroup) {
+          return res.status(404).json({ error: 'Skill Group not found' });
+        }
+  
+        // Update only the skillGroupId in the question
+        question.skillGroupId = skillGroupId;
+      }
+  
+      // Update other fields (text, answers)
+      question.text = text || question.text;
+      question.answers = answers || question.answers;
+  
+      // Save the updated question
+      const updatedQuestion = await question.save();
+      res.status(200).json(updatedQuestion);
+  
     } catch (error) {
       res.status(400).json({ error: error.message });
     }
   };
-
 
   exports.deleteQuestion = async (req, res) => {
     try {

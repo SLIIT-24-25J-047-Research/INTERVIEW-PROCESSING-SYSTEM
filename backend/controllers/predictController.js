@@ -2,16 +2,14 @@ const axios = require('axios');
 const FormData = require('form-data');
 const fs = require('fs');
 const path = require('path');
-const ffmpeg = require('fluent-ffmpeg'); // Import fluent-ffmpeg
+const ffmpeg = require('fluent-ffmpeg'); 
 
 exports.predictConfidence = async (req, res) => {
     try {
-        console.log('Request body:', req.body); // Log the full request body
-        console.log('Uploaded file:', req.file); // Log the uploaded file
-
-        // Check for text input
+        console.log('Request body:', req.body); 
+        console.log('Uploaded file:', req.file); 
         if (req.body.text) {
-            const flaskResponse = await axios.post('http://voice-confidence:3000/predict', {
+            const flaskResponse = await axios.post('http://127.0.0.1:3000/predict', {
                 text: req.body.text
             });
 
@@ -22,36 +20,41 @@ exports.predictConfidence = async (req, res) => {
             });
         }
 
-        // Check for audio file input
+       
         if (req.file) {
-            const filePath = req.file.path; // Path to the uploaded audio file
-            const tempFilePath = path.join(__dirname, 'temp_audio.wav'); // Temporary path for the converted file
-
-            // Convert the uploaded audio file to WAV format using fluent-ffmpeg
+            const filePath = req.file.path; 
+            const tempFilePath = path.join(__dirname, 'temp_audio.wav'); 
+           
             ffmpeg(filePath)
-                .toFormat('wav') // Set the desired format
+                .toFormat('wav')
                 .on('end', async () => {
                     console.log('Conversion completed');
                     const form = new FormData();
                     form.append('audio', fs.createReadStream(tempFilePath));
 
                     try {
-                        const flaskResponse = await axios.post('http://voice-confidence:3000/predict', form, {
+                        // const flaskResponse = await axios.post('http://voice-confidence:3000/predict', form, {
+                        //     headers: {
+                        //         ...form.getHeaders()
+                        //     }
+                        // });
+                        const flaskResponse = await axios.post('http://127.0.0.1:3000/predict', form, {
                             headers: {
                                 ...form.getHeaders()
                             }
                         });
 
+                        // http://127.0.0.1:3000
+
                         console.log('Flask response:', flaskResponse.data); // Log Flask response
 
-                        // Clean up the temporary converted audio file
-                        fs.unlink(tempFilePath, (err) => {
-                            if (err) {
-                                console.error(`Error deleting converted file: ${err}`);
-                            } else {
-                                console.log(`Successfully deleted file: ${tempFilePath}`);
-                            }
-                        });
+                        // fs.unlink(tempFilePath, (err) => {
+                        //     if (err) {
+                        //         console.error(`Error deleting converted file: ${err}`);
+                        //     } else {
+                        //         console.log(`Successfully deleted file: ${tempFilePath}`);
+                        //     }
+                        // });
 
                         return res.status(200).json({
                             success: true,
@@ -72,7 +75,7 @@ exports.predictConfidence = async (req, res) => {
                         message: 'Error in converting audio file'
                     });
                 })
-                .save(tempFilePath); // Save the converted file
+                .save(tempFilePath); 
         } else {
             return res.status(400).json({
                 success: false,
