@@ -94,10 +94,23 @@ footer {
   footer .text-gray-400 {
     color: #94a3b8;
   }
-  
-  footer .hover\:text-white:hover {
+
+  footer .topBtn{
     color: #ffffff;
   }
+
+  footer .SocialIcon{
+    color: #ffffff;
+  }
+  
+  footer .hover\:text-white:hover {
+    color: #2563eb;
+  }
+
+  footer .hover\:SocialIcon:hover {
+    color: #dadada;
+  }
+  
   
   footer .text-sm {
     font-size: 0.875rem;
@@ -200,4 +213,31 @@ footer {
   footer .footer-social button {
     margin-top: 1.5rem;
   }
+  
+  footer .footer-social svg {
+    width: 30px; /* Adjust the icon size */
+    height: 30px;
+    fill: #ffffff; /* Adjust the color of the icon */
+  }
+
+  footer .footer-social button {
+    background-color: #3b82f6; /* Change background color */
+    color: #ffffff;
+    border-radius: 50%; /* Make it round */
+    padding: 12px; /* Adjust the button size */
+    border: none;
+    cursor: pointer;
+    transition: background-color 0.3s ease-in-out;
+  }
+
+  footer .footer-social button:hover {
+    background-color: #2563eb; /* Adjust the hover background color */
+  }
+
+  footer .footer-social button svg {
+    width: 24px; /* Adjust the icon size inside the button */
+    height: 24px;
+  }
+  
+  
   
