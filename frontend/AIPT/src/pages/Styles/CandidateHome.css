@@ -32,6 +32,17 @@ body {
 .right-side {
     flex: 3;
 }
+
+.left-side {
+    flex: 1;
+    background-color: #f9f9f9;
+    padding: 15px;
+    border-radius: 8px;
+}
+
+.right-side {
+    flex: 3;
+}
 .job-section {
     margin-top: 40px;
     padding-bottom: 40px;
