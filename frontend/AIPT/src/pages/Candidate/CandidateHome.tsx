@@ -70,6 +70,7 @@ const CandidateHome: React.FC = () => {
                     <p>Find your dream job and kickstart your career with us today.</p>
                     <h1>Welcome to Our Job Portal</h1>
                     
+                    
                 </div>
             </section>
             {/* Main content area */}
