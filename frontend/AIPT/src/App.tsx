@@ -12,6 +12,7 @@ import Assignments from './pages/Candidate/Assignments';
 import CandidateProfile from './pages/Candidate/CandidateProfile';
 import Settings from './pages/Candidate/Settings';
 import CandidateHome from './pages/Candidate/CandidateHome';
+import JobApplicationForm from './pages/Candidate/JobDetails';
 
 const App: React.FC = () => {
 
@@ -86,6 +87,15 @@ const App: React.FC = () => {
           </PrivateRoute>
         }
       />
+      <Route
+        path="/candidate-home/job/:jobId/apply"
+        element={
+          <PrivateRoute allowedRoles={['candidate']}>
+            <JobApplicationForm />
+          </PrivateRoute>
+        }
+      />
+
       <Route
         path="/profile"
         element={
