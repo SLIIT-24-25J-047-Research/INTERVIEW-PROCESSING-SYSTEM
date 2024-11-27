@@ -8,12 +8,14 @@ import { Input } from "../../components/ui/input";
 import { Button } from "../../components/ui/button";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "../../components/ui/select";
 import axios from 'axios';
+import { useNavigate } from "react-router-dom";
+
 
 
 
 const CandidateHome: React.FC = () => {
     { Header }
-
+    const navigate = useNavigate();
     const [jobPosts, setJobPosts] = useState<any[]>([]);
     useEffect(() => {
         axios.get('http://localhost:5000/api/jobs/all')
@@ -69,8 +71,8 @@ const CandidateHome: React.FC = () => {
                 <div className="banner-text">
                     <p>Find your dream job and kickstart your career with us today.</p>
                     <h1>Welcome to Our Job Portal</h1>
-                    
-                    
+
+
                 </div>
             </section>
             {/* Main content area */}
@@ -172,7 +174,13 @@ const CandidateHome: React.FC = () => {
                                             </div>
                                             <div>
                                                 <Button className="bg-gray-200 hover:bg-gray-300 mr-2">Save</Button>
-                                                <Button className="bg-blue-500 text-white hover:bg-blue-600">Apply Now</Button>                                            </div>
+                                                <Button
+                                                    className="bg-blue-500 text-white hover:bg-blue-600"
+                                                    onClick={() => navigate(`/candidate-home/job/${job.jobID}/apply`)}
+                                                >
+                                                    Apply Now
+                                                </Button>
+                                            </div>
                                         </div>
                                     </div>
                                 ))}
