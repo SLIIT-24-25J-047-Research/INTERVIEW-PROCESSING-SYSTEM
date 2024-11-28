@@ -42,7 +42,7 @@ def predict_image(image_bytes):
     return class_names[predicted.item()]
 
 # Create route for prediction
-@app.route('/predict', methods=['POST'])
+@app.route('/classification-predict', methods=['POST'])
 def predict():
     if 'file' not in request.files:
         return jsonify({"error": "No file part"}), 400
@@ -73,4 +73,4 @@ def predict():
 
 # Run the app
 if __name__ == '__main__':
-    app.run(host='0.0.0.0', port=5000, debug=True)
+    app.run(host='0.0.0.0', port=5001, debug=False)

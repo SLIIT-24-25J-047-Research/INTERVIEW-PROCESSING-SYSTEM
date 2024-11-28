@@ -13,8 +13,8 @@ import CandidateProfile from "./pages/Candidate/CandidateProfile";
 import Settings from "./pages/Candidate/Settings";
 import MockupTest from "./pages/Candidate/MockupTest";
 import Results from "./pages/Candidate/Results";
-import CandidateHome from './pages/Candidate/CandidateHome';
-import JobApplicationForm from './pages/Candidate/JobDetails';
+import CandidateHome from "./pages/Candidate/CandidateHome";
+import JobApplicationForm from "./pages/Candidate/JobDetails";
 
 const App: React.FC = () => {
   return (
@@ -64,12 +64,11 @@ const App: React.FC = () => {
       <Route
         path="/dashboard"
         element={
-          <PrivateRoute allowedRoles={['candidate']}>
+          <PrivateRoute allowedRoles={["candidate"]}>
             <CandidateDashboard />
           </PrivateRoute>
         }
       />
-
 
       <Route
         path="/assignments"
@@ -107,7 +106,7 @@ const App: React.FC = () => {
       <Route
         path="/candidate-home/job/:jobId/apply"
         element={
-          <PrivateRoute allowedRoles={['candidate']}>
+          <PrivateRoute allowedRoles={["candidate"]}>
             <JobApplicationForm />
           </PrivateRoute>
         }
@@ -126,7 +125,7 @@ const App: React.FC = () => {
         path="/settings"
         element={
           <PrivateRoute allowedRoles={["candidate"]}>
-             <Settings />
+            <Settings />
           </PrivateRoute>
         }
       />
