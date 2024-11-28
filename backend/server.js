@@ -19,6 +19,7 @@ app.use('/api/audio', require('./routes/audioRoutes'));
 //code complexity routes
 app.use('/api/submissions', require('./routes/code_complexity/SubmissionRoutes'));
 app.use('/api/candidateScores', require('./routes/code_complexity/CandidateScoreRoutes'));
+app.use('/api/calculations', require('./routes/code_complexity/CodeCalculationRoutes'));
 
 
 // voice confidence routes
