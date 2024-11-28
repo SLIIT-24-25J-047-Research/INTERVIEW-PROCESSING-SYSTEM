@@ -41,3 +41,4 @@ const candidateScoreSchema = new mongoose.Schema(
 });
 
 module.exports = mongoose.model('CandidateScore', candidateScoreSchema);
+
