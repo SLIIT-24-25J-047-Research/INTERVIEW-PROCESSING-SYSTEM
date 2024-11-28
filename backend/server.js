@@ -24,6 +24,14 @@ app.use('/api', require('./routes/candidate/predictionRoutes'));
 app.use('/api/classification', require('./routes/candidate/classificationRoutes'));
 
 
+// voice confidence routes
+app.use('/api', require('./routes/voiceConfidenceRoutes'));
+//test
+app.get('/api/test', (req, res) => {
+  res.status(200).json({ message: "Node.js backend is running" });
+});
+
+
 // MongoDB Connection
 mongoose.connect(process.env.MONGO_URI, { useNewUrlParser: true, useUnifiedTopology: true })
   .then(() => console.log('✅ MongoDB connected Successfully'))

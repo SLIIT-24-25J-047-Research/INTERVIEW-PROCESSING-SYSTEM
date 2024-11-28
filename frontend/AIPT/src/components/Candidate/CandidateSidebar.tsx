@@ -18,7 +18,7 @@ const CandidateSidebar: React.FC = () => {
             <ul className="menu-list">
                 <li className="menu-item">
                     <FaHome className="menu-icon" />
-                    {!isCollapsed && <Link to="/candidate-home">Dashboard</Link>}
+                    {!isCollapsed && <Link to="/dashboard">Dashboard</Link>}
                 </li>
                 <li className="menu-item">
                     <FaTasks className="menu-icon" />

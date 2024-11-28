@@ -3,7 +3,7 @@ import { Routes, Route, Navigate } from "react-router-dom";
 import Login from "./components/Login";
 import Register from "./components/Register";
 import InterviewerHome from "./pages/Interviewer/InterviewerHome";
-import CandidateHome from "./pages/Candidate/CandidateHome";
+import CandidateDashboard from "./pages/Candidate/CandidateDashboard";
 import PrivateRoute from "./components/PrivateRoute";
 import Home from "./pages/Home";
 import Profile from "./pages/Interviewer/Profile";
@@ -13,6 +13,8 @@ import CandidateProfile from "./pages/Candidate/CandidateProfile";
 import Settings from "./pages/Candidate/Settings";
 import MockupTest from "./pages/Candidate/MockupTest";
 import Results from "./pages/Candidate/Results";
+import CandidateHome from './pages/Candidate/CandidateHome';
+import JobApplicationForm from './pages/Candidate/JobDetails';
 
 const App: React.FC = () => {
   return (
@@ -58,6 +60,17 @@ const App: React.FC = () => {
           </PrivateRoute>
         }
       />
+
+      <Route
+        path="/dashboard"
+        element={
+          <PrivateRoute allowedRoles={['candidate']}>
+            <CandidateDashboard />
+          </PrivateRoute>
+        }
+      />
+
+
       <Route
         path="/assignments"
         element={
@@ -92,6 +105,15 @@ const App: React.FC = () => {
       />
 
       <Route
+        path="/candidate-home/job/:jobId/apply"
+        element={
+          <PrivateRoute allowedRoles={['candidate']}>
+            <JobApplicationForm />
+          </PrivateRoute>
+        }
+      />
+
+      <Route
         path="/profile"
         element={
           <PrivateRoute allowedRoles={["candidate"]}>
@@ -104,7 +126,7 @@ const App: React.FC = () => {
         path="/settings"
         element={
           <PrivateRoute allowedRoles={["candidate"]}>
-            <Settings />
+             <Settings />
           </PrivateRoute>
         }
       />
