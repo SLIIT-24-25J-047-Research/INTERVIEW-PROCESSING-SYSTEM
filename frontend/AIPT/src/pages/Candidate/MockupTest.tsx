@@ -43,7 +43,7 @@ const MockupTest: React.FC = () => {
 
           // Send the image to Flask for classification
           const flaskResponse = await axios.post<PredictionResponse>(
-            "http://127.0.0.1:5001/classification-predict",
+            "http://127.0.0.1:3003/classification-predict",
             formData,
             {
               headers: { "Content-Type": "multipart/form-data" },
