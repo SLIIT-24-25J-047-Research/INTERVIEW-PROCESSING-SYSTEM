@@ -11,4 +11,5 @@ router.delete('/', CandidateScoreController.deleteCandidateScore);
 // List and sort candidate scores
 router.get('/', CandidateScoreController.listCandidateScores);
 
+// Export the router
 module.exports = router;
