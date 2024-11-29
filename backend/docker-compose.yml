@@ -39,10 +39,17 @@ services:
   #   ports:
   #     - "3002:3002"
 
-  # service-4:
-  #   build:
-  #     context: ./service-4      # Path to the service-4 folder
-  #   ports:
-  #     - "3003:3003"
+  candidate-classification:
+    build:
+      context: ./candidate_classification_service  # Path to the candidate_classification_service folder
+    ports:
+      - "3003:3003"
+    volumes:
+      - ./candidate_classification_service/uploads:/app/uploads  # Mount uploads folder
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:3003"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
 
 

@@ -14,15 +14,14 @@ app.use('/api/auth', require('./routes/auth'));
 app.use('/api/jobs', require('./routes/employer/JobsRoutes')); 
 app.use('/api/questions', require('./routes/employer/questionRoutes')); 
 app.use('/api/skillGroups', require('./routes/employer/skillGroupRoutes')); 
-app.use('/api/audio', require('./routes/audioRoutes'));
-
-
-
+app.use('/api/classification', require('./routes/candidate/predictionRoutes'));
 
 // voice confidence routes
 app.use('/api', require('./routes/voiceConfidenceRoutes'));
 
-
+// image classification routes
+app.use('/api', require('./routes/candidate/predictionRoutes'));
+app.use('/api/classification', require('./routes/candidate/classificationRoutes'));
 
 
 // voice confidence routes

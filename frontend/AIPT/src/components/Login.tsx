@@ -4,6 +4,13 @@ import { useNavigate } from 'react-router-dom';
 import '../Auth.css';  
 import image from '../images/loginBG.jpg';
 
+// Define the response type for login
+interface LoginResponse {
+  token: string;
+  role: string;
+  email: string;
+}
+
 const Login: React.FC = () => {
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
@@ -12,9 +19,14 @@ const Login: React.FC = () => {
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     try {
-      const response = await axios.post('http://localhost:5000/api/auth/login', { email, password });
+      // Specify the response type as LoginResponse
+      const response = await axios.post<LoginResponse>('http://localhost:5000/api/auth/login', { email, password });
+      
+      // Now TypeScript knows the structure of response.data
       localStorage.setItem('token', response.data.token);
       localStorage.setItem('role', response.data.role);
+      localStorage.setItem('email', response.data.email);
+      localStorage.setItem("authToken", response.data.token);  // Fixed the error here
 
       if (response.data.role === 'interviewer') {
         navigate('/interviewer-home');
