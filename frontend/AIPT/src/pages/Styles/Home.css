@@ -16,20 +16,6 @@ body {
     padding-right: 10px;
   }
   
-  .header {
-    width: 100%;
-    display: flex;
-    justify-content: space-between;
-    align-items: center;
-    padding: 20px 40px;
-    background-color: #32007d; 
-    color: white; 
-  }
-  
-  .header h1 {
-    margin: 0;
-  }
-  
   .auth-buttons {
     display: flex;
   }

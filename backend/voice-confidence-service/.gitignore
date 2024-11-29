@@ -17,3 +17,5 @@ __pycache__/
 # Ignore local configuration files (optional)
 .env
 pyvenv.cfg
+
+models

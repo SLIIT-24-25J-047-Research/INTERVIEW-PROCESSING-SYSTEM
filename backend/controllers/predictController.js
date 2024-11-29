@@ -9,7 +9,7 @@ exports.predictConfidence = async (req, res) => {
         console.log('Request body:', req.body); 
         console.log('Uploaded file:', req.file); 
         if (req.body.text) {
-            const flaskResponse = await axios.post('http://voice-confidence:3000/predict', {
+            const flaskResponse = await axios.post('http://127.0.0.1:3000/predict', {
                 text: req.body.text
             });
 
@@ -33,28 +33,28 @@ exports.predictConfidence = async (req, res) => {
                     form.append('audio', fs.createReadStream(tempFilePath));
 
                     try {
-                        const flaskResponse = await axios.post('http://voice-confidence:3000/predict', form, {
-                            headers: {
-                                ...form.getHeaders()
-                            }
-                        });
-                        // const flaskResponse = await axios.post('http://127.0.0.1:3000/predict', form, {
+                        // const flaskResponse = await axios.post('http://voice-confidence:3000/predict', form, {
                         //     headers: {
                         //         ...form.getHeaders()
                         //     }
                         // });
+                        const flaskResponse = await axios.post('http://127.0.0.1:3000/predict', form, {
+                            headers: {
+                                ...form.getHeaders()
+                            }
+                        });
 
                         // http://127.0.0.1:3000
 
                         console.log('Flask response:', flaskResponse.data); // Log Flask response
 
-                        fs.unlink(tempFilePath, (err) => {
-                            if (err) {
-                                console.error(`Error deleting converted file: ${err}`);
-                            } else {
-                                console.log(`Successfully deleted file: ${tempFilePath}`);
-                            }
-                        });
+                        // fs.unlink(tempFilePath, (err) => {
+                        //     if (err) {
+                        //         console.error(`Error deleting converted file: ${err}`);
+                        //     } else {
+                        //         console.log(`Successfully deleted file: ${tempFilePath}`);
+                        //     }
+                        // });
 
                         return res.status(200).json({
                             success: true,
