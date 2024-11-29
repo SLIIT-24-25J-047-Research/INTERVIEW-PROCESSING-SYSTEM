@@ -1,5 +1,6 @@
 frontend/.env
 backend/.env
 backend/uploads
+backend/candidate_classification_service/model/final_trained_model.pth
 backend/node_modules
 frontend/node_modules
