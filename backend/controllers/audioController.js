@@ -72,7 +72,12 @@ exports.processAudio = async (req, res) => {
 
                 try {
                     //  transcription
-                    const response = await axios.post('http://voice-confidence:3000/transcribe', form, {
+                    // const response = await axios.post('http://voice-confidence:3000/transcribe', form, {
+                    //     headers: {
+                    //         ...form.getHeaders(),
+                    //     },
+                    // });
+                    const response = await axios.post('http://127.0.0.1:3000/transcribe', form, {
                         headers: {
                             ...form.getHeaders(),
                         },
@@ -102,10 +107,15 @@ exports.processAudio = async (req, res) => {
 
                      // compare the transcribed answer with the actual answers
                      const actualAnswers = question.answers; 
-                     const comparisonResponse = await axios.post('http://voice-confidence:3000/compare', {
-                         candidate_answer: transcription,
-                         actual_answer: question.answers, 
-                     });
+                    //  const comparisonResponse = await axios.post('http://voice-confidence:3000/compare', {
+                    //      candidate_answer: transcription,
+                    //      actual_answer: question.answers, 
+                    //  }); 
+
+                     const comparisonResponse = await axios.post('http://127.0.0.1:3000/compare', {
+                        candidate_answer: transcription,
+                        actual_answer: question.answers, 
+                    });
  
                    
                      const { similarity_scores, is_correct } = comparisonResponse.data;
