@@ -67,63 +67,68 @@ const AnswerQuestions = () => {
             setAudioBlob(null); // Reset recorded audio if file is uploaded
         }
     };
-    
 
-// Send either recorded or uploaded audio to backend
-const handleNextQuestion = async () => {
-    const audioToSend = uploadedAudio || audioBlob; // Prefer uploaded audio if available
-    if (audioToSend) {
-        const formData = new FormData();
-        formData.append('audio', audioToSend, `answer_${currentQuestionIndex}.wav`);
-        formData.append('questionId', questions[currentQuestionIndex]._id);
 
-        try {
-            const response = await axios.post('http://localhost:5000/api/predict', formData, {
-                headers: {
-                    'Content-Type': 'multipart/form-data',
-                },
-            });
+    // Send either recorded or uploaded audio to backend
+    const handleNextQuestion = async () => {
+        const audioToSend = uploadedAudio || audioBlob; // Prefer uploaded audio if available
+        if (audioToSend) {
+            const formData = new FormData();
+            formData.append('audio', audioToSend, `answer_${currentQuestionIndex}.wav`);
+            formData.append('questionId', questions[currentQuestionIndex]._id);
 
-            if (response.status !== 200) {
-                throw new Error('Failed to send audio');
+            try {
+                const response = await axios.post('http://localhost:5000/api/predict', formData, {
+                    headers: {
+                        'Content-Type': 'multipart/form-data',
+                    },
+                });
+                const response2 = await axios.post('http://localhost:5000/api/audio/audio', formData, {
+                    headers: {
+                        'Content-Type': 'multipart/form-data',
+                    },
+                });
+
+                if (response.status! == 200 || response2.status !== 200) {
+                    throw new Error('Failed to send audio');
+                }
+            } catch (error) {
+                console.error('Error sending audio to backend:', error);
             }
-        } catch (error) {
-            console.error('Error sending audio to backend:', error);
+
+            setUploadedAudio(null); // Reset after sending
+            setAudioBlob(null);     // Reset recorded audio
         }
 
-        setUploadedAudio(null); // Reset after sending
-        setAudioBlob(null);     // Reset recorded audio
-    }
-
-    if (currentQuestionIndex < questions.length - 1) {
-        setCurrentQuestionIndex(currentQuestionIndex + 1);
-    }
-};
-
-// Send text input to backend
-const handleSendText = async () => {
-    if (inputText) {
-        const formData = new FormData();
-        formData.append('text', inputText); // Send text data to the same API
-        formData.append('questionId', questions[currentQuestionIndex]._id);
-
-        try {
-            const response = await axios.post('http://localhost:5000/api/predict', formData, {
-                headers: {
-                    'Content-Type': 'multipart/form-data',
-                },
-            });
-
-            if (response.status !== 200) {
-                throw new Error('Failed to send text');
-            }
-        } catch (error) {
-            console.error('Error sending text to backend:', error);
+        if (currentQuestionIndex < questions.length - 1) {
+            setCurrentQuestionIndex(currentQuestionIndex + 1);
         }
+    };
 
-        setInputText(''); // Reset text input after sending
-    }
-};
+    // Send text input to backend
+    const handleSendText = async () => {
+        if (inputText) {
+            const formData = new FormData();
+            formData.append('text', inputText); // Send text data to the same API
+            formData.append('questionId', questions[currentQuestionIndex]._id);
+
+            try {
+                const response = await axios.post('http://localhost:5000/api/predict', formData, {
+                    headers: {
+                        'Content-Type': 'multipart/form-data',
+                    },
+                });
+
+                if (response.status !== 200) {
+                    throw new Error('Failed to send text');
+                }
+            } catch (error) {
+                console.error('Error sending text to backend:', error);
+            }
+
+            setInputText(''); // Reset text input after sending
+        }
+    };
 
     return (
         <div>
@@ -135,20 +140,20 @@ const handleSendText = async () => {
                     {/* Audio Recording Section */}
                     <button onClick={startRecording} disabled={isRecording}>Start Recording</button>
                     <button onClick={stopRecording} disabled={!isRecording}>Stop Recording</button>
-                    
+
                     {/* Audio File Upload Section */}
                     {/* <input 
                         type="file" 
                         accept="audio/*" 
                         onChange={handleFileChange} 
                     /> */}
-                    <button 
-                        onClick={handleNextQuestion} 
+                    <button
+                        onClick={handleNextQuestion}
                         disabled={!audioBlob && !uploadedAudio}
                     >
                         Next Question
                     </button>
-                    
+
                     {/* Text Input Section */}
                     {/* <div>
                         <input 
