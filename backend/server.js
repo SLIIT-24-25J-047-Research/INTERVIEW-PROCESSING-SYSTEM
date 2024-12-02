@@ -14,7 +14,15 @@ app.use('/api/auth', require('./routes/auth'));
 app.use('/api/jobs', require('./routes/employer/JobsRoutes')); 
 app.use('/api/questions', require('./routes/employer/questionRoutes')); 
 app.use('/api/skillGroups', require('./routes/employer/skillGroupRoutes')); 
+app.use('/api/classification', require('./routes/candidate/predictionRoutes'));
+
+// voice confidence routes
+app.use('/api', require('./routes/voiceConfidenceRoutes'));
 app.use('/api/audio', require('./routes/audioRoutes'));
+
+// image classification routes
+app.use('/api', require('./routes/candidate/predictionRoutes'));
+app.use('/api/classification', require('./routes/candidate/classificationRoutes'));
 
 //code complexity routes
 app.use('/api/submissions', require('./routes/code_complexity/SubmissionRoutes'));
@@ -22,18 +30,14 @@ app.use('/api/candidateScores', require('./routes/code_complexity/CandidateScore
 app.use('/api/calculations', require('./routes/code_complexity/CodeCalculationRoutes'));
 
 
-// voice confidence routes
-app.use('/api', require('./routes/voiceConfidenceRoutes'));
-
-
-
-
-
-
 //test
 app.get('/api/test', (req, res) => {
   res.status(200).json({ message: "Node.js backend is running" });
 });
+
+
+
+
 
 
 // MongoDB Connection

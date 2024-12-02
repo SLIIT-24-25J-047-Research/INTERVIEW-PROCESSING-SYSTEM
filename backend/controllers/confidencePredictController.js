@@ -2,7 +2,8 @@ const axios = require('axios');
 const FormData = require('form-data');
 const fs = require('fs');
 const path = require('path');
-const ffmpeg = require('fluent-ffmpeg'); 
+const ffmpeg = require('fluent-ffmpeg'); // Import fluent-ffmpeg
+// const Prediction = require('../models/candidate/Prediction');
 
 exports.predictConfidence = async (req, res) => {
     try {
@@ -48,13 +49,16 @@ exports.predictConfidence = async (req, res) => {
 
                         console.log('Flask response:', flaskResponse.data); // Log Flask response
 
-                        // fs.unlink(tempFilePath, (err) => {
-                        //     if (err) {
-                        //         console.error(`Error deleting converted file: ${err}`);
-                        //     } else {
-                        //         console.log(`Successfully deleted file: ${tempFilePath}`);
-                        //     }
-                        // });
+                
+
+                        // Clean up the temporary converted audio file
+                        fs.unlink(tempFilePath, (err) => {
+                            if (err) {
+                                console.error(`Error deleting converted file: ${err}`);
+                            } else {
+                                console.log(`Successfully deleted file: ${tempFilePath}`);
+                            }
+                        });
 
                         return res.status(200).json({
                             success: true,
