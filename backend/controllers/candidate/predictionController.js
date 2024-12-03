@@ -16,3 +16,24 @@ exports.savePrediction = async (req, res) => {
     return res.status(500).json({ error: "Failed to save prediction" });
   }
 };
+
+//get the prediction
+exports.getPrediction = async (req, res) => {
+  const { email } = req.params;
+
+  try {
+    // Fetch the prediction by email from the database
+    const prediction = await Prediction.findOne({ email });
+
+    if (!prediction) {
+      return res
+        .status(404)
+        .json({ error: "Prediction not found for this email" });
+    }
+
+    return res.status(200).json({ prediction: prediction.prediction });
+  } catch (error) {
+    console.error(error);
+    return res.status(500).json({ error: "Failed to fetch prediction" });
+  }
+};
