@@ -1,33 +1,76 @@
 import React, { useEffect, useState } from "react";
-import { useParams } from "react-router-dom"; // Import useParams
+import { useParams } from "react-router-dom";
+import axios from "axios";
+import "../Styles/Results.css";
 
-// Define the type for the response
-interface PredictionResponse {
+interface PredictionDocument {
   prediction: string;
-  error?: string;
 }
 
-const Results = () => {
-  const { email } = useParams<{ email: string }>(); // Get email from route parameters
+const Results: React.FC = () => {
+  const { email } = useParams<{ email: string }>();
   const [error, setError] = useState<string | null>(null);
-  const [prediction, setPrediction] = useState<string | null>(null); // State for prediction
-  const [candidateEmail, setCandidateEmail] = useState<string | null>(null); // State for email
+  const [finalPrediction, setFinalPrediction] = useState<string | null>(null);
+  const [score, setScore] = useState<number | null>(null);
 
-  // Use localStorage to retrieve email and prediction
+  const predictionScores: Record<string, number> = {
+    clean_formal: 100,
+    clean_casual: 75,
+    messy_formal: 75,
+    messy_casual: 50,
+  };
+
   useEffect(() => {
-    const storedEmail = localStorage.getItem("email");
-    const storedPrediction = localStorage.getItem("Prediction");
+    if (email) {
+      axios
+        .get<{ prediction: string }>(`http://localhost:5000/api/classification/getAllPredictions/${email}`)
+        .then((response) => {
+          const prediction = response.data.prediction;
 
-    if (storedEmail) setCandidateEmail(storedEmail);
-    if (storedPrediction) setPrediction(storedPrediction);
-  }, []); // Only run on component mount
+          if (prediction) {
+            setFinalPrediction(prediction);
+            setScore(predictionScores[prediction]);
+          } else {
+            setError("No predictions found for this email.");
+          }
+        })
+        .catch((err) => {
+          console.error(err);
+          setError("Failed to fetch predictions.");
+        });
+    } else {
+      setError("No email provided.");
+    }
+  }, [email]);
 
   return (
-    <div>
-      {error && <p>{error}</p>}
-      {prediction && <p>Prediction: {prediction}</p>}
-      {candidateEmail && <p>Email: {candidateEmail}</p>}
+    <>
+    <div className="results-container">
+      {error && <p className="error-message">{error}</p>}
+      {!error && finalPrediction && score !== null ? (
+        <div className="results-card">
+          <h1>Results for {email}</h1>
+          <table className="results-table">
+            <thead>
+              <tr>
+                <th>Final Prediction</th>
+                <th>Score</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr>
+                <td>{finalPrediction}</td>
+                <td>{score}/100</td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+      ) : (
+        <p className="loading-message">Loading results...</p>
+      )}
     </div>
+    <button>Home</button>
+    </>
   );
 };
 

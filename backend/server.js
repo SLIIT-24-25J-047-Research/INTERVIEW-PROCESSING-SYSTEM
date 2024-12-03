@@ -23,6 +23,7 @@ app.use('/api', require('./routes/voiceConfidenceRoutes'));
 app.use('/api', require('./routes/candidate/predictionRoutes'));
 
 
+
 // voice confidence routes
 app.use('/api', require('./routes/voiceConfidenceRoutes'));
 //test

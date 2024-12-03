@@ -104,18 +104,19 @@ const MockupTest: React.FC<MockupTestProps> = ({
     setIntervalId(interval); // Save interval ID for cleanup
   };
 
-  // End the test and navigate to the results page
-  const endTest = () => {
-    setIsTesting(false); // Stop testing
+ // End the test and navigate to the results page
+const endTest = () => {
+  setIsTesting(false); // Stop testing
 
-    // Clear the interval to stop capturing screenshots
-    if (intervalId) {
-      clearInterval(intervalId);
-    }
+  // Clear the interval to stop capturing screenshots
+  if (intervalId) {
+    clearInterval(intervalId);
+  }
 
-    // Navigate to the results page
-    navigate(`/candidate-mockup-results/${candidateEmail}`);
-  };
+  // Navigate to the results page with the candidate's email
+  navigate(`/candidate-mockup-results/${candidateEmail}`);
+};
+
 
   return (
     <>
