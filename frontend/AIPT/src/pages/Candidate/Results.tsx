@@ -2,6 +2,7 @@ import React, { useEffect, useState } from "react";
 import { useParams } from "react-router-dom";
 import axios from "axios";
 import "../Styles/Results.css";
+import CandidateLayout from "../../components/Candidate/CandidateLayout";
 
 interface PredictionDocument {
   prediction: string;
@@ -45,6 +46,7 @@ const Results: React.FC = () => {
 
   return (
     <>
+     <CandidateLayout>
     <div className="results-container">
       {error && <p className="error-message">{error}</p>}
       {!error && finalPrediction && score !== null ? (
@@ -69,7 +71,7 @@ const Results: React.FC = () => {
         <p className="loading-message">Loading results...</p>
       )}
     </div>
-    <button>Home</button>
+    </CandidateLayout>
     </>
   );
 };

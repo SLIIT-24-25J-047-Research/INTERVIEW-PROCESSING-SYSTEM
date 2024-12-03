@@ -1,7 +1,7 @@
 .results-container {
     display: flex;
-    justify-content: center;
     align-items: center;
+    margin-left: 200px;
     flex-direction: column;
     padding: 20px;
     min-height: 100vh;
