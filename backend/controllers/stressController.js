@@ -25,7 +25,7 @@ exports.captureAndDetect = async (req, res) => {
         try {
             // Send the image to Flask API
             const response = await axios.post(
-                "http://127.0.0.1:3000/detect-stress",
+                "http://127.0.0.1:3001/detect-stress",
                 {
                     image: fs.createReadStream(data),
                 },
