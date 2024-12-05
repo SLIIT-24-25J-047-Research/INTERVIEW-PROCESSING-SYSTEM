@@ -153,7 +153,7 @@ const CandidateDashboard: React.FC = () => {
           }
 
           .label-tag.rejected {
-            background-color: #5500cb;
+            background-color: #cb0700;
           }
 
           .label-tag.approved {
