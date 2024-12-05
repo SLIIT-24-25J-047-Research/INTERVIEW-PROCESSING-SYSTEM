@@ -4,6 +4,7 @@ import axios from "axios";
 import { useNavigate } from "react-router-dom";
 import CandidateLayout from "../../components/Candidate/CandidateLayout";
 import MockupQuestion from "../../components/Candidate/MockupQuestion";
+import Instructions from "../../components/Candidate/Instructions";
 
 // Define the PredictionResponse type
 interface PredictionResponse {
@@ -15,22 +16,19 @@ interface MockupTestProps {
   webcamHeight?: number;
 }
 
-const MockupTest: React.FC<MockupTestProps> = ({
-
-}) => {
+const MockupTest: React.FC<MockupTestProps> = ({}) => {
   const webcamRef = useRef<Webcam>(null);
   const [isTesting, setIsTesting] = useState(false); // Track test state
   const [intervalId, setIntervalId] = useState<NodeJS.Timeout | null>(null); // Track the interval ID
+  const [isEndButtonDisabled, setIsEndButtonDisabled] = useState(true); // Track if the End Test button is disabled
   const navigate = useNavigate();
 
-  // Retrieve the candidate's email from localStorage
   const candidateEmail = localStorage.getItem("email");
 
   interface SavePredictionResponse {
     message: string;
   }
 
-  // Redirect to login if no email is found
   useEffect(() => {
     if (!candidateEmail) {
       console.error("No candidate email found in localStorage");
@@ -38,24 +36,20 @@ const MockupTest: React.FC<MockupTestProps> = ({
     }
   }, [candidateEmail, navigate]);
 
-  // Capture a screenshot from the webcam
   const captureScreenshot = async () => {
     if (webcamRef.current) {
       const imageSrc = webcamRef.current.getScreenshot();
       if (imageSrc) {
         try {
-          // Convert base64 image to Blob
           const blob = await fetch(imageSrc).then((res) => res.blob());
           const file = new File([blob], "screenshot.jpg", {
             type: "image/jpeg",
           });
 
-          // Create form data for the API
           const formData = new FormData();
           formData.append("file", file);
           formData.append("email", candidateEmail || "");
 
-          // Send the image to Flask for classification
           const flaskResponse = await axios.post<PredictionResponse>(
             "http://127.0.0.1:3003/classification-predict",
             formData,
@@ -66,11 +60,10 @@ const MockupTest: React.FC<MockupTestProps> = ({
 
           console.log("Prediction received:", flaskResponse.data.prediction);
 
-          // Send the prediction to the Node.js backend to save it
           const prediction = flaskResponse.data.prediction;
 
           const saveResponse = await axios.post<SavePredictionResponse>(
-            "http://127.0.0.1:5000/api/classification/savePrediction", // Node.js backend
+            "http://127.0.0.1:5000/api/classification/savePrediction",
             {
               email: candidateEmail,
               prediction: prediction,
@@ -92,31 +85,31 @@ const MockupTest: React.FC<MockupTestProps> = ({
     }
   };
 
-  // Start the test and begin capturing screenshots
   const startTest = () => {
     setIsTesting(true);
+    setIsEndButtonDisabled(true); // Disable the End Test button initially
 
-    // Start capturing screenshots every 30 seconds
     const interval = setInterval(() => {
       captureScreenshot();
-    }, 30000); // 30 seconds interval
+    }, 30000);
 
-    setIntervalId(interval); // Save interval ID for cleanup
+    setIntervalId(interval);
+
+    // Enable the End Test button after 30 seconds
+    setTimeout(() => {
+      setIsEndButtonDisabled(false);
+    }, 30000); // 30 seconds delay
   };
 
- // End the test and navigate to the results page
-const endTest = () => {
-  setIsTesting(false); // Stop testing
+  const endTest = () => {
+    setIsTesting(false);
 
-  // Clear the interval to stop capturing screenshots
-  if (intervalId) {
-    clearInterval(intervalId);
-  }
+    if (intervalId) {
+      clearInterval(intervalId);
+    }
 
-  // Navigate to the results page with the candidate's email
-  navigate(`/candidate-mockup-results/${candidateEmail}`);
-};
-
+    navigate(`/candidate-mockup-results/${candidateEmail}`);
+  };
 
   return (
     <>
@@ -129,6 +122,8 @@ const endTest = () => {
             border: 2px solid #000;
             border-radius: 8px;
             overflow: hidden;
+            margin-top: 100px;
+            margin-right: 100px;
           }
           .webcam-container video {
             width: 100%;
@@ -155,23 +150,33 @@ const endTest = () => {
         `}
       </style>
       <CandidateLayout>
-        <div style={{ position: "relative" }}>
-          <div
-            className="webcam-container"
-            style={{ width: "150px", height: "100px" }}
-          >
-            <Webcam ref={webcamRef} screenshotFormat="image/jpeg" />
-          </div>
+        <div>
+          {isTesting && (
+            <div
+              className="webcam-container"
+              style={{ width: "150px", height: "100px" }}
+            >
+              <Webcam ref={webcamRef} screenshotFormat="image/jpeg" />
+            </div>
+          )}
           <h1>Mockup Test</h1>
           <p>Email of Candidate: {candidateEmail}</p>
+          {!isTesting && (
+            <div className="mockup-test-controls">
+              <Instructions />
+            </div>
+          )}
+          {isTesting && <MockupQuestion />}
+
           <div className="mockup-test-controls">
             {!isTesting ? (
               <button onClick={startTest}>Start Test</button>
+            ) : isEndButtonDisabled ? (
+              <span>Wait 30 seconds</span>
             ) : (
               <button onClick={endTest}>End Test</button>
             )}
           </div>
-          <MockupQuestion />
         </div>
       </CandidateLayout>
     </>
