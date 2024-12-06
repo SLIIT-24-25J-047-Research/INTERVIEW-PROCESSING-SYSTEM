@@ -10,7 +10,7 @@ exports.createSubmission = async (req, res) => {
     const { userId, questionId, code, language } = req.body;
 
     try {
-        // Step 1: Save the code submission to the database
+        // Step 1: Create a new submission
         const submission = new CodeSubmissionModels({
             userId,
             questionId,
