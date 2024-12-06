@@ -15,6 +15,7 @@ import MockupTest from "./pages/Candidate/MockupTest";
 import Results from "./pages/Candidate/Results";
 import CandidateHome from "./pages/Candidate/CandidateHome";
 import JobApplicationForm from "./pages/Candidate/JobDetails";
+import CandidateTest from "./pages/Candidate/CandidateTest";
 
 const App: React.FC = () => {
   return (
@@ -91,6 +92,14 @@ const App: React.FC = () => {
         element={
           <PrivateRoute allowedRoles={["candidate"]}>
             <MockupTest />
+          </PrivateRoute>
+        }
+      />
+      <Route
+        path="/candidate-test"
+        element={
+          <PrivateRoute allowedRoles={["candidate"]}>
+            <CandidateTest />
           </PrivateRoute>
         }
       />
