@@ -18,14 +18,14 @@ app.use('/api/classification', require('./routes/candidate/predictionRoutes'));
 
 // voice confidence routes
 app.use('/api', require('./routes/voiceConfidenceRoutes'));
+app.use('/api/audio', require('./routes/audioRoutes'));
 
 // image classification routes
 app.use('/api', require('./routes/candidate/predictionRoutes'));
 app.use('/api/classification', require('./routes/candidate/classificationRoutes'));
 
 
-// voice confidence routes
-app.use('/api', require('./routes/voiceConfidenceRoutes'));
+
 //test
 app.get('/api/test', (req, res) => {
   res.status(200).json({ message: "Node.js backend is running" });
