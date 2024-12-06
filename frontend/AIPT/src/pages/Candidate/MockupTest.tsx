@@ -2,21 +2,33 @@ import React, { useEffect, useRef, useState } from "react";
 import Webcam from "react-webcam";
 import axios from "axios";
 import { useNavigate } from "react-router-dom";
+import CandidateLayout from "../../components/Candidate/CandidateLayout";
+import MockupQuestion from "../../components/Candidate/MockupQuestion";
+import Instructions from "../../components/Candidate/Instructions";
 
 // Define the PredictionResponse type
 interface PredictionResponse {
   prediction: string;
 }
 
-const MockupTest: React.FC = () => {
+interface MockupTestProps {
+  webcamWidth?: number;
+  webcamHeight?: number;
+}
+
+const MockupTest: React.FC<MockupTestProps> = ({}) => {
   const webcamRef = useRef<Webcam>(null);
   const [isTesting, setIsTesting] = useState(false); // Track test state
+  const [intervalId, setIntervalId] = useState<NodeJS.Timeout | null>(null); // Track the interval ID
+  const [isEndButtonDisabled, setIsEndButtonDisabled] = useState(true); // Track if the End Test button is disabled
   const navigate = useNavigate();
 
-  // Retrieve the candidate's email from localStorage
   const candidateEmail = localStorage.getItem("email");
 
-  // Redirect to login if no email is found
+  interface SavePredictionResponse {
+    message: string;
+  }
+
   useEffect(() => {
     if (!candidateEmail) {
       console.error("No candidate email found in localStorage");
@@ -24,24 +36,20 @@ const MockupTest: React.FC = () => {
     }
   }, [candidateEmail, navigate]);
 
-  // Capture a screenshot from the webcam
   const captureScreenshot = async () => {
     if (webcamRef.current) {
       const imageSrc = webcamRef.current.getScreenshot();
       if (imageSrc) {
         try {
-          // Convert base64 image to Blob
           const blob = await fetch(imageSrc).then((res) => res.blob());
           const file = new File([blob], "screenshot.jpg", {
             type: "image/jpeg",
           });
 
-          // Create form data for Flask API
           const formData = new FormData();
           formData.append("file", file);
           formData.append("email", candidateEmail || "");
 
-          // Send the image to Flask for classification
           const flaskResponse = await axios.post<PredictionResponse>(
             "http://127.0.0.1:3003/classification-predict",
             formData,
@@ -52,25 +60,24 @@ const MockupTest: React.FC = () => {
 
           console.log("Prediction received:", flaskResponse.data.prediction);
 
-          // Store the prediction as a string in localStorage
-          localStorage.setItem(
-            "Prediction",
-            JSON.stringify(flaskResponse.data.prediction)
-          );
+          const prediction = flaskResponse.data.prediction;
 
-          // Send the prediction as an array to Node.js backend
-          const predictionArray = Array.isArray(flaskResponse.data.prediction)
-            ? flaskResponse.data.prediction
-            : [flaskResponse.data.prediction]; // Ensure prediction is an array
-
-          // Send the prediction array to Node.js backend
-          await axios.post(
-            "http://localhost:5000/api/classification/store-prediction",
+          const saveResponse = await axios.post<SavePredictionResponse>(
+            "http://127.0.0.1:5000/api/classification/savePrediction",
             {
               email: candidateEmail,
-              prediction: predictionArray,
+              prediction: prediction,
             }
           );
+
+          if (
+            saveResponse.data.message ===
+            "Prediction already saved within the last 30 seconds"
+          ) {
+            console.log(
+              "Prediction skipped, already saved in the last 30 seconds."
+            );
+          }
         } catch (error) {
           console.error("Error during prediction or save:", error);
         }
@@ -78,45 +85,101 @@ const MockupTest: React.FC = () => {
     }
   };
 
-  // Start the test and begin capturing screenshots
   const startTest = () => {
     setIsTesting(true);
+    setIsEndButtonDisabled(true); // Disable the End Test button initially
+
+    const interval = setInterval(() => {
+      captureScreenshot();
+    }, 30000);
+
+    setIntervalId(interval);
+
+    // Enable the End Test button after 30 seconds
+    setTimeout(() => {
+      setIsEndButtonDisabled(false);
+    }, 30000); // 30 seconds delay
   };
 
-  // End the test and navigate to the results page
   const endTest = () => {
-    setIsTesting(false); // Stop testing
-    navigate(`/candidate-mockup-results/${candidateEmail}`); // Redirect to results page with actual email
-  };
+    setIsTesting(false);
 
-  // Capture screenshots every 30 seconds while testing
-  useEffect(() => {
-    let interval: NodeJS.Timeout | null = null;
-
-    if (isTesting) {
-      interval = setInterval(() => {
-        captureScreenshot();
-      }, 30000); // 30 seconds interval
+    if (intervalId) {
+      clearInterval(intervalId);
     }
 
-    // Cleanup the interval on component unmount or when testing stops
-    return () => {
-      if (interval) clearInterval(interval);
-    };
-  }, [isTesting]);
+    navigate(`/candidate-mockup-results/${candidateEmail}`);
+  };
 
   return (
-    <div>
-      <h1>Mockup Test</h1>
-      <p>Email of Candidate: {candidateEmail}</p>{" "}
-      {/* Display candidate's email */}
-      <Webcam ref={webcamRef} screenshotFormat="image/jpeg" />
-      {!isTesting ? (
-        <button onClick={startTest}>Start Test</button>
-      ) : (
-        <button onClick={endTest}>End Test</button>
-      )}
-    </div>
+    <>
+      <style>
+        {`
+          .webcam-container {
+            position: absolute;
+            top: 10px;
+            right: 10px;
+            border: 2px solid #000;
+            border-radius: 8px;
+            overflow: hidden;
+            margin-top: 100px;
+            margin-right: 100px;
+          }
+          .webcam-container video {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+          }
+          .mockup-test-controls {
+            margin-top: 20px;
+            display: flex;
+            justify-content: center;
+            gap: 10px;
+          }
+          .mockup-test-controls button {
+            padding: 10px 20px;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+            background-color: #007bff;
+            color: #fff;
+          }
+          .mockup-test-controls button:hover {
+            background-color: #0056b3;
+          }
+        `}
+      </style>
+      <CandidateLayout>
+        <div>
+          {isTesting && (
+            <div
+              className="webcam-container"
+              style={{ width: "150px", height: "100px" }}
+            >
+              <Webcam ref={webcamRef} screenshotFormat="image/jpeg" />
+            </div>
+          )}
+          <h1>Mockup Test</h1>
+          <p>Email of Candidate: {candidateEmail}</p>
+          {!isTesting && (
+            <div className="mockup-test-controls">
+              <Instructions />
+            </div>
+          )}
+          {isTesting && <MockupQuestion />}
+
+          <div className="mockup-test-controls">
+            {!isTesting ? (
+              <button onClick={startTest}>Start Test</button>
+            ) : isEndButtonDisabled ? (
+              <span>Wait 30 seconds</span>
+            ) : (
+              <button onClick={endTest}>End Test</button>
+            )}
+          </div>
+        </div>
+      </CandidateLayout>
+    </>
   );
 };
 
