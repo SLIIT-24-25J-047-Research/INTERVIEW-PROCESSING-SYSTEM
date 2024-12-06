@@ -21,7 +21,7 @@ app.use('/api', require('./routes/voiceConfidenceRoutes'));
 
 // image classification routes
 app.use('/api', require('./routes/candidate/predictionRoutes'));
-app.use('/api/classification', require('./routes/candidate/classificationRoutes'));
+
 
 
 // voice confidence routes
