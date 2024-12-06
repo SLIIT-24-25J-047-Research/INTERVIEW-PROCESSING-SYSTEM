@@ -1,5 +1,6 @@
 import React, { useState } from 'react';
 import { FaHome, FaTasks, FaUserAlt, FaCog, FaPen, FaBars } from 'react-icons/fa';
+import { FaNoteSticky } from "react-icons/fa6";
 import { Link } from 'react-router-dom';
 import './candidateSidebar.css';
 
@@ -27,6 +28,10 @@ const CandidateSidebar: React.FC = () => {
                 <li className="menu-item">
                     <FaPen  className="menu-icon" />
                     {!isCollapsed && <Link to="/candidate-mockup">Mockup-Test</Link>}
+                </li>
+                <li className="menu-item">
+                    <FaNoteSticky  className="menu-icon" />
+                    {!isCollapsed && <Link to="/candidate-test">Non Technical Interview</Link>}
                 </li>
                 <li className="menu-item">
                     <FaUserAlt className="menu-icon" />
