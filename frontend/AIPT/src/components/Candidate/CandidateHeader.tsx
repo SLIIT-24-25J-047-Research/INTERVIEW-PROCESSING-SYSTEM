@@ -41,7 +41,6 @@ const CandidateHeader: React.FC<HeaderProps> = ({ title }) => {
   }, [location.pathname]); 
 
   const isCandidatePage = location.pathname === '/candidate-home';
-  console.log("Is scrolled?", isScrolled);
 
   return (
     
