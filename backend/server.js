@@ -23,7 +23,7 @@ app.use('/api/audio', require('./routes/audioRoutes'));
 
 // image classification routes
 app.use('/api', require('./routes/candidate/predictionRoutes'));
-app.use('/api/classification', require('./routes/candidate/classificationRoutes'));
+
 
 //code complexity routes
 
