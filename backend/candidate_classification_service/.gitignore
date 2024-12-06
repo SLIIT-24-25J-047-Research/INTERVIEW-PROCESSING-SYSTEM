@@ -6,6 +6,7 @@ venv/
 *.pyd
 *.py[cod]
 __pycache__/
+*.log
 
 # Ignore Jupyter Notebook checkpoints
 .ipynb_checkpoints/
