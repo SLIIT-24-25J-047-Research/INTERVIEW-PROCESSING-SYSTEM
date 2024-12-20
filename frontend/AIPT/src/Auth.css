@@ -3,20 +3,24 @@
   justify-content: center;
   align-items: center;
   height: 100vh;
-  background: linear-gradient(135deg, #b10d86,  #292bc3 ,#bd56cd,#9c009c);  
+  background: url('./images/login-BG.jpg') no-repeat center center;
+  background-size: cover; /* Ensures the image covers the entire container */
 }
+
 
 /* rectangle  */
 .auth-box {
   display: flex;
-  width: 1000px; 
-  height: 600px; 
-  background-color: #ffffff;
+  width: 1000px;
+  height: 600px;
+  background: rgba(255, 255, 255, 0.2); /* Semi-transparent white */
   border-radius: 20px;
   box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+  backdrop-filter: blur(10px); /* Glass effect */
+  -webkit-backdrop-filter: blur(10px); /* Safari support */
   overflow: hidden;
-  padding: auto;
 }
+
 
 .auth-image {
   flex: 1;
