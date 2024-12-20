@@ -51,42 +51,43 @@ const login = async (req, res) => {
   try {
     console.log("Checking for user with email:", email);
 
-    // Check if user exists
-    const user = await User.findOne({ email });
+    // Check if user exists and include the password in the query
+    const user = await User.findOne({ email }).select("+password");
     if (!user) {
       console.log("User not found");
-      return res.status(404).json({ message: "User not found" }); // Return response and stop further execution
+      return res.status(404).json({ message: "User not found" });
     }
 
-    console.log("User found:");
+    console.log("User found");
 
     // Check if password matches
     const isMatch = await user.comparePassword(password);
     if (!isMatch) {
       console.log("Password mismatch");
-      return res.status(400).json({ message: "Invalid credentials" }); // Return response and stop further execution
+      return res.status(400).json({ message: "Invalid credentials" });
     }
 
     console.log("Password match, generating token");
 
     // Generate JWT token
     const token = jwt.sign(
-      { id: user._id, role: user.role, email: user.email }, // Include email in JWT payload
+      { id: user._id, role: user.role, email: user.email },
       process.env.JWT_SECRET,
-      { expiresIn: "1h" } // Token expiration time
+      { expiresIn: "1h" }
     );
 
     // Send back the token, user role, and email
     return res.json({
       token,
       role: user.role,
-      email: user.email, // Include email in the response
+      email: user.email,
     });
   } catch (error) {
     console.error("Error during login:", error);
-    return res.status(500).json({ message: "Server error" }); // Return response and stop further execution
+    return res.status(500).json({ message: "Server error" });
   }
 };
+
 
 
 // Get logged-in user data based on email query
