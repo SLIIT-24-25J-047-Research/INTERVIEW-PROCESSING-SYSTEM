@@ -26,6 +26,12 @@ const Sidebar: React.FC = () => {
                 <span>Interviews</span>
               </Link>
             </li>
+            <li className="menu-item">
+              <Link to="/interviewer-Vacancies" className="menu-link">
+                <FaClipboardList className="menu-icon" />
+                <span>Vacancies</span>
+              </Link>
+            </li>
           
           </ul>
         </div>
