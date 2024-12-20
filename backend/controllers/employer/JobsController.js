@@ -3,13 +3,32 @@ const JobsModel = require ('../../models/employer/JobsModel.js');
 // Create a new job
 const createJob = async (req, res) => {
   try {
-    const newJob = new JobsModel(req.body);
+    // Find the last created job based on jobID (assuming jobID follows the pattern "vacancy01", "vacancy02", etc.)
+    const lastJob = await JobsModel.findOne().sort({ jobID: -1 }); // Sort by jobID in descending order
+
+    let newJobID = "vacancy01"; // Default to "vacancy01" if no jobs exist
+
+    if (lastJob) {
+      // Extract the number part from the last job's jobID (e.g., "vacancy01" -> 1)
+      const lastJobNumber = parseInt(lastJob.jobID.replace("vacancy", ""));
+      
+      // Increment the number by 1
+      const newJobNumber = lastJobNumber + 1;
+      
+      // Generate the new jobID (padding with leading zeros to maintain two digits)
+      newJobID = `vacancy${String(newJobNumber).padStart(2, '0')}`;
+    }
+
+    // Create a new job with the generated jobID
+    const newJob = new JobsModel({
+      ...req.body,  // The rest of the job details come from the request body
+      jobID: newJobID, // Set the new jobID
+    });
+
     await newJob.save();
     res.status(201).json({ message: "Job created successfully", job: newJob });
   } catch (error) {
-    res
-      .status(500)
-      .json({ message: "Failed to create job", error: error.message });
+    res.status(500).json({ message: "Failed to create job", error: error.message });
   }
 };
 
