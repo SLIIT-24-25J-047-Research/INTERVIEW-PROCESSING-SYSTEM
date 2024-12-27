@@ -71,7 +71,7 @@ const editInterview = async (req, res) => {
       });
     }
 
-    // Update interview details
+
     interview.interviewDate = interviewDate || interview.interviewDate;
     interview.interviewTime = interviewTime || interview.interviewTime;
     interview.media = media || interview.media;
