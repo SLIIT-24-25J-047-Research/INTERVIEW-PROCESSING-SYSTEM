@@ -21,7 +21,7 @@ const scheduleInterview = async (req, res) => {
       return res.status(400).json({ message: 'User already has an interview scheduled within the next 3 days. Please update the existing schedule.' });
     }
 
-    // Schedule the interview
+   
     const interviewDate = new Date();
     interviewDate.setDate(interviewDate.getDate() + 3);
 
