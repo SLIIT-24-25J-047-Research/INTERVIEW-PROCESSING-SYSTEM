@@ -62,6 +62,8 @@ exports.getTechnicalInterviewById = async (req, res) => {
   }
 };
 
+
+
 // Update
 exports.updateTechnicalInterview = async (req, res) => {
     try {
