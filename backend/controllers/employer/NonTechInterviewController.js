@@ -102,7 +102,7 @@ const editInterview = async (req, res) => {
     }
   }
 
-  // Get a schedule by its ID
+  // Get by  ID
 const getScheduleById = async (req, res) => {
     try {
       const { id } = req.params;
