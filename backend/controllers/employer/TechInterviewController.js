@@ -66,8 +66,7 @@ exports.getTechnicalInterviewById = async (req, res) => {
 exports.updateTechnicalInterview = async (req, res) => {
     try {
       const { testDate, testTime, duration, testLink, status } = req.body;
-  
-      // Find the interview by ID
+
       const interview = await TechnicalInterviewSchedule.findById(req.params.id);
   
       if (!interview) {
