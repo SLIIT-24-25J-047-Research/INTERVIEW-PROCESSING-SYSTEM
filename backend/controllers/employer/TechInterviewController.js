@@ -13,7 +13,7 @@ exports.createTechnicalInterview = async (req, res) => {
         return res.status(400).json({ message: 'Test link must be unique. This link is already used by another user.' });
       }
   
-      // Calculate the interview date (2 days from today)
+      //  (2 days from today)
       const today = new Date();
       const testDate = new Date();
       testDate.setDate(today.getDate() + 2); // Set the date to 2 days from now
