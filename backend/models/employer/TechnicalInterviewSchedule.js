@@ -9,7 +9,7 @@ const technicalInterviewScheduleSchema = new mongoose.Schema({
   duration: { type: Number, required: true },  
   status: {
     type: String,
-    enum: ['scheduled', 'in-progress', 'completed', 'not attended', 'canceled'],
+    enum: ['scheduled', 'in-progress', 'updated','completed', 'not attended', 'canceled'],
     default: 'scheduled', 
   },
   testLink: { type: String, required: true }, 
