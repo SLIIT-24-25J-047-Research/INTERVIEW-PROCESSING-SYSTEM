@@ -88,7 +88,7 @@ exports.updateTechnicalInterview = async (req, res) => {
         return res.status(400).json({ message: 'The updated interview date cannot be in the past.' });
       }
   
-      // Update the interview schedule
+
       const updatedInterview = await TechnicalInterviewSchedule.findByIdAndUpdate(
         req.params.id,
         { testDate, testTime, duration, testLink, status },
