@@ -1,4 +1,4 @@
-// models/TechnicalInterviewSchedule.js
+
 const mongoose = require('mongoose');
 
 const technicalInterviewScheduleSchema = new mongoose.Schema({
