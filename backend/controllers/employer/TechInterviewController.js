@@ -17,7 +17,7 @@ exports.createTechnicalInterview = async (req, res) => {
       const today = new Date();
       const testDate = new Date();
       testDate.setDate(today.getDate() + 2); 
-      const testTime = "10:00 AM"; // Default time for the interview (you can adjust as needed)
+      const testTime = "10:00 AM"; // Default time 
   
       // Create a new technical interview schedule
       const interview = new TechnicalInterviewSchedule({
