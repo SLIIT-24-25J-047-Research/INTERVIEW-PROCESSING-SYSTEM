@@ -9,6 +9,6 @@ router.put('/NT-schedule/edit/:id', editInterview);
 router.delete('/NT-cancel/:id', cancelInterview);
 router.get('/NT-schedule/get', getAllSchedules);
 router.get('/NT-schedule/get/:id', getScheduleById);
-router.get('/user/:userId', getSchedulesByUserId);
+router.get('/NT-shedule/user/:userId', getSchedulesByUserId);
 
 module.exports = router;
