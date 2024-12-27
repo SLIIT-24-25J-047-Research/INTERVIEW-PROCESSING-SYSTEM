@@ -5,7 +5,7 @@ const technicalInterviewController = require('../../controllers/employer/TechInt
 
 router.post('/schedule', technicalInterviewController.createTechnicalInterview);
 router.get('/schedule/get', technicalInterviewController.getAllTechnicalInterviews);
-router.get('/T-schedule/get/:id', technicalInterviewController.getTechnicalInterviewById);
+router.get('/schedule/get/:id', technicalInterviewController.getTechnicalInterviewById);
 router.put('/T-schedule/edit/:id', technicalInterviewController.updateTechnicalInterview);
 router.delete('/T-schedule/:id', technicalInterviewController.deleteTechnicalInterview);
 
