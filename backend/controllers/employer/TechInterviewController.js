@@ -16,7 +16,7 @@ exports.createTechnicalInterview = async (req, res) => {
       //  (2 days from today)
       const today = new Date();
       const testDate = new Date();
-      testDate.setDate(today.getDate() + 2); 
+      testDate.setDate(today.getDate() + 0); 
       const testTime = "10:00 AM"; // Default time 
   
    
@@ -64,24 +64,49 @@ exports.getTechnicalInterviewById = async (req, res) => {
 
 // Update
 exports.updateTechnicalInterview = async (req, res) => {
-  try {
-    const { testDate, testTime, duration, testLink, status } = req.body;
-
-    const interview = await TechnicalInterviewSchedule.findByIdAndUpdate(
-      req.params.id,
-      { testDate, testTime, duration, testLink, status },
-      { new: true }
-    );
-
-    if (!interview) {
-      return res.status(404).json({ message: 'Interview not found' });
+    try {
+      const { testDate, testTime, duration, testLink, status } = req.body;
+  
+      // Find the interview by ID
+      const interview = await TechnicalInterviewSchedule.findById(req.params.id);
+  
+      if (!interview) {
+        return res.status(404).json({ message: 'Interview not found' });
+      }
+  
+      const currentDate = new Date();
+      const interviewDate = new Date(interview.testDate);
+  
+      // Check if the update is attempted on the interview date
+      if (
+        currentDate.toISOString().split('T')[0] === interviewDate.toISOString().split('T')[0] &&
+        !(testDate && new Date(testDate).toISOString().split('T')[0] !== interviewDate.toISOString().split('T')[0])
+      ) {
+        return res.status(400).json({
+          message: 'Cannot update the interview on the same day as the interview date.',
+        });
+      }
+  
+      // Check if the new date is in the past
+      if (testDate && new Date(testDate) < currentDate) {
+        return res.status(400).json({ message: 'The updated interview date cannot be in the past.' });
+      }
+  
+      // Update the interview schedule
+      const updatedInterview = await TechnicalInterviewSchedule.findByIdAndUpdate(
+        req.params.id,
+        { testDate, testTime, duration, testLink, status },
+        { new: true }
+      );
+  
+      res.status(200).json({ message: 'Interview updated successfully', updatedInterview });
+    } catch (err) {
+      res.status(400).json({ message: 'Error updating interview schedule', error: err.message });
     }
-
-    res.status(200).json({ message: 'Interview updated successfully', interview });
-  } catch (err) {
-    res.status(400).json({ message: 'Error updating interview schedule', error: err.message });
-  }
-};
+  };
+  
+  
+  
 
 // Delete
 exports.deleteTechnicalInterview = async (req, res) => {
