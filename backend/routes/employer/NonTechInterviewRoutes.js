@@ -1,4 +1,4 @@
-// routes/interviewRoutes.js
+
 const express = require('express');
 const { scheduleInterview, editInterview, cancelInterview, getAllSchedules, getScheduleById, getSchedulesByUserId, } = require('../../controllers/employer/nonTechInterviewController');
 const router = express.Router();
