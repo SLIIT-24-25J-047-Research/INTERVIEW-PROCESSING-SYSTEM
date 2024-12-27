@@ -16,7 +16,7 @@ exports.createTechnicalInterview = async (req, res) => {
       //  (2 days from today)
       const today = new Date();
       const testDate = new Date();
-      testDate.setDate(today.getDate() + 2); // Set the date to 2 days from now
+      testDate.setDate(today.getDate() + 2); 
       const testTime = "10:00 AM"; // Default time for the interview (you can adjust as needed)
   
       // Create a new technical interview schedule
