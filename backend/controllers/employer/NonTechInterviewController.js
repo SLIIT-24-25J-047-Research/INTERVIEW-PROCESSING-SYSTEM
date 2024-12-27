@@ -48,7 +48,7 @@ const editInterview = async (req, res) => {
     const { id } = req.params;
     const { interviewDate, interviewTime, media } = req.body;
 
-    // Find the interview that needs to be updated
+    // Find the interview
     const interview = await InterviewSchedule.findById(id);
     if (!interview) {
       return res.status(404).json({ message: 'Interview not found' });
