@@ -96,7 +96,7 @@ exports.updateTechnicalInterview = async (req, res) => {
           testTime,
           duration,
           testLink,
-          status: 'updated', // Explicitly set status to 'updated'
+          status: 'updated', 
         },
         { new: true }
       );
