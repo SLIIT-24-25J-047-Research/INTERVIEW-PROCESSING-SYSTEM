@@ -54,7 +54,24 @@ const editInterview = async (req, res) => {
       return res.status(404).json({ message: 'Interview not found' });
     }
 
-    // Update  details
+    const currentDate = new Date();
+    const interviewScheduledDate = new Date(interview.interviewDate);
+
+    // Block updates attempted on the interview day
+    if (currentDate.toISOString().split('T')[0] === interviewScheduledDate.toISOString().split('T')[0]) {
+      return res.status(400).json({
+        message: 'Cannot update the interview on the same day as the interview date.',
+      });
+    }
+
+    // Check if the new interview date is in the past
+    if (interviewDate && new Date(interviewDate) < currentDate) {
+      return res.status(400).json({
+        message: 'The updated interview date cannot be in the past.',
+      });
+    }
+
+    // Update interview details
     interview.interviewDate = interviewDate || interview.interviewDate;
     interview.interviewTime = interviewTime || interview.interviewTime;
     interview.media = media || interview.media;
@@ -68,6 +85,7 @@ const editInterview = async (req, res) => {
     return res.status(500).json({ message: 'Error updating interview', error });
   }
 };
+
 
 
 
