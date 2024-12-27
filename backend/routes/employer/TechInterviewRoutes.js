@@ -7,6 +7,6 @@ router.post('/schedule', technicalInterviewController.createTechnicalInterview);
 router.get('/schedule/get', technicalInterviewController.getAllTechnicalInterviews);
 router.get('/schedule/get/:id', technicalInterviewController.getTechnicalInterviewById);
 router.put('/schedule/edit/:id', technicalInterviewController.updateTechnicalInterview);
-router.delete('/T-schedule/:id', technicalInterviewController.deleteTechnicalInterview);
+router.delete('/schedule/:id', technicalInterviewController.deleteTechnicalInterview);
 
 module.exports = router;
