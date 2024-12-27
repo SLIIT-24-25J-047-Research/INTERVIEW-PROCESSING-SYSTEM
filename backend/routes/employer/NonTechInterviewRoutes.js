@@ -4,7 +4,7 @@ const { scheduleInterview, editInterview, cancelInterview, getAllSchedules, getS
 const router = express.Router();
 
 
-router.post('/NT-schedule', scheduleInterview);
+router.post('/schedule', scheduleInterview);
 router.put('/NT-schedule/edit/:id', editInterview);
 router.delete('/NT-cancel/:id', cancelInterview);
 router.get('/NT-schedule/get', getAllSchedules);
