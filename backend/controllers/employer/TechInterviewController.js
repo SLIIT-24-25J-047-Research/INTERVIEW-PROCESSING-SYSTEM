@@ -3,52 +3,39 @@ const TechnicalInterviewSchedule  = require('../../models/employer/TechnicalInte
 
 
 // Create 
-// exports.createTechnicalInterview = async (req, res) => {
-//     try {
-//       const { userId, userName, testDate, testTime, duration, testLink } = req.body;
+exports.createTechnicalInterview = async (req, res) => {
+    try {
+      const { userId, userName, duration, testLink } = req.body;
   
-//       // Check if the test link is unique
-//       const existingTestLink = await TechnicalInterviewSchedule.findOne({ testLink });
-//       if (existingTestLink) {
-//         return res.status(400).json({ message: 'Test link must be unique. This link is already used by another user.' });
-//       }
+      // Check if the test link is unique
+      const existingTestLink = await TechnicalInterviewSchedule.findOne({ testLink });
+      if (existingTestLink) {
+        return res.status(400).json({ message: 'Test link must be unique. This link is already used by another user.' });
+      }
   
-//       // Check if the interview date is at least 2 days after the application date
-//       const applicationDate = new Date();  // Use the current date as the application date (you can modify this based on the actual application date)
-//       const minInterviewDate = new Date(applicationDate);
-//       minInterviewDate.setDate(applicationDate.getDate() + 2);  // Add 2 days to the current date
+      // Calculate the interview date (2 days from today)
+      const today = new Date();
+      const testDate = new Date();
+      testDate.setDate(today.getDate() + 2); // Set the date to 2 days from now
+      const testTime = "10:00 AM"; // Default time for the interview (you can adjust as needed)
   
-//       if (new Date(testDate) < minInterviewDate) {
-//         return res.status(400).json({ message: 'The interview date must be at least 2 days after the application date.' });
-//       }
+      // Create a new technical interview schedule
+      const interview = new TechnicalInterviewSchedule({
+        userId,
+        userName,
+        testDate,
+        testTime,
+        duration,
+        testLink
+      });
   
-//       // Check if the user already has an interview scheduled at the same time (same date + same time)
-//       const existingSchedule = await TechnicalInterviewSchedule.findOne({
-//         userId,
-//         testDate: new Date(testDate), // Check if the user has an interview scheduled on the same date
-//         testTime: testTime // Check if the user has an interview at the same time
-//       });
+      await interview.save();
+      res.status(201).json({ message: 'Technical interview scheduled successfully', interview });
+    } catch (err) {
+      res.status(400).json({ message: 'Error scheduling technical interview', error: err.message });
+    }
+  };
   
-//       if (existingSchedule) {
-//         return res.status(400).json({ message: 'User already has a scheduled interview at this time on this date.' });
-//       }
-  
-//       // Create a new technical interview schedule
-//       const interview = new TechnicalInterviewSchedule({
-//         userId,
-//         userName,
-//         testDate,
-//         testTime,
-//         duration,
-//         testLink
-//       });
-  
-//       await interview.save();
-//       res.status(201).json({ message: 'Technical interview scheduled successfully', interview });
-//     } catch (err) {
-//       res.status(400).json({ message: 'Error scheduling technical interview', error: err.message });
-//     }
-//   };
 
 // Get all 
 exports.getAllTechnicalInterviews = async (req, res) => {
