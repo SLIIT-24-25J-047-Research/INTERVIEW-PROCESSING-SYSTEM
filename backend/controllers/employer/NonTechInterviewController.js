@@ -54,7 +54,7 @@ const editInterview = async (req, res) => {
       return res.status(404).json({ message: 'Interview not found' });
     }
 
-    // Update the interview details
+    // Update  details
     interview.interviewDate = interviewDate || interview.interviewDate;
     interview.interviewTime = interviewTime || interview.interviewTime;
     interview.media = media || interview.media;
