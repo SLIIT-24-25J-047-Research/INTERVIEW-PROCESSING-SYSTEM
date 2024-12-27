@@ -88,8 +88,7 @@ exports.updateTechnicalInterview = async (req, res) => {
       if (testDate && new Date(testDate) < currentDate) {
         return res.status(400).json({ message: 'The updated interview date cannot be in the past.' });
       }
-  
-      // Ensure status is updated to 'updated'
+
       const updatedInterview = await TechnicalInterviewSchedule.findByIdAndUpdate(
         req.params.id,
         {
