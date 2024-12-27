@@ -15,6 +15,6 @@ const technicalInterviewScheduleSchema = new mongoose.Schema({
   testLink: { type: String, required: true }, 
 });
 
-const TechnicalInterviewSchedule = mongoose.model('TechnicalInterviewSchedule', technicalInterviewScheduleSchema);
+const TechnicalInterviewSchedule = mongoose.model('Technical-InterviewSchedule', technicalInterviewScheduleSchema);
 
 module.exports = TechnicalInterviewSchedule;
