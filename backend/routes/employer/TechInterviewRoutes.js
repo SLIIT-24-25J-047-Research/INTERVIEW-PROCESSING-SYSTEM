@@ -3,7 +3,7 @@ const router = express.Router();
 const technicalInterviewController = require('../../controllers/employer/TechInterviewController');
 
 
-router.post('/schedule', technicalInterviewController.createTechnicalInterview);
+router.post('/T-schedule', technicalInterviewController.createTechnicalInterview);
 router.get('/schedule/get', technicalInterviewController.getAllTechnicalInterviews);
 router.get('/schedule/get/:id', technicalInterviewController.getTechnicalInterviewById);
 router.put('/schedule/edit/:id', technicalInterviewController.updateTechnicalInterview);
