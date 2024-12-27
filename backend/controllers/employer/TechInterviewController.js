@@ -65,8 +65,9 @@ exports.getTechnicalInterviewById = async (req, res) => {
 // Update
 exports.updateTechnicalInterview = async (req, res) => {
     try {
-      const { testDate, testTime, duration, testLink, status } = req.body;
-
+      const { testDate, testTime, duration, testLink } = req.body;
+  
+      // Find the interview by ID
       const interview = await TechnicalInterviewSchedule.findById(req.params.id);
   
       if (!interview) {
@@ -88,10 +89,16 @@ exports.updateTechnicalInterview = async (req, res) => {
         return res.status(400).json({ message: 'The updated interview date cannot be in the past.' });
       }
   
-
+      // Ensure status is updated to 'updated'
       const updatedInterview = await TechnicalInterviewSchedule.findByIdAndUpdate(
         req.params.id,
-        { testDate, testTime, duration, testLink, status },
+        {
+          testDate,
+          testTime,
+          duration,
+          testLink,
+          status: 'updated', // Explicitly set status to 'updated'
+        },
         { new: true }
       );
   
@@ -100,6 +107,7 @@ exports.updateTechnicalInterview = async (req, res) => {
       res.status(400).json({ message: 'Error updating interview schedule', error: err.message });
     }
   };
+  
   
   
   
