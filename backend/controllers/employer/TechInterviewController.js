@@ -77,17 +77,14 @@ exports.updateTechnicalInterview = async (req, res) => {
       const currentDate = new Date();
       const interviewDate = new Date(interview.testDate);
   
-      // Check if the update is attempted on the interview date
-      if (
-        currentDate.toISOString().split('T')[0] === interviewDate.toISOString().split('T')[0] &&
-        !(testDate && new Date(testDate).toISOString().split('T')[0] !== interviewDate.toISOString().split('T')[0])
-      ) {
+      // Block updates attempted on the interview day
+      if (currentDate.toISOString().split('T')[0] === interviewDate.toISOString().split('T')[0]) {
         return res.status(400).json({
           message: 'Cannot update the interview on the same day as the interview date.',
         });
       }
   
-      // Check if the new date is in the past
+      // Check if the new test date is in the past
       if (testDate && new Date(testDate) < currentDate) {
         return res.status(400).json({ message: 'The updated interview date cannot be in the past.' });
       }
