@@ -1,7 +1,6 @@
-// controllers/interviewScheduleController.js
 const TechnicalInterviewSchedule  = require('../../models/employer/TechnicalInterviewSchedule');
 
-// Create a new technical interview schedule
+// Create 
 exports.createTechnicalInterview = async (req, res) => {
   try {
     const { userId, userName, testDate, testTime, duration, testLink } = req.body;
@@ -22,7 +21,7 @@ exports.createTechnicalInterview = async (req, res) => {
   }
 };
 
-// Get all technical interview schedules
+// Get all 
 exports.getAllTechnicalInterviews = async (req, res) => {
   try {
     const interviews = await TechnicalInterviewSchedule.find().populate('userId', 'userName');
@@ -32,7 +31,7 @@ exports.getAllTechnicalInterviews = async (req, res) => {
   }
 };
 
-// Get a specific technical interview schedule by ID
+// Get by ID
 exports.getTechnicalInterviewById = async (req, res) => {
   try {
     const interview = await TechnicalInterviewSchedule.findById(req.params.id).populate('userId', 'userName');
@@ -47,7 +46,7 @@ exports.getTechnicalInterviewById = async (req, res) => {
   }
 };
 
-// Update a technical interview schedule
+// Update
 exports.updateTechnicalInterview = async (req, res) => {
   try {
     const { testDate, testTime, duration, testLink, status } = req.body;
