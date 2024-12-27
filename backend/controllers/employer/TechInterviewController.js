@@ -67,7 +67,7 @@ exports.updateTechnicalInterview = async (req, res) => {
   }
 };
 
-// Delete a technical interview schedule
+// Delete
 exports.deleteTechnicalInterview = async (req, res) => {
   try {
     const interview = await TechnicalInterviewSchedule.findByIdAndDelete(req.params.id);
