@@ -18,6 +18,10 @@ const Header: React.FC = () => {
       <div className="header-buttons">
         <Link to="/login" className="logout-btn" onClick={logout}>Logout</Link>
       </div>
+      {/* add a profile button to go to the profile */}
+      {/* <div className="header-buttons">
+        <Link to="/interviewer-profile" className="profile-btn">Profile</Link>
+      </div> */}
     </header>
   );
 };

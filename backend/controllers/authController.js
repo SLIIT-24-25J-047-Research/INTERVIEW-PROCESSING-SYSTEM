@@ -1,6 +1,9 @@
 const User = require("../models/User");
 const bcrypt = require("bcryptjs");
 const jwt = require("jsonwebtoken");
+const { OAuth2Client } = require('google-auth-library'); // Import Google OAuth2 client
+const client = new OAuth2Client(process.env.GOOGLE_CLIENT_ID); // Your Google Client ID
+
 
 // Register User
 const register = async (req, res) => {
@@ -48,42 +51,43 @@ const login = async (req, res) => {
   try {
     console.log("Checking for user with email:", email);
 
-    // Check if user exists
-    const user = await User.findOne({ email });
+    // Check if user exists and include the password in the query
+    const user = await User.findOne({ email }).select("+password");
     if (!user) {
       console.log("User not found");
-      return res.status(404).json({ message: "User not found" }); // Return response and stop further execution
+      return res.status(404).json({ message: "User not found" });
     }
 
-    console.log("User found:");
+    console.log("User found");
 
     // Check if password matches
     const isMatch = await user.comparePassword(password);
     if (!isMatch) {
       console.log("Password mismatch");
-      return res.status(400).json({ message: "Invalid credentials" }); // Return response and stop further execution
+      return res.status(400).json({ message: "Invalid credentials" });
     }
 
     console.log("Password match, generating token");
 
     // Generate JWT token
     const token = jwt.sign(
-      { id: user._id, role: user.role, email: user.email }, // Include email in JWT payload
+      { id: user._id, role: user.role, email: user.email },
       process.env.JWT_SECRET,
-      { expiresIn: "1h" } // Token expiration time
+      { expiresIn: "1h" }
     );
 
     // Send back the token, user role, and email
     return res.json({
       token,
       role: user.role,
-      email: user.email, // Include email in the response
+      email: user.email,
     });
   } catch (error) {
     console.error("Error during login:", error);
-    return res.status(500).json({ message: "Server error" }); // Return response and stop further execution
+    return res.status(500).json({ message: "Server error" });
   }
 };
+
 
 
 // Get logged-in user data based on email query
@@ -117,5 +121,119 @@ const getUserData = async (req, res) => {
 };
 
 //---
+const googleLogin = async (req, res) => {
+  const { token } = req.body;
 
-module.exports = { login, register, getUserData };
+  try {
+      const ticket = await client.verifyIdToken({
+          idToken: token,
+          audience: process.env.GOOGLE_CLIENT_ID,
+      });
+
+      const payload = ticket.getPayload(); // Google payload
+      console.log("Backend Google Payload:", payload); // Log in backend terminal
+
+      const email = payload.email.toLowerCase();
+      console.log("Email Being Queried:", email); // Log queried email
+
+      let user = await User.findOne({ email });
+
+      if (!user) {
+          console.log("User Not Found, Creating New User...");
+          user = new User({
+              email,
+              name: payload.name,
+              role: 'candidate',
+              googleId: payload.sub,
+          });
+          await user.save();
+      } else {
+          console.log("User Found:", user);
+      }
+
+      const jwtToken = jwt.sign(
+          { id: user._id, role: user.role, email: user.email, googleId: user.googleId },
+          process.env.JWT_SECRET,
+          { expiresIn: '1h' }
+      );
+
+      return res.json({ token: jwtToken, role: user.role, email: user.email });
+  } catch (error) {
+      console.error("Google Login Error:", error);
+      return res.status(500).json({ message: "Server error" });
+  }
+};
+
+
+const googleSignup = async (req, res) => {
+  const { token } = req.body;
+
+  try {
+    // Verify the Google token
+    const ticket = await client.verifyIdToken({
+      idToken: token,
+      audience: process.env.GOOGLE_CLIENT_ID,
+    });
+
+    // Extract user information from the Google token
+    const payload = ticket.getPayload();
+    const { email, name, sub: googleId } = payload;
+
+    // Check if the user already exists in the database
+    let existingUser = await User.findOne({ email });
+    if (existingUser) {
+      // If user exists, verify Google ID to confirm ownership
+      if (existingUser.googleId && existingUser.googleId === googleId) {
+        // Generate a new token and log them in
+        const jwtToken = jwt.sign(
+          { id: existingUser._id, role: existingUser.role },
+          process.env.JWT_SECRET,
+          { expiresIn: "1h" }
+        );
+
+        return res.status(200).json({
+          message: "Logged in successfully",
+          token: jwtToken,
+          role: existingUser.role,
+        });
+      } else {
+        // Google ID mismatch; potential security issue
+        return res.status(403).json({
+          message: "Account already exists but Google ID does not match. Please use your registered method to log in.",
+        });
+      }
+    }
+
+    // If the user doesn't exist, create a new user with Google ID
+    const newUser = new User({
+      email,
+      name,
+      role: 'candidate',
+      googleId, // Store the Google ID here
+    });
+
+    await newUser.save();
+
+    // Generate JWT token for the new user
+    const newToken = jwt.sign(
+      { id: newUser._id, role: newUser.role },
+      process.env.JWT_SECRET,
+      { expiresIn: "1h" }
+    );
+
+    // Return the token and user role
+    res.status(201).json({
+      message: "Google signup successful",
+      token: newToken,
+      role: newUser.role,
+    });
+  } catch (error) {
+    console.error("Error during Google signup:", error);
+    res.status(500).json({ message: "Server error" });
+  }
+};
+
+
+
+
+module.exports = { login, register, getUserData, googleLogin, googleSignup };

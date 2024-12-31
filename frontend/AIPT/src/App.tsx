@@ -16,6 +16,7 @@ import Results from "./pages/Candidate/Results";
 import CandidateHome from "./pages/Candidate/CandidateHome";
 import JobApplicationForm from "./pages/Candidate/JobDetails";
 import CandidateTest from "./pages/Candidate/CandidateTest";
+import AddJob from "./pages/Interviewer/AddJob";
 
 const App: React.FC = () => {
   return (
@@ -50,6 +51,17 @@ const App: React.FC = () => {
           </PrivateRoute>
         }
       />
+            <Route
+        path="/interviewer-Vacancies"
+        element={
+          <PrivateRoute allowedRoles={["interviewer"]}>
+            <AddJob />
+          </PrivateRoute>
+        }
+      />
+
+
+
 
       {/* Routes for Candidates */}
 
