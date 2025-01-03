@@ -38,7 +38,7 @@ const scheduleInterview = async (req, res) => {
     const notification = new Notification({
       userId,
       message: `Your interview has been scheduled on ${media} for ${interviewDate.toDateString()} at ${interviewTime}.`,
-      interviewType: 'non-technical', // Set the type based on the context
+      interviewType: 'non-technical', 
     });
 
     await notification.save();
