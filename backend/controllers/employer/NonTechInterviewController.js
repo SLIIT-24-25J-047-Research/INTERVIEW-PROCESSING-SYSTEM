@@ -1,3 +1,4 @@
+const Notification = require('../../models/candidate/Notification');
 const InterviewSchedule = require('../../models/employer/NonTechInterviewSchedule');
 const User = require('../../models/User');
 
@@ -34,6 +35,13 @@ const scheduleInterview = async (req, res) => {
     });
 
     await newInterview.save();
+    const notification = new Notification({
+      userId,
+      message: `Your interview has been scheduled on ${media} for ${interviewDate.toDateString()} at ${interviewTime}.`,
+      interviewType: 'non-technical', // Set the type based on the context
+    });
+
+    await notification.save();
 
     return res.status(201).json({ message: 'Interview scheduled successfully', interview: newInterview });
   } catch (error) {
@@ -78,6 +86,14 @@ const editInterview = async (req, res) => {
     interview.status = 'updated';
 
     await interview.save();
+
+    const notification = new Notification({
+      userId: interview.userId,
+      message: `Your Non technical interview has been updated. New date: ${interviewDate}, time: ${interviewTime}, `,
+      interviewType: 'non-technical',
+    });
+
+    await notification.save();
 
     return res.status(200).json({ message: 'Interview updated successfully', interview });
   } catch (error) {
