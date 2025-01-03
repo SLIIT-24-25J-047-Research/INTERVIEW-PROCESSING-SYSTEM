@@ -118,6 +118,14 @@ const editInterview = async (req, res) => {
       interview.status = 'canceled';
   
       await interview.save();
+      const notification = new Notification({
+        userId: interview.userId,
+        message: `Your Non technical interview has been Canceled.`,
+        interviewType: 'non-technical',
+      });
+  
+      await notification.save();
+  
   
       return res.status(200).json({ message: 'Interview canceled successfully', interview });
     } catch (error) {
