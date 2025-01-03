@@ -130,9 +130,6 @@ exports.updateTechnicalInterview = async (req, res) => {
 };
 
 
-
-
-
 // Delete
 exports.deleteTechnicalInterview = async (req, res) => {
   try {
