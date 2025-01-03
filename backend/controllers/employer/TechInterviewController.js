@@ -1,3 +1,4 @@
+const Notification = require('../../models/candidate/Notification');
 const TechnicalInterviewSchedule  = require('../../models/employer/TechnicalInterviewSchedule');
 
 
@@ -30,6 +31,16 @@ exports.createTechnicalInterview = async (req, res) => {
       });
   
       await interview.save();
+
+      const notification = new Notification({
+        userId,
+        message: `Your Non technical interview has been scheduled for ${testDate.toDateString()} at ${testTime}.`,
+        interviewType: 'technical', // Set the type based on the context
+      });
+  
+      await notification.save();
+
+
       res.status(201).json({ message: 'Technical interview scheduled successfully', interview });
     } catch (err) {
       res.status(400).json({ message: 'Error scheduling technical interview', error: err.message });
@@ -102,6 +113,15 @@ exports.updateTechnicalInterview = async (req, res) => {
         },
         { new: true }
       );
+
+         // Create a notification for the updated interview
+    const notification = new Notification({
+      userId: interview.userId,
+      message: `Your technical interview has been updated. New date: ${testDate}, time: ${testTime}, duration: ${duration} minutes. Test link: ${testLink}`,
+      interviewType: 'technical', // Setting the type of interview
+    });
+
+    await notification.save();
   
       res.status(200).json({ message: 'Interview updated successfully', updatedInterview });
     } catch (err) {
