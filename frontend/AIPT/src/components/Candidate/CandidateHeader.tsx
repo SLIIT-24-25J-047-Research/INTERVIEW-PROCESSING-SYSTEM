@@ -3,6 +3,7 @@ import React, { useEffect, useState } from 'react';
 import './candidateHeader.css';
 import { Link, useLocation } from 'react-router-dom';
 import { FaUserCircle } from 'react-icons/fa';
+import Logo from '../../assets/logoAPIT.png'
 
 interface HeaderProps {
   title: string;
@@ -50,13 +51,13 @@ const CandidateHeader: React.FC<HeaderProps> = ({ title }) => {
       <div className="header-title">
         {location.pathname !== '/candidate-home' && (
           <Link to="/candidate-home" className="logo-container">
-            <img src="/path-to-your-logo.png" alt="Logo" className="logo" />
+            <img src="../../assets/AIPT.png" alt="Logo" className="logo" />
           </Link>
         )}
 
         {location.pathname === '/candidate-home' && (
           <Link to="/candidate-home" className="logo-container">
-            <img src="/path-to-your-candidate-home-logo.png" alt="Home Logo" className="home-logo" />
+            <img src={Logo} alt="Home Logo" className="home-logo w-12 h-12" />
           </Link>
         )}
 
