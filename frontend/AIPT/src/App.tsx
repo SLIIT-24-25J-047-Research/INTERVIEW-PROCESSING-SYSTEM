@@ -17,6 +17,7 @@ import CandidateHome from "./pages/Candidate/CandidateHome";
 import JobApplicationForm from "./pages/Candidate/JobDetails";
 import CandidateTest from "./pages/Candidate/CandidateTest";
 import AddJob from "./pages/Interviewer/AddJob";
+import NotificationsPage from "./components/Candidate/Notifications";
 
 const App: React.FC = () => {
   return (
@@ -147,6 +148,15 @@ const App: React.FC = () => {
         element={
           <PrivateRoute allowedRoles={["candidate"]}>
             <Settings />
+          </PrivateRoute>
+        }
+      />
+
+<Route
+        path="/notifications"
+        element={
+          <PrivateRoute allowedRoles={["candidate"]}>
+            <NotificationsPage />
           </PrivateRoute>
         }
       />
