@@ -1,6 +1,6 @@
 import React, { useState } from "react";
 import Editor from "@monaco-editor/react";
-import '../../components/Candidate/css/candidateLayout.css';
+
 
 interface CodeEditorProps {
   language?: string;
