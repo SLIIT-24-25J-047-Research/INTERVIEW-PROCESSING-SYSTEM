@@ -38,13 +38,13 @@ const CandidateSidebar = () => {
                         isCollapsed ? 'justify-center' : ''
                     }`}>
                         <FaTasks className="text-2xl text-[#32007d] mr-2.5" />
-                        {!isCollapsed && <Link to="/assignments">Non Technical Interview</Link>}
+                        {!isCollapsed && <Link to="/non-tech-interview">Non Technical Interview</Link>}
                     </li>
                     <li className={`flex items-center px-4 py-2.5 transition-colors duration-300 cursor-pointer rounded hover:bg-[#cce7ff] ${
                         isCollapsed ? 'justify-center' : ''
                     }`}>
                         <FaNoteSticky className="text-2xl text-[#32007d] mr-2.5" />
-                        {!isCollapsed && <Link to="/candidate-test">Technical Interview</Link>}
+                        {!isCollapsed && <Link to="/tech-interview">Technical Interview</Link>}
                     </li>
                     <li className={`flex items-center px-4 py-2.5 transition-colors duration-300 cursor-pointer rounded hover:bg-[#cce7ff] ${
                         isCollapsed ? 'justify-center' : ''
