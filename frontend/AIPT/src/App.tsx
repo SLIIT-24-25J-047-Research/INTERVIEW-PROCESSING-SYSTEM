@@ -8,16 +8,16 @@ import PrivateRoute from "./components/PrivateRoute";
 import Home from "./pages/Home";
 import Profile from "./pages/Interviewer/Profile";
 import Interviews from "./pages/Interviewer/Interviews";
-import Assignments from "./pages/Candidate/Assignments";
-import CandidateProfile from "./pages/Candidate/CandidateProfile";
-import Settings from "./pages/Candidate/Settings";
-import MockupTest from "./pages/Candidate/MockupTest";
-import Results from "./pages/Candidate/Results";
+import NonTechInterviewPage from "./pages/Candidate/candidate-dashboard/NonTechInterviewPage";
+import CandidateProfile from "./pages/Candidate/candidate-dashboard/CandidateProfile";
+import Settings from "./pages/Candidate/candidate-dashboard/Settings";
+import MockupTest from "./pages/Candidate/candidate-dashboard/MockupTest";
+import Results from "./pages/Candidate/candidate-dashboard/Results";
 import CandidateHome from "./pages/Candidate/candidate-home/CandidateHome";
 import JobApplicationForm from "./pages/Candidate/candidate-home/JobDetails";
-import CandidateTest from "./pages/Candidate/CandidateTest";
+import CandidateTest from "./pages/Candidate/candidate-dashboard/CandidateTest";
 import AddJob from "./pages/Interviewer/AddJob";
-import NotificationsPage from "./components/Candidate/Notifications";
+import NotificationsPage from "./pages/Candidate/candidate-home/Notifications";
 
 const App: React.FC = () => {
   return (
@@ -85,10 +85,10 @@ const App: React.FC = () => {
       />
 
       <Route
-        path="/assignments"
+        path="/non-tech-interview"
         element={
           <PrivateRoute allowedRoles={["candidate"]}>
-            <Assignments />
+            <NonTechInterviewPage />
           </PrivateRoute>
         }
       />
@@ -109,7 +109,7 @@ const App: React.FC = () => {
         }
       />
       <Route
-        path="/candidate-test"
+        path="/tech-interview"
         element={
           <PrivateRoute allowedRoles={["candidate"]}>
             <CandidateTest />
