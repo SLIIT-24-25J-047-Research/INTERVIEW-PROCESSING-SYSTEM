@@ -1,8 +1,7 @@
 import React, { useState, useEffect } from "react";
-import Sidebar from "../../components/Candidate/CandidateSidebar";
-import Header from "../../components/Candidate/CandidateHeader";
-import "../../components/Candidate/candidateLayout.css";
-import CodeEditor from "../../components/Candidate/CodeEditor";
+import Sidebar from "../../../components/Candidate/CandidateSidebar";
+import Header from "../../../components/Candidate/CandidateHeader";
+import CodeEditor from "../../../components/Candidate/CodeEditor";
 
 const CandidateTest: React.FC = () => {
   const questions = [
@@ -28,13 +27,11 @@ const CandidateTest: React.FC = () => {
   };
 
   const handleNavigateToQuestion = (index: number) => {
-    // Update submission status for the current question if something has been typed
     if (answers[currentQuestionIndex].trim()) {
       const updatedStatus = [...submittedStatus];
       updatedStatus[currentQuestionIndex] = true;
       setSubmittedStatus(updatedStatus);
     }
-    // Navigate to the selected question
     setCurrentQuestionIndex(index);
   };
 
@@ -87,21 +84,25 @@ const CandidateTest: React.FC = () => {
   };
 
   return (
-    <div className="dashboard-layout">
+    <div className="flex">
       <Sidebar />
-      <div className="main-content">
+      <div className="flex-1">
         <Header title="Assignments" />
-        <div className="content">
-          <h2>Test 01</h2>
-          <div className="test-layout">
+        <div className="p-6 mt-28">
+          <h2 className="text-xl font-semibold mb-4">Test 01</h2>
+          <div className="flex gap-6 mt-6">
             {/* Question Navigation Bar */}
-            <div className="question-navigation">
+            <div className="w-1/5 flex flex-col gap-4">
               {questions.map((_, index) => (
                 <button
                   key={index}
-                  className={`question-nav-button ${
-                    currentQuestionIndex === index ? "active" : ""
-                  } ${submittedStatus[index] ? "submitted" : ""}`}
+                  className={`px-4 py-2 text-sm font-medium rounded border transition-colors ${
+                    currentQuestionIndex === index
+                      ? "bg-blue-500 text-white border-blue-500"
+                      : submittedStatus[index]
+                      ? "bg-green-500 text-white border-green-500"
+                      : "bg-gray-100 border-gray-300 hover:bg-gray-200"
+                  }`}
                   onClick={() => handleNavigateToQuestion(index)}
                 >
                   Q{index + 1}
@@ -110,7 +111,7 @@ const CandidateTest: React.FC = () => {
 
               {/* Submit All Answers Button */}
               <button
-                className="submit-all-button"
+                className="mt-6 px-6 py-3 bg-green-600 text-white font-semibold rounded hover:bg-green-700"
                 onClick={handleFinalSubmission}
               >
                 Submit All Answers
@@ -118,13 +119,15 @@ const CandidateTest: React.FC = () => {
             </div>
 
             {/* Code Editor Section */}
-            <div className="code-editor-container">
-              <p>{questions[currentQuestionIndex]}</p>
-              <CodeEditor
-                key={currentQuestionIndex}
-                onCodeChange={handleCodeChange}
-                initialCode={answers[currentQuestionIndex]}
-              />
+            <div className="flex-1 flex flex-col gap-4">
+              <p className="text-lg font-medium">{questions[currentQuestionIndex]}</p>
+              <div className="relative w-full h-[60vh] border rounded shadow bg-gray-800">
+                <CodeEditor
+                  key={currentQuestionIndex}
+                  onCodeChange={handleCodeChange}
+                  initialCode={answers[currentQuestionIndex]}
+                />
+              </div>
             </div>
           </div>
         </div>

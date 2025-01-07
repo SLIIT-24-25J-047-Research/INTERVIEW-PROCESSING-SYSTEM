@@ -1,6 +1,6 @@
 import React from 'react';
 import { Link } from 'react-router-dom';
-import './Styles/Home.css'; 
+
 import confidence from '../images/confidence.webp'
 import codecomplex from '../images/codecomplex.webp'
 import gamified   from '../images/gamified.webp'

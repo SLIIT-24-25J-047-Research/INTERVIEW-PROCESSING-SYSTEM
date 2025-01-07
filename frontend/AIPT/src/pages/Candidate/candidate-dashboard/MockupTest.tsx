@@ -2,9 +2,9 @@ import React, { useEffect, useRef, useState } from "react";
 import Webcam from "react-webcam";
 import axios from "axios";
 import { useNavigate } from "react-router-dom";
-import CandidateLayout from "../../components/Candidate/CandidateLayout";
-import MockupQuestion from "../../components/Candidate/MockupQuestion";
-import Instructions from "../../components/Candidate/Instructions";
+import CandidateLayout from "../../../components/Candidate/CandidateLayout";
+import MockupQuestion from "../../../components/Candidate/MockupQuestion";
+import Instructions from "../../../components/Candidate/Instructions";
 
 // Define the PredictionResponse type
 interface PredictionResponse {

@@ -1,12 +1,12 @@
 import React, { useState, useEffect } from 'react';
-import '../Styles/CandidateHome.css';
-import Header from '../../components/Candidate/CandidateHeader';
-import Footer from '../../components/Candidate/Footer';
+import '../../../Styles/CandidateHome.css';
+import Header from '../../../components/Candidate/CandidateHeader';
+import Footer from '../../../components/Candidate/Footer';
 import { Search, Calendar, ArrowUpDown, Filter } from 'lucide-react';
-import { Card, CardHeader, CardContent, CardFooter } from "../../components/ui/card";
-import { Input } from "../../components/ui/input";
-import { Button } from "../../components/ui/button";
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "../../components/ui/select";
+import { Card, CardHeader, CardContent, CardFooter } from "../../../components/ui/card";
+import { Input } from "../../../components/ui/input";
+import { Button } from "../../../components/ui/button";
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "../../../components/ui/select";
 import axios from 'axios';
 import { useNavigate } from "react-router-dom";
 

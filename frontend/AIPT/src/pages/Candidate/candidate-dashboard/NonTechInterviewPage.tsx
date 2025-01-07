@@ -1,10 +1,10 @@
 import React from 'react';
-import Sidebar from '../../components/Candidate/CandidateSidebar';
-import Header from '../../components/Candidate/CandidateHeader';
-import '../../components/Candidate/candidateLayout.css'; // Assuming your layout styles are here
-import AnswerQuestions from '../../components/Candidate/AnswerQuestions';
+import Sidebar from '../../../components/Candidate/CandidateSidebar';
+import Header from '../../../components/Candidate/CandidateHeader';
 
-const Assignments: React.FC = () => {
+import NonTechInterview from '../../../components/Candidate/NonTechInterview';
+
+const NonTechInterviewPage: React.FC = () => {
     return (
         <div className="dashboard-layout">
             <Sidebar />
@@ -15,11 +15,11 @@ const Assignments: React.FC = () => {
                     <p>This is where you can view your assignments and their progress.</p>
                     {/* Add your assignments content here */}
 
-                    <AnswerQuestions />
+                    <NonTechInterview />
                 </div>
             </div>
         </div>
     );
 };
 
-export default Assignments;
+export default NonTechInterviewPage;
