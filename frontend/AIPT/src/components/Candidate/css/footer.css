@@ -1,0 +1,243 @@
+footer {
+    background: linear-gradient(to right, #1e293b, #1f2937);
+    color: #e2e8f0;
+    font-family: 'Arial', sans-serif;
+    display: flex;
+    flex-direction: column;
+    justify-content: space-between; /* Ensure content is spaced properly */
+    height: 100%;
+  }
+  
+  footer .container {
+    max-width: 1200px;
+    margin: 0 auto;
+    display: flex;
+    flex-direction: column; /* Stack the content vertically */
+    padding: 2rem 0; /* Adjusted padding */
+  }
+  
+  footer .footer-content {
+    flex-grow: 1; /* This will take up all available space, pushing the social section to the bottom */
+  }
+  
+  footer h3,
+  footer h4 {
+    font-weight: bold;
+  }
+  
+  footer a {
+    color: #94a3b8;
+    text-decoration: none;
+    transition: color 0.3s ease-in-out;
+  }
+  
+  footer a:hover {
+    color: #ffffff;
+  }
+  
+  footer ul {
+    list-style: none;
+    padding: 0;
+    margin: 0;
+  }
+  
+  footer li {
+    margin: 0;
+  }
+  
+  footer input[type="email"] {
+    width: 100%;
+    max-width: 300px;
+    padding: 10px;
+    border-radius: 6px;
+    border: none;
+    background-color: #2d3748;
+    color: #ffffff;
+  }
+  
+  footer input[type="email"]::placeholder {
+    color: #a0aec0;
+  }
+  
+  footer button {
+    padding: 10px 20px;
+    border: none;
+    border-radius: 6px;
+    background-color: #3b82f6;
+    color: #ffffff;
+    cursor: pointer;
+    font-weight: bold;
+    transition: background-color 0.3s ease-in-out;
+  }
+  
+  footer button:hover {
+    background-color: #2563eb;
+  }
+  
+  footer svg {
+    fill: currentColor;
+  }
+  
+  footer .flex {
+    display: flex;
+    flex-wrap: wrap;
+  }
+  
+  footer .gap-3 {
+    gap: 0.75rem;
+  }
+  
+  footer .gap-6 {
+    gap: 1.5rem;
+  }
+  
+  footer .text-gray-400 {
+    color: #94a3b8;
+  }
+
+  footer .topBtn{
+    color: #ffffff;
+  }
+
+  footer .SocialIcon{
+    color: #ffffff;
+  }
+  
+  footer .hover\:text-white:hover {
+    color: #2563eb;
+  }
+
+  footer .hover\:SocialIcon:hover {
+    color: #dadada;
+  }
+  
+  
+  footer .text-sm {
+    font-size: 0.875rem;
+  }
+  
+  footer .border-t {
+    border-top: 1px solid #374151;
+  }
+  
+  footer .py-12 {
+    padding-top: 3rem;
+    padding-bottom: 3rem;
+  }
+  
+  footer .pt-8 {
+    padding-top: 2rem;
+  }
+  
+  footer .space-y-2 > * + * {
+    margin-top: 0.5rem;
+  }
+  
+  footer .space-y-4 > * + * {
+    margin-top: 1rem;
+  }
+  
+  footer .grid {
+    display: grid;
+  }
+  
+  footer .grid-cols-1 {
+    grid-template-columns: 1fr;
+  }
+  
+  footer .md\:grid-cols-2 {
+    grid-template-columns: repeat(2, 1fr);
+  }
+  
+  footer .lg\:grid-cols-3 {
+    grid-template-columns: repeat(3, 1fr); /* Ensure 3 columns */
+  }
+  
+  footer .gap-12 {
+    gap: 3rem;
+  }
+  
+  footer .rounded-lg {
+    border-radius: 0.5rem;
+  }
+  
+  footer .focus\:outline-none:focus {
+    outline: none;
+  }
+  
+  footer .focus\:ring-2:focus {
+    box-shadow: 0 0 0 2px #3b82f6;
+  }
+  
+  footer .bg-gradient-to-r {
+    background: linear-gradient(to right, var(--tw-gradient-stops));
+  }
+  
+  footer .from-blue-400 {
+    --tw-gradient-from: #60a5fa;
+    --tw-gradient-stops: var(--tw-gradient-from), var(--tw-gradient-to, rgba(96, 165, 250, 0));
+  }
+  
+  footer .to-purple-500 {
+    --tw-gradient-to: #a78bfa;
+  }
+  
+  footer .bg-clip-text {
+    background-clip: text;
+    -webkit-background-clip: text;
+  }
+  
+  footer .text-transparent {
+    color: transparent;
+  }
+  
+
+  footer .footer-content {
+    display: flex;
+    flex-direction: column;
+    gap: 2rem;
+  }
+  
+  footer .footer-social {
+    margin-top: 3rem; 
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+  }
+  
+  footer .footer-social .flex {
+    justify-content: center;
+    gap: 1.5rem;
+  }
+  
+  footer .footer-social button {
+    margin-top: 1.5rem;
+  }
+  
+  footer .footer-social svg {
+    width: 30px; /* Adjust the icon size */
+    height: 30px;
+    fill: #ffffff; /* Adjust the color of the icon */
+  }
+
+  footer .footer-social button {
+    background-color: #3b82f6; /* Change background color */
+    color: #ffffff;
+    border-radius: 50%; /* Make it round */
+    padding: 12px; /* Adjust the button size */
+    border: none;
+    cursor: pointer;
+    transition: background-color 0.3s ease-in-out;
+  }
+
+  footer .footer-social button:hover {
+    background-color: #2563eb; /* Adjust the hover background color */
+  }
+
+  footer .footer-social button svg {
+    width: 24px; /* Adjust the icon size inside the button */
+    height: 24px;
+  }
+  
+  
+  
