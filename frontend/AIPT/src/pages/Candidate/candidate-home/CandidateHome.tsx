@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import '../../Styles/CandidateHome.css';
+import '../../../Styles/CandidateHome.css';
 import Header from '../../../components/Candidate/CandidateHeader';
 import Footer from '../../../components/Candidate/Footer';
 import { Search, Calendar, ArrowUpDown, Filter } from 'lucide-react';
