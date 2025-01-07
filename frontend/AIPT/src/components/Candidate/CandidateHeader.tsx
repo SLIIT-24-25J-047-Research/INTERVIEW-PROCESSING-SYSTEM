@@ -1,12 +1,14 @@
 
 import React, { useEffect, useState } from 'react';
-import './candidateHeader.css';
+import './css/candidateHeader.css';
 import { Link, useLocation } from 'react-router-dom';
 import { FaUserCircle } from 'react-icons/fa';
 import Logo from '../../assets/logoAPIT.png'
+import { FaBell } from 'react-icons/fa';
 
 interface HeaderProps {
   title: string;
+  notificationCount?: number;
 }
 
 function logout() {
@@ -14,7 +16,7 @@ function logout() {
   window.location.reload();
 }
 
-const CandidateHeader: React.FC<HeaderProps> = ({ title }) => {
+const CandidateHeader: React.FC<HeaderProps> = ({ title , notificationCount = 0 }) => {
   const [isDropdownOpen, setIsDropdownOpen] = useState(false);
 
   const [isScrolled, setIsScrolled] = useState(false);
@@ -43,12 +45,14 @@ const CandidateHeader: React.FC<HeaderProps> = ({ title }) => {
 
   const isCandidatePage = location.pathname === '/candidate-home';
 
+ 
+
   return (
     
     <div
       className={`header ${isCandidatePage ? (isScrolled ? 'header-scrolled' : 'transparent-header') : ''}`}
     >
-      <div className="header-title">
+      <div className="header-title ">
         {location.pathname !== '/candidate-home' && (
           <Link to="/candidate-home" className="logo-container">
             <img src="../../assets/AIPT.png" alt="Logo" className="logo" />
@@ -61,9 +65,15 @@ const CandidateHeader: React.FC<HeaderProps> = ({ title }) => {
           </Link>
         )}
 
-        <h1>{title}</h1>
+        <h1 className='text-white'>{title}</h1>
       </div>
       <div className="header-buttons">
+      <Link to="/notifications" className="notification-button">
+        <FaBell size={24} />
+        {notificationCount > 0 && (
+          <span className="notification-badge">{notificationCount}</span>
+        )}
+      </Link>
         <div className="profile-icon-container">
           <FaUserCircle size={30} onClick={toggleDropdown} /> {/* Profile icon */}
           {isDropdownOpen && (
