@@ -1,7 +1,7 @@
 import React from 'react';
 import Sidebar from '../../components/Candidate/CandidateSidebar';
 import Header from '../../components/Candidate/CandidateHeader';
-import '../../components/Candidate/candidateLayout.css'; // Assuming your layout styles are here
+import '../../components/Candidate/css/candidateLayout.css'; // Assuming your layout styles are here
 import AnswerQuestions from '../../components/Candidate/AnswerQuestions';
 
 const Assignments: React.FC = () => {
