@@ -1,7 +1,5 @@
 import React, { useEffect, useState } from 'react';
 import axios from 'axios';
-import './css/AnswerQuestions.css';
-
 
 const AnswerQuestions = () => {
     interface Question {
@@ -14,8 +12,8 @@ const AnswerQuestions = () => {
     const [isRecording, setIsRecording] = useState(false);
     const [mediaRecorder, setMediaRecorder] = useState<MediaRecorder | null>(null);
     const [audioBlob, setAudioBlob] = useState<Blob | null>(null);
-    const [uploadedAudio, setUploadedAudio] = useState<File | null>(null); // For uploaded audio
-    const [inputText, setInputText] = useState(''); // For sending text
+    const [uploadedAudio, setUploadedAudio] = useState<File | null>(null);
+    const [inputText, setInputText] = useState('');
 
     useEffect(() => {
         fetchQuestions();
@@ -34,14 +32,13 @@ const AnswerQuestions = () => {
         }
     };
 
-    // Start recording audio
     const startRecording = async () => {
         try {
             const stream = await navigator.mediaDevices.getUserMedia({ audio: true });
             const recorder = new MediaRecorder(stream);
 
             recorder.ondataavailable = (event) => {
-                setAudioBlob(event.data); // Save the recorded audio blob
+                setAudioBlob(event.data);
             };
 
             recorder.start();
@@ -52,27 +49,23 @@ const AnswerQuestions = () => {
         }
     };
 
-    // Stop recording audio
     const stopRecording = () => {
         if (mediaRecorder) {
-            mediaRecorder.stop(); // Stop the recording, triggering `ondataavailable`
+            mediaRecorder.stop();
             setIsRecording(false);
         }
     };
 
-    // Handle the file upload input change
     const handleFileChange = (event: React.ChangeEvent<HTMLInputElement>) => {
         const file = event.target.files?.[0];
         if (file && file.type.startsWith('audio')) {
             setUploadedAudio(file);
-            setAudioBlob(null); // Reset recorded audio if file is uploaded
+            setAudioBlob(null);
         }
     };
 
-
-    // Send either recorded or uploaded audio to backend
     const handleNextQuestion = async () => {
-        const audioToSend = uploadedAudio || audioBlob; // Prefer uploaded audio if available
+        const audioToSend = uploadedAudio || audioBlob;
         if (audioToSend) {
             const formData = new FormData();
             formData.append('audio', audioToSend, `answer_${currentQuestionIndex}.wav`);
@@ -97,8 +90,8 @@ const AnswerQuestions = () => {
                 console.error('Error sending audio to backend:', error);
             }
 
-            setUploadedAudio(null); // Reset after sending
-            setAudioBlob(null);     // Reset recorded audio
+            setUploadedAudio(null);
+            setAudioBlob(null);
         }
 
         if (currentQuestionIndex < questions.length - 1) {
@@ -106,11 +99,10 @@ const AnswerQuestions = () => {
         }
     };
 
-    // Send text input to backend
     const handleSendText = async () => {
         if (inputText) {
             const formData = new FormData();
-            formData.append('text', inputText); // Send text data to the same API
+            formData.append('text', inputText);
             formData.append('questionId', questions[currentQuestionIndex]._id);
 
             try {
@@ -127,47 +119,55 @@ const AnswerQuestions = () => {
                 console.error('Error sending text to backend:', error);
             }
 
-            setInputText(''); // Reset text input after sending
+            setInputText('');
         }
     };
 
     return (
-        <div>
-            <h1>Answer Questions</h1>
+        <div className="flex flex-col items-center font-sans mt-8 p-5">
+            <h1 className="text-2xl font-bold mb-6">Answer Questions</h1>
             {questions.length > 0 ? (
-                <div>
-                    <h2>{questions[currentQuestionIndex].text}</h2>
+                <div className="w-4/5 max-w-2xl bg-[#f9f9f9] rounded-lg p-5 shadow-lg text-center">
+                    <p className="text-2xl text-gray-700 mb-5">
+                        {questions[currentQuestionIndex].text}
+                    </p>
 
-                    {/* Audio Recording Section */}
-                    <button onClick={startRecording} disabled={isRecording}>Start Recording</button>
-                    <button onClick={stopRecording} disabled={!isRecording}>Stop Recording</button>
+                    <div className="flex justify-center gap-4 mb-4">
+                        <button
+                            className={`px-5 py-2.5 text-base rounded-md border-none cursor-pointer transition-colors duration-300
+                                ${isRecording 
+                                    ? 'bg-gray-400 cursor-not-allowed' 
+                                    : 'bg-[#4caf50] hover:bg-[#45a049] text-white'}`}
+                            onClick={startRecording}
+                            disabled={isRecording}
+                        >
+                            Start Recording
+                        </button>
+                        <button
+                            className={`px-5 py-2.5 text-base rounded-md border-none cursor-pointer transition-colors duration-300
+                                ${!isRecording 
+                                    ? 'bg-gray-400 cursor-not-allowed' 
+                                    : 'bg-[#f44336] hover:bg-[#e53935] text-white'}`}
+                            onClick={stopRecording}
+                            disabled={!isRecording}
+                        >
+                            Stop Recording
+                        </button>
+                    </div>
 
-                    {/* Audio File Upload Section */}
-                    {/* <input 
-                        type="file" 
-                        accept="audio/*" 
-                        onChange={handleFileChange} 
-                    /> */}
                     <button
+                        className={`px-5 py-2.5 text-base rounded-md border-none cursor-pointer transition-colors duration-300
+                            ${(!audioBlob && !uploadedAudio) 
+                                ? 'bg-gray-400 cursor-not-allowed' 
+                                : 'bg-[#007bff] hover:bg-[#0056b3] text-white'}`}
                         onClick={handleNextQuestion}
                         disabled={!audioBlob && !uploadedAudio}
                     >
                         Next Question
                     </button>
-
-                    {/* Text Input Section */}
-                    {/* <div>
-                        <input 
-                            type="text" 
-                            value={inputText} 
-                            onChange={(e) => setInputText(e.target.value)} 
-                            placeholder="Type your answer..." 
-                        />
-                        <button onClick={handleSendText}>Send Text</button>
-                    </div> */}
                 </div>
             ) : (
-                <p>Loading questions...</p>
+                <p className="text-xl text-gray-600">Loading questions...</p>
             )}
         </div>
     );
