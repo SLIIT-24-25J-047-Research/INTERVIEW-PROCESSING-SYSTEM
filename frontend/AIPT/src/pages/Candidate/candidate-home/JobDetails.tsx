@@ -3,7 +3,7 @@ import { Button } from "../../../components/ui/button"; // Adjust imports as per
 import { Input } from "../../../components/ui/input";
 import Footer from "../../../components/Candidate/Footer";
 import Header from '../../../components/Candidate/CandidateHeader';
-import '../../Styles/JobApplicationForm.css'
+import '../../../Styles/JobApplicationForm.css'
 
 
 const CandidateCVPage = () => {
