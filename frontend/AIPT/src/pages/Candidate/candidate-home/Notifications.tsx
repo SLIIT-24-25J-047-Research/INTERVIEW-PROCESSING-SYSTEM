@@ -12,10 +12,16 @@ import {
   DropdownMenuItem,
   DropdownMenuTrigger,
 } from "../../../components/ui/dropdownMenu"
+import {
+  Table,
+  TableBody,
+  TableCell,
+  TableHead,
+  TableHeader,
+  TableRow,
+} from "../../../components/ui/table"
 
-
-import CandidateHeader  from '../../../components/Candidate/CandidateHeader';
-
+import CandidateHeader from '../../../components/Candidate/CandidateHeader';
 
 interface HeaderProps { title: string; notificationCount: number; }
 
@@ -110,8 +116,6 @@ const NotificationsPage: React.FC = () => {
     }
   };
 
-
-
   const filteredNotifications = notifications.filter(n => {
     const matchesSearch = n.message.toLowerCase().includes(searchQuery.toLowerCase());
     const matchesTab =
@@ -139,7 +143,7 @@ const NotificationsPage: React.FC = () => {
   return (
     <div className="min-h-screen bg-gray-50">
       <CandidateHeader title="Notifications" />
-      <div className="max-w-4xl mx-auto pt-8 mt-20 px-4">
+      <div className="max-w-6xl mx-auto pt-8 mt-20 px-4">
         <div className="bg-white rounded-lg shadow-sm">
           <div className="p-6">
             <div className="flex items-center justify-between mb-6">
@@ -152,7 +156,7 @@ const NotificationsPage: React.FC = () => {
                 <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400 h-4 w-4" />
                 <Input
                   type="text"
-                  placeholder="Search by Name Product"
+                  placeholder="Search notifications"
                   value={searchQuery}
                   onChange={(e) => setSearchQuery(e.target.value)}
                   className="pl-10"
@@ -183,55 +187,67 @@ const NotificationsPage: React.FC = () => {
               </TabsList>
             </Tabs>
 
-            <div className="space-y-4">
-              {filteredNotifications.map((notification) => (
-                <div
-                  key={notification._id}
-                  className="flex items-start gap-4 p-4 rounded-lg hover:bg-gray-50 transition-colors relative group"
-                >
-                  <Button
-                    variant="ghost"
-                    size="icon"
-                    className={`shrink-0 ${notification.isFavorite ? 'text-yellow-400' : 'text-gray-400'}`}
-                    onClick={() => toggleFavorite(notification._id)}
-                  >
-                    <Star className="h-6 w-6" fill={notification.isFavorite ? "currentColor" : "none"} />
-                  </Button>
-
-                  <div className="flex-1 min-w-0">
-                    <p className="text-sm text-gray-900 pr-8">{notification.message}</p>
-                    <p className="text-xs text-gray-500 mt-1">{getTimeString(notification.createdAt)}</p>
-                  </div>
-
-                  {notification.status === 'unread' && (
-                    <div className="absolute right-4 top-1/2 -translate-y-1/2 w-2 h-2 bg-red-500 rounded-full" />
-                  )}
-
-                  <DropdownMenu>
-                    <DropdownMenuTrigger asChild>
+            <Table>
+              <TableHeader>
+                <TableRow>
+                  <TableHead className="w-[50px]">Favorite</TableHead>
+                  <TableHead>Message</TableHead>
+                  <TableHead>Interview Type</TableHead>
+                  <TableHead>Date</TableHead>
+                  <TableHead className="w-[100px]">Status</TableHead>
+                  <TableHead className="w-[100px]">Actions</TableHead>
+                </TableRow>
+              </TableHeader>
+              <TableBody>
+                {filteredNotifications.map((notification) => (
+                  <TableRow key={notification._id}>
+                    <TableCell>
                       <Button
                         variant="ghost"
                         size="icon"
-                        className="absolute right-2 top-2 opacity-0 group-hover:opacity-100 transition-opacity"
+                        className={`${notification.isFavorite ? 'text-yellow-400' : 'text-gray-400'}`}
+                        onClick={() => toggleFavorite(notification._id)}
                       >
-                        <MoreVertical className="h-5 w-5 text-gray-500" />
+                        <Star className="h-5 w-5" fill={notification.isFavorite ? "currentColor" : "none"} />
                       </Button>
-                    </DropdownMenuTrigger>
-                    <DropdownMenuContent align="end">
-                      <DropdownMenuItem onClick={() => markAsRead(notification._id)} className="cursor-pointer">
-                        Mark as read
-                      </DropdownMenuItem>
-                      <DropdownMenuItem onClick={() => toggleArchive(notification._id)} className="cursor-pointer">
-                        {notification.isArchived ? 'Unarchive' : 'Archive'}
-                      </DropdownMenuItem>
-                      <DropdownMenuItem onClick={() => toggleFavorite(notification._id)} className="cursor-pointer">
-                        {notification.isFavorite ? 'Remove from favorites' : 'Add to favorites'}
-                      </DropdownMenuItem>
-                    </DropdownMenuContent>
-                  </DropdownMenu>
-                </div>
-              ))}
-            </div>
+                    </TableCell>
+                    <TableCell>{notification.message}</TableCell>
+                    <TableCell>{notification.interviewType}</TableCell>
+                    <TableCell>{getTimeString(notification.createdAt)}</TableCell>
+                    <TableCell>
+                      <span className={`px-2 py-1 rounded-full text-xs ${
+                        notification.status === 'unread' ? 'bg-red-100 text-red-800' : 'bg-green-100 text-green-800'
+                      }`}>
+                        {notification.status}
+                      </span>
+                    </TableCell>
+                    <TableCell>
+                      <DropdownMenu>
+                        <DropdownMenuTrigger asChild>
+                          <Button
+                            variant="ghost"
+                            size="icon"
+                          >
+                            <MoreVertical className="h-5 w-5 text-gray-500" />
+                          </Button>
+                        </DropdownMenuTrigger>
+                        <DropdownMenuContent align="end">
+                          <DropdownMenuItem onClick={() => markAsRead(notification._id)} className="cursor-pointer">
+                            Mark as read
+                          </DropdownMenuItem>
+                          <DropdownMenuItem onClick={() => toggleArchive(notification._id)} className="cursor-pointer">
+                            {notification.isArchived ? 'Unarchive' : 'Archive'}
+                          </DropdownMenuItem>
+                          <DropdownMenuItem onClick={() => toggleFavorite(notification._id)} className="cursor-pointer">
+                            {notification.isFavorite ? 'Remove from favorites' : 'Add to favorites'}
+                          </DropdownMenuItem>
+                        </DropdownMenuContent>
+                      </DropdownMenu>
+                    </TableCell>
+                  </TableRow>
+                ))}
+              </TableBody>
+            </Table>
           </div>
         </div>
       </div>
@@ -240,3 +256,4 @@ const NotificationsPage: React.FC = () => {
 };
 
 export default NotificationsPage;
+
