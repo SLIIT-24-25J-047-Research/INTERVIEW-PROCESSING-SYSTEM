@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from "react";
 import Sidebar from "../../components/Candidate/CandidateSidebar";
 import Header from "../../components/Candidate/CandidateHeader";
-import "../../components/Candidate/candidateLayout.css";
+import "../../components/Candidate/css/candidateLayout.css";
 import CodeEditor from "../../components/Candidate/CodeEditor";
 
 const CandidateTest: React.FC = () => {
