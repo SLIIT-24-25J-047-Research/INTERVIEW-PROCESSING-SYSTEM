@@ -188,6 +188,7 @@ const CandidateDashboard: React.FC = () => {
         `}
       </style>
       <CandidateLayout>
+        {/* <CandidateSidebar /> */}
         <div className="dashboard">
           <h1 className="welcome">Welcome, {name}</h1>
           <div className="box-container">
