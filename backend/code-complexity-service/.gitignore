@@ -1,5 +1,6 @@
 # Ignore Python virtual environment
 venv/
+Scripts/
 # Ignore Python cache files
 *.pyc
 *.pyo
