@@ -11,16 +11,14 @@ const UserSchema = new mongoose.Schema({
     required: true,
     unique: true
   },
-  password: {
-    type: String,
-    required: true
-  },
+  password: { type: String, required: function() { return !this.googleId; }, select: false },
   role: {
     type: String,
     enum: ['interviewer', 'candidate'],
     default: 'user'
-  }
-});
+  },
+  googleId: { type: String, unique: true, sparse: true }
+}, { timestamps: true });
 
 // Hash the password before saving the user
 UserSchema.pre('save', async function(next) {

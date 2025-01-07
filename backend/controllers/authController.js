@@ -1,6 +1,9 @@
-const User = require('../models/User');
-const bcrypt = require('bcryptjs');
-const jwt = require('jsonwebtoken');
+const User = require("../models/User");
+const bcrypt = require("bcryptjs");
+const jwt = require("jsonwebtoken");
+const { OAuth2Client } = require('google-auth-library'); // Import Google OAuth2 client
+const client = new OAuth2Client(process.env.GOOGLE_CLIENT_ID); // Your Google Client ID
+
 
 // Register User
 const register = async (req, res) => {
@@ -10,7 +13,7 @@ const register = async (req, res) => {
     // Check if user already exists
     const existingUser = await User.findOne({ email });
     if (existingUser) {
-      return res.status(400).json({ message: 'User already exists' });
+      return res.status(400).json({ message: "User already exists" });
     }
 
     // Create new user (hashing is done automatically in the User schema)
@@ -18,7 +21,7 @@ const register = async (req, res) => {
       email,
       password, // No need to hash here, it's handled in the schema
       role,
-      name
+      name,
     });
 
     await newUser.save();
@@ -27,65 +30,211 @@ const register = async (req, res) => {
     const token = jwt.sign(
       { id: newUser._id, role: newUser.role },
       process.env.JWT_SECRET,
-      { expiresIn: '1h' }
+      { expiresIn: "1h" }
     );
 
     // Return the token and user role
     res.status(201).json({
       token,
-      role: newUser.role
+      role: newUser.role,
     });
-
   } catch (error) {
-    console.error('Error during registration:', error);
-    res.status(500).json({ message: 'Server error' });
+    console.error("Error during registration:", error);
+    res.status(500).json({ message: "Server error" });
   }
 };
-
 
 // Login User
 const login = async (req, res) => {
   const { email, password } = req.body;
 
   try {
-    console.log('Checking for user with email:', email);
+    console.log("Checking for user with email:", email);
 
-    // Check if user exists
-    const user = await User.findOne({ email });
+    // Check if user exists and include the password in the query
+    const user = await User.findOne({ email }).select("+password");
     if (!user) {
-      console.log('User not found');
-      return res.status(404).json({ message: 'User not found' }); // Added return to stop further execution
+      console.log("User not found");
+      return res.status(404).json({ message: "User not found" });
     }
 
-    console.log('User found:');
+    console.log("User found");
 
     // Check if password matches
     const isMatch = await user.comparePassword(password);
     if (!isMatch) {
-      console.log('Password mismatch');
-      return res.status(400).json({ message: 'Invalid credentials' }); // Added return to stop further execution
+      console.log("Password mismatch");
+      return res.status(400).json({ message: "Invalid credentials" });
     }
 
-    console.log('Password match, generating token');
+    console.log("Password match, generating token");
 
     // Generate JWT token
     const token = jwt.sign(
-      { id: user._id, role: user.role },
+      { id: user._id, role: user.role, email: user.email },
       process.env.JWT_SECRET,
-      { expiresIn: '1h' }
+      { expiresIn: "1h" }
     );
 
-    // Send back the token and user role
+    // Send back the token, user role, and email
     return res.json({
       token,
-      role: user.role
-    }); // Ensure this is the last response
-
+      role: user.role,
+      email: user.email,
+      
+    });
   } catch (error) {
-    console.error('Error during login:', error);
-    return res.status(500).json({ message: 'Server error' }); // Added return to stop further execution
+    console.error("Error during login:", error);
+    return res.status(500).json({ message: "Server error" });
   }
 };
-//---
 
-module.exports = { login , register };
+
+
+// Get logged-in user data based on email query
+const getUserData = async (req, res) => {
+  const { email } = req.query;  // Retrieve the email from query parameters
+
+  try {
+    // Validate if email exists
+    if (!email) {
+      return res.status(400).json({ message: "Email is required" });
+    }
+
+    // Find user by email
+    const user = await User.findOne({ email }).select("-password");  // Exclude the password field
+    if (!user) {
+      return res.status(404).json({ message: "User not found" });
+    }
+
+    // Return user data
+    res.json({
+      id: user._id,
+      name: user.name,
+      email: user.email,
+      role: user.role,
+      // Add any other fields you want to return
+    });
+  } catch (error) {
+    console.error("Error fetching user data:", error);
+    res.status(500).json({ message: "Server error" });
+  }
+};
+
+//---
+const googleLogin = async (req, res) => {
+  const { token } = req.body;
+
+  try {
+      const ticket = await client.verifyIdToken({
+          idToken: token,
+          audience: process.env.GOOGLE_CLIENT_ID,
+      });
+
+      const payload = ticket.getPayload(); // Google payload
+      console.log("Backend Google Payload:", payload); // Log in backend terminal
+
+      const email = payload.email.toLowerCase();
+      console.log("Email Being Queried:", email); // Log queried email
+
+      let user = await User.findOne({ email });
+
+      if (!user) {
+          console.log("User Not Found, Creating New User...");
+          user = new User({
+              email,
+              name: payload.name,
+              role: 'candidate',
+              googleId: payload.sub,
+          });
+          await user.save();
+      } else {
+          console.log("User Found:", user);
+      }
+
+      const jwtToken = jwt.sign(
+          { id: user._id, role: user.role, email: user.email, googleId: user.googleId },
+          process.env.JWT_SECRET,
+          { expiresIn: '1h' }
+      );
+
+      return res.json({ token: jwtToken, role: user.role, email: user.email });
+  } catch (error) {
+      console.error("Google Login Error:", error);
+      return res.status(500).json({ message: "Server error" });
+  }
+};
+
+
+const googleSignup = async (req, res) => {
+  const { token } = req.body;
+
+  try {
+    // Verify the Google token
+    const ticket = await client.verifyIdToken({
+      idToken: token,
+      audience: process.env.GOOGLE_CLIENT_ID,
+    });
+
+    // Extract user information from the Google token
+    const payload = ticket.getPayload();
+    const { email, name, sub: googleId } = payload;
+
+    // Check if the user already exists in the database
+    let existingUser = await User.findOne({ email });
+    if (existingUser) {
+      // If user exists, verify Google ID to confirm ownership
+      if (existingUser.googleId && existingUser.googleId === googleId) {
+        // Generate a new token and log them in
+        const jwtToken = jwt.sign(
+          { id: existingUser._id, role: existingUser.role },
+          process.env.JWT_SECRET,
+          { expiresIn: "1h" }
+        );
+
+        return res.status(200).json({
+          message: "Logged in successfully",
+          token: jwtToken,
+          role: existingUser.role,
+        });
+      } else {
+        // Google ID mismatch; potential security issue
+        return res.status(403).json({
+          message: "Account already exists but Google ID does not match. Please use your registered method to log in.",
+        });
+      }
+    }
+
+    // If the user doesn't exist, create a new user with Google ID
+    const newUser = new User({
+      email,
+      name,
+      role: 'candidate',
+      googleId, // Store the Google ID here
+    });
+
+    await newUser.save();
+
+    // Generate JWT token for the new user
+    const newToken = jwt.sign(
+      { id: newUser._id, role: newUser.role },
+      process.env.JWT_SECRET,
+      { expiresIn: "1h" }
+    );
+
+    // Return the token and user role
+    res.status(201).json({
+      message: "Google signup successful",
+      token: newToken,
+      role: newUser.role,
+    });
+  } catch (error) {
+    console.error("Error during Google signup:", error);
+    res.status(500).json({ message: "Server error" });
+  }
+};
+
+
+
+
+module.exports = { login, register, getUserData, googleLogin, googleSignup };

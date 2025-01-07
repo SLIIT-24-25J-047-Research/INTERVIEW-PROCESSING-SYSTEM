@@ -1,38 +1,29 @@
-/* Styling for the container and layout login */
 .auth-container1 {
   display: flex;
   justify-content: center;
   align-items: center;
   height: 100vh;
-  background: linear-gradient(135deg, #b10d86,  #292bc3 ,#bd56cd,#9c009c);  
-}
-
-/* Styling for the container and layout register*/
-.auth-container2 {
-  display: flex;
-  justify-content: center;
-  align-items: center;
-  height: 100vh;
-  background: linear-gradient(135deg, #b9168d, #1e0c5e, #2623bd);  
+  background: url('./images/login-BG.jpg') no-repeat center center;
+  background-size: cover; /* Ensures the image covers the entire container */
 }
 
 
 /* rectangle  */
 .auth-box {
   display: flex;
-  width: 1000px; 
-  height: 600px; 
-  background-color: #ffffff;
+  width: 1000px;
+  height: 600px;
+  background: rgba(255, 255, 255, 0.2); /* Semi-transparent white */
   border-radius: 20px;
   box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+  backdrop-filter: blur(10px); /* Glass effect */
+  -webkit-backdrop-filter: blur(10px); /* Safari support */
   overflow: hidden;
-  padding: auto;
 }
 
 
-
 .auth-image {
-  flex:1
+  flex: 1;
 }
 
 .auth-image img {
@@ -53,11 +44,13 @@
 .auth-form {
   width: 100%;
   max-width: 300px;
+  display: flex;
+  flex-direction: column; 
 }
 
 .auth-form h2 {
   text-align: center;
-  margin-bottom: 20px;
+  margin-bottom: 24px;
   font-size: 1.5rem;
   color: #333;
 }
@@ -71,15 +64,118 @@
   font-size: 1rem;
 }
 
-.radio-group {
-  display: flex;
-  justify-content: space-between;
+
+
+.auth-form button {
+  width: 110%;
+  padding: 12px;
   margin: 10px 0;
+  background-color: #4caf50;
+  color: white;
+  border: none;
+  border-radius: 5px;
+  font-size: 1rem;
+  cursor: pointer;
+  transition: background-color 0.3s ease;
 }
 
-.radio-group label {
-  font-size: 1rem;
+.auth-form button:hover {
+  background-color: #45a049;
+}
+
+/* Styling for the 'or' separator and google button */
+.my-4 {
+  margin-top: 16px;
+  margin-bottom: 16px;
+}
+
+.text-center {
+  text-align: center;
+}
+
+.text-gray-500 {
+  color: #6b7280;
+}
+
+.w-full {
+  width: 100%;
+}
+
+.flex {
+  display: flex;
+}
+
+.justify-center {
+  justify-content: center;
+}
+
+.mb-4 {
+  margin-bottom: 16px;
+}
+
+
+/* ----------------------------- */
+
+.auth-container2 {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  height: 100vh;
+  background: linear-gradient(135deg, #b9168d, #1e0c5e, #2623bd);  
+}
+
+/* rectangle */
+.auth-box {
+  display: flex;
+  width: 1000px; 
+  height: 600px; 
+  background-color: #ffffff;
+  border-radius: 20px;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+  overflow: hidden;
+  padding: auto;
+}
+
+.auth-image {
+  flex: 1;
+}
+
+.auth-image img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}
+
+/* Form section */
+.auth-form-wrapper {
+  flex: 1;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  padding: 20px;
+}
+
+.auth-form {
+  width: 100%;
+  max-width: 300px;
+  display: flex;
+  flex-direction: column; /* Ensure the form stacks vertically */
+}
+
+.auth-form h2 {
+  text-align: center;
+  margin-bottom: 24px; /* Increased margin */
+  font-size: 1.5rem;
   color: #333;
+}
+
+.auth-form input {
+  width: 100%;
+  padding: 12px;
+  margin: 10px 0;
+  border: 1px solid #ccc;
+  border-radius: 5px;
+  font-size: 1rem;
 }
 
 .auth-form button {
@@ -96,4 +192,44 @@
 
 .auth-form button:hover {
   background-color: #45a049;
+}
+
+.radio-group {
+  display: flex;
+  justify-content: space-between;
+  margin: 10px 0;
+}
+
+.radio-group label {
+  font-size: 1rem;
+  color: #333;
+}
+
+.my-4 {
+  margin-top: 16px;
+  margin-bottom: 16px;
+}
+
+.text-center {
+  text-align: center;
+}
+
+.text-gray-500 {
+  color: #6b7280;
+}
+
+.w-full {
+  width: 100%;
+}
+
+.flex {
+  display: flex;
+}
+
+.justify-center {
+  justify-content: center;
+}
+
+.mb-4 {
+  margin-bottom: 16px;
 }

@@ -1,20 +1,25 @@
-import React from 'react';
-import { Routes, Route, Navigate } from 'react-router-dom';
-import Login from './components/Login';
-import Register from './components/Register';
-import InterviewerHome from './pages/Interviewer/InterviewerHome';
-import CandidateDashboard from './pages/Candidate/CandidateDashboard';
-import PrivateRoute from './components/PrivateRoute';
-import Home from './pages/Home';
-import Profile from './pages/Interviewer/Profile';
-import Interviews from './pages/Interviewer/Interviews';
-import Assignments from './pages/Candidate/Assignments';
-import CandidateProfile from './pages/Candidate/CandidateProfile';
-import Settings from './pages/Candidate/Settings';
-import CandidateHome from './pages/Candidate/CandidateHome';
+import React from "react";
+import { Routes, Route, Navigate } from "react-router-dom";
+import Login from "./components/Login";
+import Register from "./components/Register";
+import InterviewerHome from "./pages/Interviewer/InterviewerHome";
+import CandidateDashboard from "./pages/Candidate/candidate-dashboard/CandidateDashboard";
+import PrivateRoute from "./components/PrivateRoute";
+import Home from "./pages/Home";
+import Profile from "./pages/Interviewer/Profile";
+import Interviews from "./pages/Interviewer/Interviews";
+import NonTechInterviewPage from "./pages/Candidate/candidate-dashboard/NonTechInterviewPage";
+import CandidateProfile from "./pages/Candidate/candidate-dashboard/CandidateProfile";
+import Settings from "./pages/Candidate/candidate-dashboard/Settings";
+import MockupTest from "./pages/Candidate/candidate-dashboard/MockupTest";
+import Results from "./pages/Candidate/candidate-dashboard/Results";
+import CandidateHome from "./pages/Candidate/candidate-home/CandidateHome";
+import JobApplicationForm from "./pages/Candidate/candidate-home/JobDetails";
+import CandidateTest from "./pages/Candidate/candidate-dashboard/CandidateTest";
+import AddJob from "./pages/Interviewer/AddJob";
+import NotificationsPage from "./pages/Candidate/candidate-home/Notifications";
 
 const App: React.FC = () => {
-
   return (
     <Routes>
       <Route path="/login" element={<Login />} />
@@ -26,7 +31,7 @@ const App: React.FC = () => {
       <Route
         path="/interviewer-home"
         element={
-          <PrivateRoute allowedRoles={['interviewer']}>
+          <PrivateRoute allowedRoles={["interviewer"]}>
             <InterviewerHome />
           </PrivateRoute>
         }
@@ -34,7 +39,7 @@ const App: React.FC = () => {
       <Route
         path="/interviewer-profile"
         element={
-          <PrivateRoute allowedRoles={['interviewer']}>
+          <PrivateRoute allowedRoles={["interviewer"]}>
             <Profile />
           </PrivateRoute>
         }
@@ -42,11 +47,21 @@ const App: React.FC = () => {
       <Route
         path="/interviewer-interviews"
         element={
-          <PrivateRoute allowedRoles={['interviewer']}>
+          <PrivateRoute allowedRoles={["interviewer"]}>
             <Interviews />
           </PrivateRoute>
         }
       />
+            <Route
+        path="/interviewer-Vacancies"
+        element={
+          <PrivateRoute allowedRoles={["interviewer"]}>
+            <AddJob />
+          </PrivateRoute>
+        }
+      />
+
+
 
 
       {/* Routes for Candidates */}
@@ -54,7 +69,7 @@ const App: React.FC = () => {
       <Route
         path="/candidate-home"
         element={
-          <PrivateRoute allowedRoles={['candidate']}>
+          <PrivateRoute allowedRoles={["candidate"]}>
             <CandidateHome />
           </PrivateRoute>
         }
@@ -63,33 +78,66 @@ const App: React.FC = () => {
       <Route
         path="/dashboard"
         element={
-          <PrivateRoute allowedRoles={['candidate']}>
+          <PrivateRoute allowedRoles={["candidate"]}>
             <CandidateDashboard />
           </PrivateRoute>
         }
       />
 
-
       <Route
-        path="/assignments"
+        path="/non-tech-interview"
         element={
-          <PrivateRoute allowedRoles={['candidate']}>
-            <Assignments />
+          <PrivateRoute allowedRoles={["candidate"]}>
+            <NonTechInterviewPage />
           </PrivateRoute>
         }
       />
       <Route
         path="/candidate-home"
         element={
-          <PrivateRoute allowedRoles={['candidate']}>
+          <PrivateRoute allowedRoles={["candidate"]}>
             <CandidateHome />
           </PrivateRoute>
         }
       />
       <Route
+        path="/candidate-mockup"
+        element={
+          <PrivateRoute allowedRoles={["candidate"]}>
+            <MockupTest />
+          </PrivateRoute>
+        }
+      />
+      <Route
+        path="/tech-interview"
+        element={
+          <PrivateRoute allowedRoles={["candidate"]}>
+            <CandidateTest />
+          </PrivateRoute>
+        }
+      />
+      <Route
+        path="/candidate-mockup-results/:email"
+        element={
+          <PrivateRoute allowedRoles={["candidate"]}>
+            <Results />
+          </PrivateRoute>
+        }
+      />
+
+      <Route
+        path="/candidate-home/job/:jobId/apply"
+        element={
+          <PrivateRoute allowedRoles={["candidate"]}>
+            <JobApplicationForm />
+          </PrivateRoute>
+        }
+      />
+
+      <Route
         path="/profile"
         element={
-          <PrivateRoute allowedRoles={['candidate']}>
+          <PrivateRoute allowedRoles={["candidate"]}>
             <CandidateProfile />
           </PrivateRoute>
         }
@@ -98,19 +146,22 @@ const App: React.FC = () => {
       <Route
         path="/settings"
         element={
-          <PrivateRoute allowedRoles={['candidate']}>
+          <PrivateRoute allowedRoles={["candidate"]}>
             <Settings />
           </PrivateRoute>
         }
       />
 
-
-
-
-
-
+<Route
+        path="/notifications"
+        element={
+          <PrivateRoute allowedRoles={["candidate"]}>
+            <NotificationsPage />
+          </PrivateRoute>
+        }
+      />
     </Routes>
   );
-}
+};
 
 export default App;

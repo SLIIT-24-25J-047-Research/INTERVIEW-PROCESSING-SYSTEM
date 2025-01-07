@@ -1,7 +1,8 @@
 const express = require('express');
 const multer = require('multer');
 const path = require('path');
-const { predictConfidence } = require('../controllers/predictController');
+const { predictConfidence } = require('../controllers/confidencePredictController');
+
 
 const router = express.Router();
 const storage = multer.diskStorage({

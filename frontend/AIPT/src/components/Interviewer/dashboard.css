@@ -71,5 +71,349 @@ body {
     background-color: #e1e1e1; 
     transform: scale(1.05); 
   }
+
+  /* add job component */
   
 
+  .add-job-container {
+    margin: 20px auto;
+    padding: 20px;
+    min-width: 90%; /* Adjust for screen sizes */
+    background-color: white;
+    border-radius: 8px;
+    box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+  }
+  
+  .add-job-container h1 {
+    font-size: 1.5rem;
+    font-weight: normal;
+    margin-bottom: 40px;
+    text-align: left;
+  }
+  
+  .add-job-form {
+    display: flex;
+    flex-direction: column;
+    gap: 16px;
+    width: 80%;
+    margin-bottom: 20px;
+  }
+  
+  .form-group {
+    display: flex;
+    align-items: center;
+    gap: 12px; 
+  }
+  
+  .form-group label {
+    flex-basis: 150px; 
+    text-align: right;
+    font-weight: 500;
+    font-size: 0.9rem;
+  }
+  
+  .form-group input,
+  .form-group textarea,
+  .form-group select {
+    flex: 1; 
+    padding: 10px;
+    border: 1px solid #ccc;
+    border-radius: 4px;
+    font-size: 1rem;
+    outline: none;
+    transition: border-color 0.3s;
+  }
+  
+  .form-group input:focus,
+  .form-group textarea:focus,
+  .form-group select:focus {
+    border-color: #007bff; 
+    box-shadow: 0 0 4px rgba(0, 123, 255, 0.5);
+  }
+  
+  .add-job-form button {
+    padding: 12px;
+    background-color: #007bff;
+    width: 50%;
+    margin-left: 150px; 
+    align-items: center;
+    color: white;
+    font-size: 1rem;
+    border: none;
+    border-radius: 4px;
+    cursor: pointer;
+    transition: background-color 0.3s;
+  }
+  
+  .add-job-form button:hover {
+    background-color: #0056b3;
+  }
+  
+  .message {
+    margin-top: 10px;
+    font-size: 0.9rem;
+    text-align: center;
+    color: #28a745; 
+  }
+  
+
+
+
+/*  Table  */
+
+.job-container{
+  margin: 20px auto;
+  padding: 20px;
+  min-width: 90%; 
+  background-color: white;
+  border-radius: 8px;
+  box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+  max-height: 500px; 
+  overflow-y: auto; 
+}
+.job-container h2 {
+  font-size: 1.5rem;
+  font-weight: normal;
+  margin-bottom: 40px;
+  text-align: left;
+}
+table {
+  width: 100%;
+  border-collapse: collapse;
+  margin-top: 20px;
+  min-width: 800px
+}
+
+th, td {
+  padding: 12px 16px;
+  text-align: left;
+  border-bottom: 1px solid #e2e8f0;
+}
+
+th {
+  background-color: #f1f5f9;
+  font-weight: 600;
+}
+
+tbody tr:hover {
+  background-color: #f9fafb;
+}
+
+tbody tr {
+  transition: background-color 0.3s ease;
+}
+
+thead th {
+  font-size: 0.875rem;
+  text-transform: uppercase;
+  color: #4a5568;
+}
+
+td {
+  font-size: 0.875rem;
+  color: #2d3748;
+}
+
+.message {
+  margin-top: 10px;
+  font-size: 0.9rem;
+  text-align: center;
+  color: #28a745;
+}
+
+
+
+/* Responsive Table */
+@media (max-width: 768px) {
+  th, td {
+    padding: 8px;
+  }
+
+  table {
+    font-size: 0.75rem;
+  }
+
+  th, td {
+    display: block;
+    width: 100%;
+  }
+
+  td {
+    padding-left: 20px;
+    position: relative;
+  }
+
+  td::before {
+    content: attr(data-label);
+    position: absolute;
+    left: 10px;
+    top: 10px;
+    font-weight: bold;
+    color: #4a5568;
+  }
+ 
+  
+}
+
+/* safdddddddddddddddddddddddd */
+
+/* Overlay to darken the background */
+.fixed.inset-0.bg-black.bg-opacity-50 {
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background-color: rgba(0, 0, 0, 0.35);  /* Slightly less opaque */
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  z-index: 50;
+  backdrop-filter: blur(4px); /* Add a subtle blur effect */
+}
+
+/* Modal container */
+.bg-white.rounded-md.shadow-md.p-6 {
+  background-color: #ffffff;
+  border-radius: 12px; /* More modern, softer rounded corners */
+  box-shadow: 0 15px 30px rgba(0, 0, 0, 0.1), 0 10px 20px rgba(0, 0, 0, 0.08); /* Softer, more contemporary shadow */
+  padding: 2rem;
+  width: 100%;
+  max-width: 500px;
+  transform: scale(0.95); /* Slight initial scale for a more dynamic entry */
+  opacity: 0;
+  animation: modalFadeIn 0.3s ease-out forwards;
+  border: 1px solid rgba(0, 0, 0, 0.05); /* Subtle border */
+}
+
+@keyframes modalFadeIn {
+  from {
+    opacity: 0;
+    transform: scale(0.95);
+  }
+  to {
+    opacity: 1;
+    transform: scale(1);
+  }
+}
+/* Overlay to darken the background */
+.fixed.inset-0.bg-black.bg-opacity-50 {
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  
+  background-color: rgba(0, 0, 0, 0.5);
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  z-index: 50;
+  padding: 1rem; /* Add padding to prevent content from touching screen edges */
+  overflow-y: auto; /* Allow scrolling if content is too large */
+}
+
+/* Modal container */
+.bg-white.rounded-md.shadow-md.p-6 {
+  background-color: #ffffff;
+ 
+  border-radius: 0.375rem;
+  box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+  padding: 1.5rem;
+  width: 100%;
+  max-width: 450px; /* Slightly reduced width */
+  max-height: 70vh; /* Limit height to 90% of viewport height */
+  overflow-y: auto; /* Enable scrolling within modal if content is too long */
+  
+  margin-top: 5%;  /* Center the modal */
+  position: relative; /* For potential close button positioning */
+}
+
+/* Ensure form can scroll if it becomes too long */
+form {
+  max-height: 75vh;
+  padding: 10px;
+}
+
+/* Responsive adjustments for smaller screens */
+@media (max-width: 480px) {
+  .bg-white.rounded-md.shadow-md.p-6 {
+    width: 95%; /* Make it slightly narrower on very small screens */
+    max-width: 100%;
+    padding: 1rem; /* Slightly less padding on small screens */
+    margin: auto;
+  }
+
+  .w-full.p-2.border.rounded-md.mt-2.text-sm {
+    padding: 0.4rem; /* Slightly smaller padding for inputs */
+  }
+}
+
+/* Rest of the previous styling remains the same */
+.text-lg.font-semibold.mb-4.text-gray-800 {
+  font-size: 1.125rem;
+  font-weight: 600;
+  color: #2d3748;
+  margin-bottom: 1rem;
+}
+
+.block.text-sm.font-medium.text-gray-600 {
+  display: block;
+  font-size: 0.875rem;
+  font-weight: 500;
+  color: #4a5568;
+  margin-bottom: 0.5rem;
+}
+
+.w-full.p-2.border.rounded-md.mt-2.text-sm {
+  width: 100%;
+  padding: 0.5rem;
+  border: 1px solid #e2e8f0;
+  border-radius: 0.375rem;
+  font-size: 0.875rem;
+  color: #4a5568;
+  background-color: #ffffff;
+  margin-top: 0.5rem;
+}
+
+.w-full.p-2.border.rounded-md.mt-2.text-sm:focus {
+  outline: none;
+  border-color: #3182ce;
+}
+
+.flex.justify-end.space-x-2 {
+  display: flex;
+  justify-content: flex-end;
+  gap: 0.5rem;
+}
+
+.bg-gray-500.text-white.px-4.py-2.rounded-md,
+.bg-blue-500.text-white.px-4.py-2.rounded-md {
+  padding: 0.5rem 1rem;
+  border-radius: 0.375rem;
+  font-size: 0.875rem;
+  font-weight: 500;
+  transition: background-color 0.2s ease-in-out;
+}
+
+.bg-gray-500.text-white.px-4.py-2.rounded-md {
+  background-color: #4a5568;
+  color: white;
+}
+
+.bg-gray-500.text-white.px-4.py-2.rounded-md:hover {
+  background-color: #2d3748;
+}
+
+.bg-blue-500.text-white.px-4.py-2.rounded-md {
+  background-color: #3182ce;
+  color: white;
+}
+
+.bg-blue-500.text-white.px-4.py-2.rounded-md:hover {
+  background-color: #2b6cb0;
+}
+
+.mb-4 {
+  margin-bottom: 1rem;
+}

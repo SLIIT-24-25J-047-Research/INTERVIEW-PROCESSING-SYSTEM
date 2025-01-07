@@ -1,5 +1,5 @@
 import React from 'react';
-
+import DashboardLayout from "../../components/Interviewer/DashboardLayout";
 const Interviews: React.FC = () => {
   // Sample data
   const upcomingInterviews = [
@@ -9,7 +9,8 @@ const Interviews: React.FC = () => {
   ];
 
   return (
-    <div className="interviews-container p-4">
+    <DashboardLayout>
+    <div className="">
       <h2 className="text-2xl font-bold mb-4">Upcoming Interviews</h2>
       <div className="interviews-list bg-white p-4 rounded-lg shadow-md">
         {upcomingInterviews.length > 0 ? (
@@ -30,6 +31,7 @@ const Interviews: React.FC = () => {
         )}
       </div>
     </div>
+    </DashboardLayout>
   );
 };
 
