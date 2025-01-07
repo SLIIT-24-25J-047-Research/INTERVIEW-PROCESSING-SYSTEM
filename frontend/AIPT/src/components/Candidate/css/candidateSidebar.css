@@ -1,22 +1,24 @@
-.sidebar {
+/* .sidebar {
     width: 240px;
     height: 100vh;
-    background-color: rgba(255, 255, 255, 0.5); /* Glass effect (semi-transparent) */
-    backdrop-filter: blur(10px); /* Adds a blur effect to make it look like glass */
+    background-color: rgba(255, 255, 255, 0.5);
+    backdrop-filter: blur(10px); 
     padding-top: 20px;
+    margin-right: 20px;
     box-shadow: 2px 0 5px rgba(0, 0, 0, 0.1);
     position: fixed;
     left: 0;
     top: 0;
+    right:  4;
     overflow-y: auto;
     transition: transform 0.3s ease;
     z-index: 1000;
-    backdrop-filter: blur(8px); /* Optional: adds a more visible blur effect */
+    backdrop-filter: blur(8px);
 }
 
 
 .sidebar.collapsed ~ .main-content {
-    margin-left: 80px; /* Adjust for collapsed sidebar */
+    margin-left: 80px; 
 }
 
 .sidebar.collapsed {
@@ -68,9 +70,9 @@
 }
 
 .sidebar.collapsed .menu-icon {
-    margin-right: 0;
+    margin-right: 4;
 }
 
 .sidebar.collapsed .menu-item a {
     display: none;
-}
+} */
