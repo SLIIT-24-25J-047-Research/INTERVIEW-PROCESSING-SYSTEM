@@ -1,7 +1,7 @@
 import React from 'react';
-import Sidebar from '../../components/Candidate/CandidateSidebar';
-import Header from '../../components/Candidate/CandidateHeader';
-import '../../components/Candidate/candidateLayout.css';
+import Sidebar from '../../../components/Candidate/CandidateSidebar';
+import Header from '../../../components/Candidate/CandidateHeader';
+
 
 const Settings: React.FC = () => {
     return (

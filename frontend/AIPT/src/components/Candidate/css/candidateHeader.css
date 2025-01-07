@@ -27,6 +27,11 @@
 .header-scrolled {
     background: linear-gradient(to right, #28025c, #00313f);
     transition: background-color 0.5s ease;
+   
+  }
+
+  .header-scrolled h1 {
+    color: white;
   }
 
 

@@ -1,3 +1,4 @@
+const Notification = require('../../models/candidate/Notification');
 const InterviewSchedule = require('../../models/employer/NonTechInterviewSchedule');
 const User = require('../../models/User');
 
@@ -34,6 +35,13 @@ const scheduleInterview = async (req, res) => {
     });
 
     await newInterview.save();
+    const notification = new Notification({
+      userId,
+      message: `Your interview has been scheduled on ${media} for ${interviewDate.toDateString()} at ${interviewTime}.`,
+      interviewType: 'non-technical', 
+    });
+
+    await notification.save();
 
     return res.status(201).json({ message: 'Interview scheduled successfully', interview: newInterview });
   } catch (error) {
@@ -48,7 +56,7 @@ const editInterview = async (req, res) => {
     const { id } = req.params;
     const { interviewDate, interviewTime, media } = req.body;
 
-    // Find the interview
+  
     const interview = await InterviewSchedule.findById(id);
     if (!interview) {
       return res.status(404).json({ message: 'Interview not found' });
@@ -79,6 +87,14 @@ const editInterview = async (req, res) => {
 
     await interview.save();
 
+    const notification = new Notification({
+      userId: interview.userId,
+      message: `Your Non technical interview has been updated. New date: ${interviewDate}, time: ${interviewTime}, `,
+      interviewType: 'non-technical',
+    });
+
+    await notification.save();
+
     return res.status(200).json({ message: 'Interview updated successfully', interview });
   } catch (error) {
     console.error(error);
@@ -91,7 +107,7 @@ const editInterview = async (req, res) => {
 
   const cancelInterview = async (req, res) => {
     try {
-      const { id } = req.params; // Interview ID
+      const { id } = req.params; 
   
       const interview = await InterviewSchedule.findById(id);
       if (!interview) {
@@ -102,6 +118,14 @@ const editInterview = async (req, res) => {
       interview.status = 'canceled';
   
       await interview.save();
+      const notification = new Notification({
+        userId: interview.userId,
+        message: `Your Non technical interview has been Canceled.`,
+        interviewType: 'non-technical',
+      });
+  
+      await notification.save();
+  
   
       return res.status(200).json({ message: 'Interview canceled successfully', interview });
     } catch (error) {

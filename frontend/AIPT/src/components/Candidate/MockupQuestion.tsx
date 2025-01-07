@@ -1,5 +1,5 @@
 import React, { useState } from "react";
-import "../../pages/Styles/MockupQuestion.css";
+import "../../Styles/MockupQuestion.css";
 
 interface Question {
   id: number;
