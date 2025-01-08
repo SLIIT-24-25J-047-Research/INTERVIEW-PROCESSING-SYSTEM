@@ -1,5 +1,5 @@
 import React, { useEffect, useState, useCallback } from 'react';
-import './css/candidateHeader.css';
+import '../../Styles/candidateHeader.css';
 import { Link, useLocation } from 'react-router-dom';
 import { FaUserCircle, FaBell } from 'react-icons/fa';
 import Logo from '../../assets/logoAPIT.png';
