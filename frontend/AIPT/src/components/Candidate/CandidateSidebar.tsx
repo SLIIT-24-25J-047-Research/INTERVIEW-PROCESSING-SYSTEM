@@ -32,17 +32,17 @@ const CandidateSidebar = () => {
     ];
 
     const renderMenuItem = (item: any, index: number) => (
-        <li key={index} className={`relative w-full flex ${active === item.path.slice(1) ? 'bg-orange-50' : ''}`}>
+        <li key={index} className={`relative w-full flex ${active === item.path.slice(1) ? 'bg-[#204cb120]' : ''}`}>
             {active === item.path.slice(1) && (
-                <div className="absolute right-0 w-1 bg-orange-500 h-full rounded-l-lg" />
+                <div className="absolute right-0 w-1 bg-[#1f22f1] h-full rounded-l-lg" />
             )}
             <Link
                 to={item.path}
                 className={`flex items-center px-4 py-2.5 transition-colors duration-300 cursor-pointer rounded hover:bg-[#cce7ff] w-full ${isCollapsed ? 'justify-center' : ''}`}
                 onClick={() => setActive(item.path.slice(1))}
             >
-                <item.icon className={`text-2xl ${active === item.path.slice(1) ? 'text-[#FF8828]' : 'text-[#32007d]'} mr-2.5`} />
-                {!isCollapsed && <span>{item.label}</span>}
+                <item.icon className={`text-[15px] ${active === item.path.slice(1) ? 'text-[#204cb1] ' : 'text-[#32007d]'} mr-2.5`} />
+                {!isCollapsed && <span className='text-[15px]' >{item.label}</span>}
             </Link>
         </li>
     );
@@ -61,9 +61,9 @@ const CandidateSidebar = () => {
                 {/* Bottom menu items */}
                 <div className="absolute bottom-0 left-0 w-full pb-5">
                     {bottomMenuItems.map((item, index) => (
-                        <div key={index} className={`relative w-full flex justify-start pl-5 items-center ${active === item.path.slice(1) ? 'bg-orange-50 ' : ''}`}>
+                        <div key={index} className={`relative w-full flex justify-start pl-5 items-center ${active === item.path.slice(1) ? 'bg-[#204cb120] ' : ''}`}>
                             {active === item.path.slice(1) && (
-                                <div className="absolute right-0 w-1 bg-orange-500 h-full rounded-l-lg " />
+                                <div className="absolute right-0 w-1 bg-[#1f22f1] h-full rounded-l-lg " />
                             )}
                             <Button
                                 variant="ghost"
@@ -71,7 +71,7 @@ const CandidateSidebar = () => {
                                 asChild
                             >
                                 <Link to={item.path} onClick={() => setActive(item.path.slice(1))}>
-                                    <item.icon color={active === item.path.slice(1) ? "#FF8828" : "#64728C"} />
+                                    <item.icon className= {'text-[10px]'} color={active === item.path.slice(1) ? "#204cb1" : "#32007d"} />
                                  
                                 </Link>
                             </Button>
