@@ -1,6 +1,6 @@
 Flask==2.2.5
 joblib
-werkzeug==2.0.3
+werkzeug==3.0.6
 transformers
 openai-whisper
 scikit-learn
