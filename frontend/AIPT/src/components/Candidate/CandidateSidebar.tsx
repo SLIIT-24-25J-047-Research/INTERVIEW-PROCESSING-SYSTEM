@@ -1,91 +1,120 @@
 import React, { useState, useEffect } from 'react';
 import { Link, useLocation } from 'react-router-dom';
-import { FaHome, FaTasks, FaUserAlt, FaPen } from 'react-icons/fa';
-import { LogOut, Settings } from 'lucide-react';
-import { FaNoteSticky } from "react-icons/fa6";
-import { Button } from '../ui/button';
-import { MoreOptionsIcon } from '../../utils/icons';
+import { Home, PenTool, Users, Code, User, MoreHorizontal, Settings, LogOut } from 'lucide-react';
+import { cn } from "../../lib/Utils";
+import { Button } from '@/components/ui/button';
 
-const CandidateSidebar = () => {
-    const [isCollapsed, setIsCollapsed] = useState(false);
-    const [active, setActive] = useState<string | null>(null);
-    const location = useLocation();
+interface MenuItem {
+  path: string;
+  icon: React.ElementType;
+  label: string;
+}
 
-    useEffect(() => {
-        // Set active based on current path
-        const path = location.pathname.split('/')[1];
-        setActive(path || 'dashboard');
-    }, [location]);
+const menuItems: MenuItem[] = [
+  { path: '/dashboard', icon: Home, label: 'Dashboard' },
+  { path: '/candidate-mockup', icon: PenTool, label: 'Mockup-Test' },
+  { path: '/non-tech-interview', icon: Users, label: 'Non Technical Interview' },
+  { path: '/tech-interview', icon: Code, label: 'Technical Interview' },
+  { path: '/profile', icon: User, label: 'Profile' },
+];
 
-    const menuItems = [
-        { path: '/dashboard', icon: FaHome, label: 'Dashboard' },
-        { path: '/candidate-mockup', icon: FaPen, label: 'Mockup-Test' },
-        { path: '/non-tech-interview', icon: FaTasks, label: 'Non Technical Interview' },
-        { path: '/tech-interview', icon: FaNoteSticky, label: 'Technical Interview' },
-        { path: '/profile', icon: FaUserAlt, label: 'Profile' },
-    ];
+const bottomMenuItems: MenuItem[] = [
+  { path: '/options', icon: MoreHorizontal, label: 'More Options' },
+  { path: '/settings', icon: Settings, label: 'Settings' },
+  { path: '/logout', icon: LogOut, label: 'Logout' },
+];
 
-    const bottomMenuItems = [
-        { path: '/options', icon: MoreOptionsIcon, label: 'More Options' },
-        { path: '/settings', icon: Settings, label: 'Settings' },
-        { path: '/logout', icon: LogOut, label: 'Logout' },
-    ];
+const CandidateSidebar: React.FC = () => {
+  const [isCollapsed, setIsCollapsed] = useState(false);
+  const [active, setActive] = useState<string | null>(null);
+  const location = useLocation();
 
-    const renderMenuItem = (item: any, index: number) => (
-        <li key={index} className={`relative w-full flex ${active === item.path.slice(1) ? 'bg-[#204cb120]' : ''}`}>
-            {active === item.path.slice(1) && (
-                <div className="absolute right-0 w-1 bg-[#1f22f1] h-full rounded-l-lg" />
-            )}
-            <Link
-                to={item.path}
-                className={`flex items-center px-4 py-2.5 transition-colors duration-300 cursor-pointer rounded hover:bg-[#cce7ff] w-full ${isCollapsed ? 'justify-center' : ''}`}
-                onClick={() => setActive(item.path.slice(1))}
-            >
-                <item.icon className={`text-[15px] ${active === item.path.slice(1) ? 'text-[#204cb1] ' : 'text-[#32007d]'} mr-2.5`} />
-                {!isCollapsed && <span className='text-[15px]' >{item.label}</span>}
-            </Link>
-        </li>
-    );
+  useEffect(() => {
+    const path = location.pathname.split('/')[1];
+    setActive(path || 'dashboard');
+  }, [location]);
 
-    return (
-        <>
-            <div
-                className={`fixed left-0 top-0 h-screen bg-white/50 backdrop-blur-lg pt-5 mr-5 shadow-md overflow-y-auto transition-all duration-300 ease-in-out z-[1000] ${isCollapsed ? 'w-20' : 'w-60'}`}
-                onMouseEnter={() => setIsCollapsed(false)}
-                onMouseLeave={() => setIsCollapsed(true)}
-            >
-                <ul className="list-none p-0 mt-24 flex flex-col gap-4">
-                    {menuItems.map(renderMenuItem)}
-                </ul>
+  const renderMenuItem = (item: MenuItem) => (
+    <li key={item.path} className={cn(
+      "relative w-full group",
+      active === item.path.slice(1) ? "bg-blue-50 dark:bg-blue-950/30" : ""
+    )}>
+      {active === item.path.slice(1) && (
+        <div className="absolute left-0 w-1 bg-blue-600 dark:bg-blue-400 h-full rounded-r" />
+      )}
+      <Link
+        to={item.path}
+        className={cn(
+          "flex items-center px-4 py-3 transition-all duration-200",
+          "hover:bg-blue-50 dark:hover:bg-blue-950/30 w-full rounded-lg",
+          isCollapsed ? "justify-center" : "justify-start",
+          active === item.path.slice(1) 
+            ? "text-blue-600 dark:text-blue-400 font-medium" 
+            : "text-gray-700 dark:text-gray-300"
+        )}
+        onClick={() => setActive(item.path.slice(1))}
+      >
+        <item.icon className={cn(
+          "w-5 h-5 transition-colors",
+          !isCollapsed && "mr-3",
+          active === item.path.slice(1) 
+            ? "text-blue-600 dark:text-blue-400" 
+            : "text-gray-500 dark:text-gray-400 group-hover:text-blue-600 dark:group-hover:text-blue-400"
+        )} />
+        {!isCollapsed && (
+          <span className="text-sm font-medium transition-colors group-hover:text-blue-600 dark:group-hover:text-blue-400">
+            {item.label}
+          </span>
+        )}
+      </Link>
+    </li>
+  );
 
-                {/* Bottom menu items */}
-                <div className="absolute bottom-0 left-0 w-full pb-5">
-                    {bottomMenuItems.map((item, index) => (
-                        <div key={index} className={`relative w-full flex justify-start pl-5 items-center ${active === item.path.slice(1) ? 'bg-[#204cb120] ' : ''}`}>
-                            {active === item.path.slice(1) && (
-                                <div className="absolute right-0 w-1 bg-[#1f22f1] h-full rounded-l-lg " />
-                            )}
-                            <Button
-                                variant="ghost"
-                                size="icon"
-                                asChild
-                            >
-                                <Link to={item.path} onClick={() => setActive(item.path.slice(1))}>
-                                    <item.icon className= {'text-[10px]'} color={active === item.path.slice(1) ? "#204cb1" : "#32007d"} />
-                                 
-                                </Link>
-                            </Button>
-                        </div>
-                    ))}
-                </div>
-            </div>
-            {/* Main content wrapper */}
-            <div className={`transition-all duration-300 ease-in-out ${isCollapsed ? 'ml-20' : 'ml-60'}`}>
-                {/* Your main content goes here */}
-            </div>
-        </>
-    );
+  return (
+    <>
+      <aside
+        className={cn(
+          "fixed left-0 top-0 h-screen bg-white dark:bg-gray-900",
+          "border-r border-gray-200 dark:border-gray-800",
+          "pt-5 overflow-hidden transition-all duration-300 ease-in-out z-50",
+          "shadow-[0_0_15px_rgba(0,0,0,0.05)] dark:shadow-[0_0_15px_rgba(0,0,0,0.2)]",
+          isCollapsed ? "w-16" : "w-64"
+        )}
+        onMouseEnter={() => setIsCollapsed(false)}
+        onMouseLeave={() => setIsCollapsed(true)}
+      >
+        <div className="flex flex-col h-full">
+          <div className="px-4 py-2 mb-6">
+            <h2 className={cn(
+              "text-xl font-bold text-blue-600 dark:text-blue-400",
+              "transition-opacity duration-200",
+              isCollapsed && "opacity-0"
+            )}>
+              Candidate
+            </h2>
+          </div>
+
+          <nav className="flex-grow px-2">
+            <ul className="space-y-1">
+              {menuItems.map(renderMenuItem)}
+            </ul>
+          </nav>
+
+          <div className="mt-auto pb-6 px-2 border-t border-gray-200 dark:border-gray-800 pt-4">
+            <ul className="space-y-1">
+              {bottomMenuItems.map(renderMenuItem)}
+            </ul>
+          </div>
+        </div>
+      </aside>
+      <div className={cn(
+        "transition-all duration-300 ease-in-out",
+        isCollapsed ? "ml-16" : "ml-64"
+      )}>
+        {/* Main content */}
+      </div>
+    </>
+  );
 };
 
 export default CandidateSidebar;
-
