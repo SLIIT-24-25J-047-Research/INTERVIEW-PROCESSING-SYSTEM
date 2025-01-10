@@ -68,10 +68,11 @@ const login = async (req, res) => {
     }
 
     console.log("Password match, generating token");
+    console.log("User:", user.name);
 
     // Generate JWT token
     const token = jwt.sign(
-      { id: user._id, role: user.role, email: user.email },
+      { id: user._id, role: user.role, email: user.email, name: user.name },
       process.env.JWT_SECRET,
       { expiresIn: "1h" }
     );
@@ -81,6 +82,7 @@ const login = async (req, res) => {
       token,
       role: user.role,
       email: user.email,
+      name: user.name 
       
     });
   } catch (error) {

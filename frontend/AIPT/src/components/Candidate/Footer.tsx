@@ -3,7 +3,7 @@ import React from 'react';
 import { AiFillInstagram,AiOutlineWhatsApp,AiFillFacebook ,AiOutlineMail, AiOutlinePhone } from "react-icons/ai";
 import { BsArrowUpCircleFill } from "react-icons/bs";
 import { BiSolidMap } from "react-icons/bi";
-import './css/footer.css';
+import '../../Styles/footer.css';
 
 const Footer = () => {
   const scrollToTop = () => {

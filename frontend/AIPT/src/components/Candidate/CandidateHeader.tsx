@@ -1,8 +1,9 @@
 import React, { useEffect, useState, useCallback } from 'react';
-import './css/candidateHeader.css';
+import '../../Styles/candidateHeader.css';
 import { Link, useLocation } from 'react-router-dom';
 import { FaUserCircle, FaBell } from 'react-icons/fa';
 import Logo from '../../assets/logoAPIT.png';
+import { useAuth } from '../../contexts/AuthContext';
 
 interface HeaderProps {
   title: string;
@@ -30,6 +31,9 @@ const CandidateHeader: React.FC<HeaderProps> = ({ title }) => {
   const [isDropdownOpen, setIsDropdownOpen] = useState(false);
   const [notificationCount, setNotificationCount] = useState(0);
   const [isScrolled, setIsScrolled] = useState(false);
+  const { user } = useAuth(); 
+
+  console.log(user);
 
   const location = useLocation();
 
@@ -86,43 +90,61 @@ const CandidateHeader: React.FC<HeaderProps> = ({ title }) => {
   const isCandidatePage = location.pathname === '/candidate-home';
 
   return (
-    <div
+    <header
       className={`header ${isCandidatePage ? (isScrolled ? 'header-scrolled' : 'transparent-header') : ''}`}
     >
-      <div className="header-title">
-        <Link to="/candidate-home" className="logo-container">
+      <div className="header-title flex items-center justify-between">
+        <Link to="/candidate-home" className="logo-container flex items-center">
           <img
             src={isCandidatePage ? Logo : '../../assets/AIPT.png'}
-            alt="Logo"
+            alt="Company Logo"
             className={`logo ${isCandidatePage ? 'home-logo w-16 h-6 mb-2' : ''}`}
           />
+          <span className="text-white ml-4 text-lg font-semibold">{title}</span>
         </Link>
-        <h1 className="text-white">{title}</h1>
       </div>
-      <div className="header-buttons flex items-center gap-4">
-  <Link to="/notifications" className="notification-button flex items-center text-white relative">
-    <FaBell size={24} className="text-white" />
-    {notificationCount > 0 && (
-      <span className="notification-badge absolute top-0 right-0 bg-red-500 text-xs text-white rounded-full w-5 h-5 flex items-center justify-center">
-        {notificationCount}
-      </span>
-    )}
-  </Link>
+      <nav className="header-buttons flex items-center gap-4">
+        <Link to="/notifications" className="notification-button relative">
+          <FaBell size={24} className="text-white" aria-label="Notifications" />
+          {notificationCount > 0 && (
+            <span className="notification-badge absolute top-0 right-0 bg-red-500 text-xs text-white rounded-full w-5 h-5 flex items-center justify-center">
+              {notificationCount}
+            </span>
+          )}
+        </Link>
+        {user && (
+          <span className="text-white ml-4">
+            Hello, {user.name}  {/* Or use a different field like email if available */}
+          </span>
+        )}
 
-  <div className="profile-icon-container relative">
-    <FaUserCircle size={30} onClick={toggleDropdown} className="text-white cursor-pointer" />
-    {isDropdownOpen && (
-      <div className="dropdown-menu absolute right-0 bg-white shadow-md rounded-md">
-        <Link to="/dashboard" className="dropdown-item block px-4 py-2 text-black hover:bg-gray-100">Dashboard</Link>
-        <Link to="/login" className="dropdown-item block px-4 py-2 text-black hover:bg-gray-100" onClick={logout}>Logout</Link>
-      </div>
-    )}
-  </div>
-</div>
-
-    </div>
+        <div className="profile-icon-container relative">
+          <FaUserCircle
+            size={30}
+            onClick={toggleDropdown}
+            className="text-white cursor-pointer"
+            aria-label="Profile Options"
+          />
+          {isDropdownOpen && (
+            <div className="dropdown-menu absolute right-0 bg-white shadow-md rounded-md z-10">
+              <Link
+                to="/dashboard"
+                className="dropdown-item block px-4 py-2 text-black hover:bg-gray-100"
+              >
+                Dashboard
+              </Link>
+              <button
+                onClick={logout}
+                className="dropdown-item block w-full text-left px-4 py-2 text-black hover:bg-gray-100"
+              >
+                Logout
+              </button>
+            </div>
+          )}
+        </div>
+      </nav>
+    </header>
   );
 };
 
 export default CandidateHeader;
-
