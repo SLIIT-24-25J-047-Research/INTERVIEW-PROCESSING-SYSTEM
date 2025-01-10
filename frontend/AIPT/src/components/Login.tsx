@@ -10,6 +10,7 @@ interface LoginResponse {
     token: string;
     role: string;
     email: string;
+    name: string;
     message?: string;
 }
 
@@ -60,7 +61,7 @@ const Login: React.FC = () => {
 
     const handleLoginSuccess = (data: LoginResponse) => {
         // Use the login function from AuthContext instead of directly setting localStorage
-        login(data.token, data.role, data.email);
+        login(data.token, data.role, data.email,data.name);
 
         if (data.role === 'interviewer') {
             navigate('/interviewer-home');
