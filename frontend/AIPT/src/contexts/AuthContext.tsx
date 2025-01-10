@@ -2,17 +2,18 @@
 import React, { createContext, useContext, useState, useEffect } from 'react';
 import { jwtDecode } from 'jwt-decode';
 
-
 interface User {
-    id: string;  
+    id: string;
     email: string;
     role: string;
+    name: string; // Name should be included here
 }
 
 interface DecodedToken {
-    id: string;  
+    id: string;
     email: string;
     role: string;
+    name: string; // Make sure 'name' is part of the decoded token
     exp: number;
     iat: number;
 }
@@ -20,7 +21,7 @@ interface DecodedToken {
 interface AuthContextType {
     user: User | null;
     loading: boolean;
-    login: (token: string, role: string, email: string) => void;
+    login: (token: string, role: string, email: string, name: string) => void;
     logout: () => void;
     isAuthenticated: boolean;
 }
@@ -34,12 +35,13 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
     const decodeAndValidateToken = (token: string): DecodedToken | null => {
         try {
             const decoded = jwtDecode<DecodedToken>(token);
+            console.log('Decoded Token:', decoded); 
             const currentTime = Date.now() / 1000;
-            
+
             if (decoded.exp < currentTime) {
                 return null;
             }
-            
+
             return decoded;
         } catch (error) {
             console.error('Error decoding token:', error);
@@ -49,27 +51,28 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
 
     useEffect(() => {
         const token = localStorage.getItem('token');
-        
+
         if (token) {
             const decoded = decodeAndValidateToken(token);
-            
+
             if (decoded) {
                 setUser({
-                    id: decoded.id,     
+                    id: decoded.id,
                     email: decoded.email,
-                    role: decoded.role
+                    role: decoded.role,
+                    name: decoded.name, // Ensure 'name' is extracted from the token
                 });
             } else {
                 localStorage.clear();
             }
         }
-        
+
         setLoading(false);
     }, []);
 
-    const login = (token: string, role: string, email: string) => {
+    const login = (token: string, role: string, email: string, name: string) => {
         const decoded = decodeAndValidateToken(token);
-        
+
         if (!decoded) {
             throw new Error('Invalid token');
         }
@@ -80,9 +83,10 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
         localStorage.setItem('authToken', token);
 
         setUser({
-            id: decoded.id,         
+            id: decoded.id,
             email: decoded.email,
-            role: decoded.role
+            role: decoded.role,
+            name: decoded.name, // Ensure the name is updated when logging in
         });
     };
 
@@ -99,7 +103,7 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
         loading,
         login,
         logout,
-        isAuthenticated: !!user
+        isAuthenticated: !!user,
     };
 
     return (
