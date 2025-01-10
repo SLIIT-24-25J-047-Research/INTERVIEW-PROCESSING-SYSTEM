@@ -8,6 +8,8 @@ import { Input } from "../../../components/ui/input";
 import { Button } from "../../../components/ui/button";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "../../../components/ui/select";
 import axios from 'axios';
+import { toast } from 'react-hot-toast';
+import { useAuth } from '../../../contexts/AuthContext';
 import { useNavigate } from "react-router-dom";
 
 
@@ -61,6 +63,40 @@ const CandidateHome: React.FC = () => {
             if (orderBy === 'oldest') return new Date(a.date).getTime() - new Date(b.date).getTime();
             return 0;
         });
+
+        const { user } = useAuth();
+        console.log(user);
+
+
+        const saveJob = async (jobId: string) => {
+            if (!user) {
+                toast.error('Please login to save jobs');
+                return;
+            }
+    
+            try {
+                const response = await axios.post('http://localhost:5000/api/jobs/save', {
+                    jobId,
+                    userId: user.id
+                }, {
+                    headers: {
+                        'Authorization': `Bearer ${localStorage.getItem('token')}`
+                    }
+                });
+                
+                if (response.status === 200) {
+                    toast.success('Job saved successfully!');
+                }
+            } catch (error: any) {
+                if (error.response?.status === 409) {
+                    toast.error('Job already saved!');
+                } else {
+                    toast.error('Error saving job');
+                    console.error('Error saving job:', error);
+                }
+            }
+        };
+    
 
     return (
         <div className="min-h-screen bg-gray-50">
@@ -173,7 +209,7 @@ const CandidateHome: React.FC = () => {
                                                 {new Date(job.date).toLocaleDateString()}
                                             </div>
                                             <div>
-                                                <Button className="bg-gray-200 hover:bg-gray-300 mr-2">Save</Button>
+                                                <Button className="bg-gray-200 hover:bg-gray-300 mr-2" onClick={() => saveJob(job._id)}>Save</Button>
                                                 <Button
                                                     className="bg-blue-500 text-white hover:bg-blue-600"
                                                     onClick={() => navigate(`/candidate-home/job/${job.jobID}/apply`)}
