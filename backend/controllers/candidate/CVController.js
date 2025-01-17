@@ -17,7 +17,6 @@ const uploadCV = async (req, res) => {
       bucketName: 'uploads'
     });
 
-    // Create a unique filename
     const timestamp = Date.now();
     const uniqueFilename = `${timestamp}-${file.originalname}`;
 
