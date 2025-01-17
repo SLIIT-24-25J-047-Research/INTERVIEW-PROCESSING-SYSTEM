@@ -14,6 +14,11 @@ const userCVSchema = new mongoose.Schema({
     required: true,
     ref: 'User',
   },
+  jobId: {
+    type: mongoose.Schema.Types.ObjectId, 
+    required: true,
+    ref: 'jobs',
+  },
   fileId: {
     type: mongoose.Schema.Types.ObjectId,
     required: true,
