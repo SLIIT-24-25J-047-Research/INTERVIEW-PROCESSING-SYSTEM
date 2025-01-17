@@ -2,13 +2,23 @@ import React from 'react';
 import { useNavigate, Link } from 'react-router-dom';
 import { Button } from '../components/ui/button';
 import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from '../components/ui/card';
-import { Briefcase, MapPin, DollarSign, Building2, Users, Trophy, Mail, Phone, MapPin as Location } from 'lucide-react';
+import {
+  Briefcase,
+  MapPin,
+  DollarSign,
+  Building2,
+  Users,
+  Trophy,
+  Search,
+  ArrowRight,
+  CheckCircle2,
+  Globe
+} from 'lucide-react';
 import Footer from '../components/Candidate/Footer';
-
 
 const JobPortalLanding = () => {
   const navigate = useNavigate();
-  
+
   const jobs = [
     {
       id: 1,
@@ -17,7 +27,8 @@ const JobPortalLanding = () => {
       location: "San Francisco, CA",
       salary: "$120,000 - $160,000",
       type: "Full-time",
-      description: "We are seeking an experienced software engineer to join our growing team..."
+      description: "We are seeking an experienced software engineer to join our growing team...",
+      logo: "/api/placeholder/64/64"
     },
     {
       id: 2,
@@ -26,7 +37,8 @@ const JobPortalLanding = () => {
       location: "New York, NY",
       salary: "$110,000 - $140,000",
       type: "Full-time",
-      description: "Looking for a strategic product manager to lead our product initiatives..."
+      description: "Looking for a strategic product manager to lead our product initiatives...",
+      logo: "/api/placeholder/64/64"
     },
     {
       id: 3,
@@ -35,112 +47,192 @@ const JobPortalLanding = () => {
       location: "Remote",
       salary: "$90,000 - $120,000",
       type: "Full-time",
-      description: "Join our design team to create beautiful and intuitive user experiences..."
+      description: "Join our design team to create beautiful and intuitive user experiences...",
+      logo: "/api/placeholder/64/64"
     }
   ];
 
   const stats = [
     { icon: Building2, value: "500+", label: "Partner Companies" },
     { icon: Users, value: "1M+", label: "Active Job Seekers" },
-    { icon: Trophy, value: "20k+", label: "Success Stories" }
+    { icon: Trophy, value: "20k+", label: "Success Stories" },
+    { icon: Globe, value: "50+", label: "Countries" }
+  ];
+
+  const features = [
+    {
+      title: "Smart Matching",
+      description: "AI-powered job matching that connects you with the most relevant opportunities",
+      icon: CheckCircle2
+    },
+    {
+      title: "Global Network",
+      description: "Access to worldwide opportunities and talent pool",
+      icon: Globe
+    },
+    {
+      title: "Expert Support",
+      description: "Dedicated recruitment specialists to guide your journey",
+      icon: Users
+    }
   ];
 
   return (
-    <div className="main-container bg-gray-50">
+    <div className="min-h-screen bg-gradient-to-b from-gray-50 to-white">
+      {/* Navbar */}
+      <nav className="bg-white fixed top-0 left-0 w-full border-b border-gray-200 shadow-md z-50">
+        <div className="container mx-auto px-6 py-4 flex items-center justify-between">
+          {/* Logo Section */}
+          <div className="flex items-center space-x-8">
+            <h3 className="text-2xl font-bold text-blue-600">TalentScope</h3>
+            <div className="hidden md:flex space-x-6">
+              <Link className="text-gray-700 hover:text-blue-600 transition" to="/jobs">
+                Browse Jobs
+              </Link>
+              <Link className="text-gray-700 hover:text-blue-600 transition" to="/companies">
+                Companies
+              </Link>
+              <Link className="text-gray-700 hover:text-blue-600 transition" to="/about">
+                About Us
+              </Link>
+            </div>
+          </div>
 
-      <header className="header">
-    
-        <h3>Automated Interview Tool</h3>
-        <div className="auth-buttons">
-          <Link to="/login" className="btn">Login</Link>
-          <Link to="/register" className="btn">Sign Up</Link>
+          {/* Action Buttons */}
+          <div className="flex items-center space-x-4">
+            <Button
+              variant="ghost"
+              onClick={() => navigate('/login')}
+              className="text-blue-600 border-blue-600 hover:bg-blue-50 transition"
+            >
+              Login
+            </Button>
+            <Button
+              onClick={() => navigate('/register')}
+              className="bg-blue-600 text-white hover:bg-blue-700 transition"
+            >
+              Sign Up
+            </Button>
+          </div>
         </div>
-      </header>
-      {/* Hero Section with Banner */}
-      <div className="relative bg-blue-600 text-white">
-        <div 
-          className="absolute inset-0 bg-gradient-to-r from-blue-600 to-purple-600 opacity-90"
-          style={{
-            backgroundImage: "url('/api/placeholder/1920/600')",
-            backgroundSize: 'cover',
-            backgroundPosition: 'center',
-            mixBlendMode: 'multiply'
-          }}
-        />
-        <div className="relative container mx-auto px-4 py-32">
-          <div className="max-w-2xl">
-            <h1 className="text-5xl font-bold mb-6">Find Your Dream Job Today</h1>
-            <p className="text-xl mb-8 text-blue-100">Connect with top companies and opportunities that match your skills and aspirations. Your next career move starts here.</p>
-            <div className="flex gap-4">
-              <Button 
-                size="lg" 
-                variant="secondary"
-                onClick={() => navigate('/login')}
-              >
-                Find Jobs
-              </Button>
-              <Button 
-                size="lg" 
-                variant="outline"
-                className="bg-transparent text-white border-white hover:bg-white hover:text-blue-600"
-              >
-                Post a Job
-              </Button>
+      </nav>
+
+
+      {/* Hero Section */}
+
+      <div className="relative bg-gradient-to-r from-[#2563eb] to-[#f472b6] text-white overflow-hidden h-screen">
+        <div className="absolute inset-0 bg-grid-white/[0.05] bg-[size:16px_16px] pointer-events-none" />
+        <div className="relative container mx-auto px-6 flex items-center justify-center h-full">
+          <div className="text-center max-w-4xl">
+            <h1 className="text-4xl md:text-6xl font-extrabold mb-6 leading-tight text-[#fdf4ff]">
+              Connecting Top Talent with Leading Companies
+            </h1>
+            <p className="text-xl md:text-2xl text-blue-100 mb-10">
+              Transform your career journey with our AI-powered recruitment platform.
+              Access exclusive opportunities and expert guidance.
+            </p>
+            <div className="flex flex-col md:flex-row gap-4 mb-12 justify-center">
+              <div className="flex-1 bg-white/10 backdrop-blur-md rounded-lg p-2 shadow-md max-w-md mx-auto">
+                <div className="flex items-center bg-white rounded-md p-2 shadow-sm">
+                  <Search className="h-5 w-5 text-gray-400 mx-2" />
+                  <input
+                    type="text"
+                    placeholder="Job title, skills, or company"
+                    className="flex-1 bg-transparent outline-none text-gray-800 placeholder-gray-400"
+                  />
+                  <Button className="ml-2 bg-blue-600 text-white px-4 py-2 rounded-lg hover:bg-blue-700 transition">
+                    Search Jobs
+                  </Button>
+                </div>
+              </div>
+            </div>
+
+            {/* Stats  */}
+            <div className="flex justify-center gap-12 md:gap-16">
+              {stats.map((stat, index) => (
+                <div
+                  key={index}
+                  className="text-center animate-fade-in delay-100"
+                >
+                  <div className="text-4xl md:text-5xl font-bold mb-1">
+                    {stat.value}
+                  </div>
+                  <div className="text-blue-100 text-sm md:text-base">
+                    {stat.label}
+                  </div>
+                </div>
+              ))}
             </div>
           </div>
         </div>
       </div>
 
-      {/* Stats Section */}
-      <div className="bg-white py-16">
-        <div className="container mx-auto px-4">
-          <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
-            {stats.map((stat, index) => (
-              <div key={index} className="flex flex-col items-center text-center">
-                <stat.icon className="h-12 w-12 text-blue-600 mb-4" />
-                <div className="text-4xl font-bold text-gray-900 mb-2">{stat.value}</div>
-                <div className="text-gray-600">{stat.label}</div>
-              </div>
-            ))}
-          </div>
-        </div>
-      </div>
 
-      {/* Job Listings Section */}
-      <div className="container mx-auto px-4 py-16">
-        <div className="text-center mb-12">
-          <h2 className="text-3xl font-bold mb-4">Featured Opportunities</h2>
-          <p className="text-gray-600 max-w-2xl mx-auto">
-            Explore our curated selection of positions from industry-leading companies
-          </p>
+
+      {/* Featured Jobs */}
+      <div className="container mx-auto px- py-16">
+        {/* Section Header */}
+        <div className="flex flex-col md:flex-row justify-between items-center mb-12">
+          <div className="text-center md:text-left">
+            <h2 className="text-4xl font-extrabold mb-4">Featured Positions</h2>
+            <p className="text-gray-500 text-lg">
+              Explore curated opportunities from top companies
+            </p>
+          </div>
+          <Button
+            variant="outline"
+            className="hidden md:flex items-center gap-2 border-blue-600 text-blue-600 hover:bg-blue-600 hover:text-white transition"
+            onClick={() => navigate('/positions')}
+          >
+            View All Positions <ArrowRight className="h-4 w-4" />
+          </Button>
         </div>
-        <div className="grid gap-6 md:grid-cols-2 lg:grid-cols-3">
+
+        {/* Jobs Grid */}
+        <div className="grid gap-8 sm:grid-cols-1 md:grid-cols-2 lg:grid-cols-3">
           {jobs.map((job) => (
-            <Card key={job.id} className="hover:shadow-lg transition-shadow">
-              <CardHeader>
-                <CardTitle className="text-xl">{job.title}</CardTitle>
-                <CardDescription>{job.company}</CardDescription>
+            <Card
+              key={job.id}
+              className="group hover:shadow-lg hover:-translate-y-1 transition-transform duration-300"
+            >
+              {/* Card Header */}
+              <CardHeader className="flex flex-row items-center gap-4 p-4">
+                <img
+                  src={job.logo}
+                  alt={job.company}
+                  className="w-14 h-14 rounded-lg shadow-md object-cover"
+                />
+                <div>
+                  <CardTitle className="text-xl font-bold group-hover:text-blue-600 transition-colors">
+                    {job.title}
+                  </CardTitle>
+                  <CardDescription className="text-gray-500">{job.company}</CardDescription>
+                </div>
               </CardHeader>
-              <CardContent>
-                <div className="space-y-3">
+
+              {/* Card Content */}
+              <CardContent className="px-4 py-4">
+                <div className="space-y-3 text-gray-600">
                   <div className="flex items-center gap-2">
-                    <MapPin className="h-4 w-4 text-gray-500" />
+                    <MapPin className="h-5 w-5 text-blue-500" />
                     <span>{job.location}</span>
                   </div>
                   <div className="flex items-center gap-2">
-                    <DollarSign className="h-4 w-4 text-gray-500" />
+                    <DollarSign className="h-5 w-5 text-blue-500" />
                     <span>{job.salary}</span>
                   </div>
                   <div className="flex items-center gap-2">
-                    <Briefcase className="h-4 w-4 text-gray-500" />
+                    <Briefcase className="h-5 w-5 text-blue-500" />
                     <span>{job.type}</span>
                   </div>
-                  <p className="text-gray-600 mt-2">{job.description}</p>
+                  <p className="text-sm text-gray-500 mt-3">{job.description}</p>
                 </div>
               </CardContent>
-              <CardFooter>
-                <Button 
-                  className="w-full"
+
+              {/* Card Footer */}
+              <CardFooter className="p-4">
+                <Button
+                  className="w-full bg-blue-600 text-white py-2 rounded-lg hover:bg-blue-700 transition-colors"
                   onClick={() => navigate('/login')}
                 >
                   Apply Now
@@ -151,57 +243,62 @@ const JobPortalLanding = () => {
         </div>
       </div>
 
-      {/* About Company Section */}
+
+      {/* Features Section */}
       <div className="bg-gray-50 py-24">
         <div className="container mx-auto px-4">
-          <div className="grid md:grid-cols-2 gap-12 items-center">
-            <div>
-              <img 
-                src="/api/placeholder/600/400" 
-                alt="Company Culture" 
-                className="rounded-lg shadow-lg"
-              />
-            </div>
-            <div>
-              <h2 className="text-3xl font-bold mb-6">About Our Platform</h2>
-              <p className="text-gray-600 mb-6">
-                We're revolutionizing the way people find their dream jobs. Our platform connects talented individuals with forward-thinking companies, creating meaningful career opportunities that benefit both parties.
-              </p>
-              <div className="space-y-4">
-                <div className="flex items-center gap-4">
-                  <div className="bg-blue-100 p-3 rounded-lg">
-                    <Users className="h-6 w-6 text-blue-600" />
-                  </div>
-                  <div>
-                    <h3 className="font-semibold">Expert Team</h3>
-                    <p className="text-gray-600">Dedicated support throughout your job search</p>
-                  </div>
+          <div className="text-center max-w-3xl mx-auto mb-16">
+            <h2 className="text-3xl font-bold mb-4">Why Choose TalentScope</h2>
+            <p className="text-gray-600">
+              We're transforming recruitment with cutting-edge technology and human expertise
+            </p>
+          </div>
+          <div className="grid md:grid-cols-3 gap-8">
+            {features.map((feature, index) => (
+              <div
+                key={index}
+                className="bg-white p-6 rounded-xl shadow-sm hover:shadow-md transition-shadow"
+              >
+                <div className="bg-blue-100 w-12 h-12 rounded-lg flex items-center justify-center mb-4">
+                  <feature.icon className="h-6 w-6 text-blue-600" />
                 </div>
-                <div className="flex items-center gap-4">
-                  <div className="bg-blue-100 p-3 rounded-lg">
-                    <Building2 className="h-6 w-6 text-blue-600" />
-                  </div>
-                  <div>
-                    <h3 className="font-semibold">Top Companies</h3>
-                    <p className="text-gray-600">Partner with industry leaders</p>
-                  </div>
-                </div>
-                <div className="flex items-center gap-4">
-                  <div className="bg-blue-100 p-3 rounded-lg">
-                    <Trophy className="h-6 w-6 text-blue-600" />
-                  </div>
-                  <div>
-                    <h3 className="font-semibold">Proven Success</h3>
-                    <p className="text-gray-600">Thousands of successful placements</p>
-                  </div>
-                </div>
+                <h3 className="text-xl font-semibold mb-2">{feature.title}</h3>
+                <p className="text-gray-600">{feature.description}</p>
               </div>
-            </div>
+            ))}
           </div>
         </div>
       </div>
 
-      {/* Footer */}
+      {/* CTA Section */}
+      <div className="bg-blue-600 text-white py-16">
+        <div className="container mx-auto px-4 text-center">
+          <h2 className="text-3xl md:text-4xl font-bold mb-4">
+            Ready to Transform Your Hiring Process?
+          </h2>
+          <p className="text-xl text-blue-100 mb-8 max-w-2xl mx-auto">
+            Join thousands of companies who trust TalentScope for their recruitment needs
+          </p>
+          <div className="flex flex-col md:flex-row gap-4 justify-center">
+            <Button
+              size="lg"
+              variant="secondary"
+              onClick={() => navigate('/register')}
+            >
+              Get Started Now
+            </Button>
+            <Button
+              size="lg"
+              variant="outline"
+              className="bg-transparent border-white text-white hover:bg-white hover:text-blue-600"
+              onClick={() => navigate('/contact')}
+            >
+              Talk to Sales
+            </Button>
+          </div>
+        </div>
+      </div>
+
       <Footer />
     </div>
   );
