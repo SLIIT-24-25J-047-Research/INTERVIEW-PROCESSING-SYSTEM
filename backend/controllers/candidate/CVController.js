@@ -107,23 +107,103 @@ const getCV = async (req, res) => {
   }
 };
 
+const getCVMetrics = async (req, res) => {
+  try {
+    const fileId = new ObjectId(req.params.id);
+
+    
+    console.log(`Fetching metadata for fileId: ${fileId}`);
+
+    const db = mongoose.connection.db;
+    const bucket = new mongoose.mongo.GridFSBucket(db, { bucketName: 'uploads' });
+
+    const files = await bucket.find({ _id: fileId }).toArray();
+    console.log('Found files:', files);
+
+    if (!files.length) {
+      return res.status(404).json({ message: 'File not found' });
+    }
+
+    const file = files[0];
+    res.status(200).json({
+      filename: file.filename,
+      contentType: file.contentType,
+      length: file.length,
+      uploadDate: file.uploadDate,
+      metadata: file.metadata || 'No metadata available',
+    });
+
+  } catch (error) {
+    console.error('Error retrieving CV metadata:', error);
+    res.status(500).json({
+      message: 'Error retrieving CV metadata',
+      error: error.message,
+    });
+  }
+};
+
+
+
+const getCVByUserId = async (req, res) => {
+  try {
+    const { userId } = req.params; // Get userId from request body
+
+    // Ensure userId is provided
+    if (!userId) {
+      return res.status(400).json({ message: 'User ID is required' });
+    }
+
+    // Validate if user exists
+    const user = await User.findById(userId);
+    if (!user) {
+      return res.status(404).json({ message: 'User not found' });
+    }
+
+    // Find the CV associated with the userId
+    const userCV = await UserCV.findOne({ userId: userId }).populate('fileId'); // Assuming fileId references a file in GridFS
+
+    if (!userCV) {
+      return res.status(404).json({ message: 'CV not found for this user' });
+    }
+
+    // Prepare the response
+    const cvData = {
+      fullName: userCV.fullName,
+      email: userCV.email,
+      jobId: userCV.jobId,
+      uploadDate: userCV.uploadDate,
+      fileId: userCV.fileId._id.toString(), // Returning the fileId as a string
+      filename: userCV.fileId.filename,    // If you want to return the filename as well
+      fileSize: userCV.fileId.length,      // You can return other file metadata like size
+    };
+
+    res.status(200).json({ message: 'CV data retrieved successfully', cvData });
+
+  } catch (error) {
+    console.error('Error retrieving CV:', error);
+    res.status(500).json({
+      message: 'Error retrieving CV',
+      error: error.message,
+    });
+  }
+};
+
+
+
+
 
 // Update CV Submission
 const updateCV = async (req, res) => {
   try {
-    const { userId, jobId, cvId } = req.params; 
-    const { fullName, email } = req.body;
+    const { cvId } = req.params; 
+    const { fullName, email,userId, jobId } = req.body; 
     const file = req.file;
 
-    if (!file) {
-      return res.status(400).json({ message: 'No file uploaded' });
-    }
 
     if (!userId || !jobId) {
       return res.status(400).json({ message: 'User ID and Job ID are required' });
     }
 
-    // Validate userId and jobId
     const user = await User.findById(userId);
     if (!user) {
       return res.status(400).json({ message: 'User ID is not valid' });
@@ -139,39 +219,47 @@ const updateCV = async (req, res) => {
       return res.status(404).json({ message: 'CV submission not found' });
     }
 
-    const db = mongoose.connection.db;
-    const bucket = new mongoose.mongo.GridFSBucket(db, {
-      bucketName: 'uploads',
-    });
+   
+    let fileId = existingCV.fileId; 
+    if (file) {
+      
+      const db = mongoose.connection.db;
+      const bucket = new mongoose.mongo.GridFSBucket(db, {
+        bucketName: 'uploads',
+      });
 
-    await bucket.delete(existingCV.fileId);
-    const timestamp = Date.now();
-    const uniqueFilename = `${timestamp}-${file.originalname}`;
+ 
+      await bucket.delete(existingCV.fileId);
+      const timestamp = Date.now();
+      const uniqueFilename = `${timestamp}-${file.originalname}`;
 
+      const uploadStream = bucket.openUploadStream(uniqueFilename, {
+        contentType: file.mimetype,
+      });
 
-    const uploadStream = bucket.openUploadStream(uniqueFilename, {
-      contentType: file.mimetype,
-    });
+      const bufferStream = require('stream').Readable.from(file.buffer);
+      await new Promise((resolve, reject) => {
+        bufferStream
+          .pipe(uploadStream)
+          .on('error', reject)
+          .on('finish', resolve);
+      });
 
-    const bufferStream = require('stream').Readable.from(file.buffer);
-    await new Promise((resolve, reject) => {
-      bufferStream
-        .pipe(uploadStream)
-        .on('error', reject)
-        .on('finish', resolve);
-    });
+      // Update fileId with the new file's ID
+      fileId = uploadStream.id;
+    }
 
-    // Update the CV metadata
+    // Update the CV metadata 
     existingCV.fullName = fullName || existingCV.fullName;
     existingCV.email = email || existingCV.email;
     existingCV.jobId = jobId || existingCV.jobId;
-    existingCV.fileId = uploadStream.id;
+    existingCV.fileId = fileId;
 
     await existingCV.save();
 
     res.status(200).json({
       message: 'CV updated successfully',
-      fileId: uploadStream.id.toString(),
+      fileId: fileId.toString(),
     });
 
   } catch (error) {
@@ -182,6 +270,7 @@ const updateCV = async (req, res) => {
     });
   }
 };
+
 
 // Delete 
 const deleteCV = async (req, res) => {
@@ -217,4 +306,4 @@ const deleteCV = async (req, res) => {
   }
 };
 
-module.exports = { uploadCV, getCV, updateCV, deleteCV };
+module.exports = { uploadCV, getCV, updateCV, deleteCV, getCVMetrics, getCVByUserId };
