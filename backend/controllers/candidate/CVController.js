@@ -144,49 +144,55 @@ const getCVMetrics = async (req, res) => {
 
 
 
+
+
 const getCVByUserId = async (req, res) => {
   try {
-    const { userId } = req.params; 
+    const { userId } = req.params;
     if (!userId) {
       return res.status(400).json({ message: 'User ID is required' });
     }
 
-
+    // Check if the user exists
     const user = await User.findById(userId);
     if (!user) {
       return res.status(404).json({ message: 'User not found' });
     }
 
-    const userCV = await UserCV.findOne({ userId: userId }).populate('fileId'); 
-    const cvCount = await UserCV.countDocuments({ userId: userId });
+    // Find all CVs for the user
+    const userCVs = await UserCV.find({ userId: userId }).populate('fileId');
+    const cvCount = userCVs.length; // Total number of CVs
 
-    if (!userCV) {
-      return res.status(404).json({ message: 'CV not found for this user' });
+    if (userCVs.length === 0) {
+      return res.status(404).json({ message: 'No CVs found for this user' });
     }
 
+    // Map the CV data to include relevant details for each CV
+    const cvData = userCVs.map(cv => ({
+      fullName: cv.fullName,
+      email: cv.email,
+      jobId: cv.jobId,
+      uploadDate: cv.uploadDate,
+      fileId: cv.fileId?._id.toString(), 
+      filename: cv.fileId?.filename,    
+      fileSize: cv.fileId?.length,
+    }));
 
-    const cvData = {
-      fullName: userCV.fullName,
-      email: userCV.email,
-      jobId: userCV.jobId,
-      uploadDate: userCV.uploadDate,
-      fileId: userCV.fileId._id.toString(), 
-      filename: userCV.fileId.filename,    
-      fileSize: userCV.fileId.length,
-      cvCount      
-    };
-
-    res.status(200).json({ message: 'CV data retrieved successfully', cvData });
+    // Return the response
+    res.status(200).json({
+      message: 'CV data retrieved successfully',
+      cvData,
+      cvCount,
+    });
 
   } catch (error) {
-    console.error('Error retrieving CV:', error);
+    console.error('Error retrieving CVs:', error);
     res.status(500).json({
-      message: 'Error retrieving CV',
+      message: 'Error retrieving CVs',
       error: error.message,
     });
   }
 };
-
 
 
 
