@@ -1,7 +1,7 @@
 
 const express = require('express');
 const multer = require('multer');
-const { uploadCV, getCV  } = require('../../controllers/candidate/CVController');
+const { uploadCV, getCV,updateCV, deleteCV, getCVMetrics ,getCVByUserId } = require('../../controllers/candidate/CVController');
 const path = require('path');
 const router = express.Router();
 
@@ -17,5 +17,10 @@ const upload = multer({
 // Routes
 router.post('/upload', upload.single('cv'), uploadCV);
 router.get('/download/:id', getCV);
+router.get('/metrics/:cvId', getCVMetrics);
+router.delete('/delete/:cvId', deleteCV);
+router.put('/update/:cvId', upload.single('cv'), updateCV);
+router.get('/user/:userId', getCVByUserId);
+
 
 module.exports = router;
