@@ -17,7 +17,13 @@ import CandidateLayout from "../../../components/Candidate/CandidateLayout"
 import { useAuth } from '../../../contexts/AuthContext';
 import image from '../../../assets/hh.png'
 import axios from 'axios';
-import { Dialog, DialogActions, DialogContent, DialogTitle,Typography, Box } from '@mui/material';
+import { Dialog, DialogActions, DialogContent, DialogTitle,Typography, Box, Accordion, AccordionSummary, AccordionDetails, Table,
+  TableBody,
+  TableCell,
+  TableContainer,
+  TableHead,
+  TableRow,Paper } from '@mui/material';
+import { IoIosArrowDropdownCircle as ExpandMoreIcon } from "react-icons/io";
 
 // Note: You'll need to install recharts for the charts
 import { PieChart, Pie, Cell, LineChart, Line, XAxis, YAxis, CartesianGrid, Tooltip } from 'recharts'
@@ -38,27 +44,37 @@ const lineData = [
   { name: 'Saturday', value: 60 },
 ]
 
-
-
-
 export default function CandidateDashboard() {
 
-  const { user } = useAuth();
-  console.log("hello", user);
-  const [cvCount, setCvCount] = useState<number>(0);
+ 
+
   interface CVData {
-    name: string;
-    email: string;
-    skills: string[];
-    experience: string;
-    education: string;
+ fullName: string;
+  email: string;
+  jobId: string;
+  uploadDate: string;
+  fileId: string;
+    cvCount: number;
+    filename: string;
+  fileSize: number;
+  }
+
+  interface APIResponse {
+    message: string;
+    cvData: CVData[];
     cvCount: number;
   }
 
   const [cvData, setCVData] = useState<CVData | null>(null);
+  const [cvDataList, setCVDataList] = useState<CVData[]>([]);
+  const [cvCount, setCVCount] = useState<number>(0);
+  const [selectedCV, setSelectedCV] = useState<CVData | null>(null);
   const [error, setError] = useState<string | null>(null);
   const [loading, setLoading] = useState(true);
   const [open, setOpen] = useState(false);
+  const { user } = useAuth();
+  console.log("hello", user);
+
 
 
   const fetchCVData = async () => {
@@ -68,9 +84,9 @@ export default function CandidateDashboard() {
         throw new Error('User is not authenticated');
       }
       const response = await axios.get(`http://localhost:5000/api/CVfiles/user/${user.id}`);
-      setCVData(response.data.cvData);
-      setCvCount(response.data.cvData.cvCount);
-      console.log(response.data.cvData);
+      setCVDataList(response.data.cvData);
+      setCVCount(response.data.cvCount);
+      console.log(cvDataList);
       setError(null);
     } catch (err) {
       if (axios.isAxiosError(err)) {
@@ -78,7 +94,8 @@ export default function CandidateDashboard() {
       } else {
         setError('Error fetching CV data');
       }
-      setCVData(null);
+      setCVDataList([]);
+      setCVCount(0);
     } finally {
       setLoading(false);
     }
@@ -92,21 +109,38 @@ export default function CandidateDashboard() {
 
   const handleClose = () => {
     setOpen(false);
+    setSelectedCV(null);
   };
 
-  const handleUpdate = () => {
-    // Handle CV update logic here
-    console.log('Update CV');
+  const handleRowClick = (cv: CVData) => {
+    setSelectedCV(cv);
   };
 
-  const handleDelete = () => {
-    // Handle CV deletion logic here
-    console.log('Delete CV');
+  const handleUpdate = async () => {
+    if (selectedCV?.fileId) {
+      // Implement update logic here
+      console.log('Update CV with ID:', selectedCV.fileId);
+    }
+  };
+  const handleDelete = async () => {
+    if (selectedCV?.fileId) {
+      try {
+        // Implement delete logic here
+        console.log('Delete CV with ID:', selectedCV.fileId);
+        await fetchCVData(); // Refresh the list after deletion
+      } catch (err) {
+        console.error('Error deleting CV:', err);
+      }
+    }
   };
 
   useEffect(() => {
     fetchCVData();
   }, []);
+
+  const formatDate = (dateString: string) => {
+    return new Date(dateString).toLocaleDateString();
+  };
 
 
 
@@ -173,7 +207,7 @@ export default function CandidateDashboard() {
               >
                 <CardContent className="p-6 flex items-center gap-4">
                   <div className="h-12 w-12 bg-blue-100 rounded-full flex items-center justify-center">
-                    <h3 className="text-xl font-semibold">{cvCount}</h3>
+                  <h3 className="text-xl font-semibold">{cvCount}</h3>
                   </div>
                   <div>
                     <p className="text-sm text-muted-foreground">Your Applications</p>
@@ -259,38 +293,87 @@ export default function CandidateDashboard() {
       </CandidateLayout>
       {/* Modal */}
       <Dialog open={open} onClose={handleClose} maxWidth="md" fullWidth>
-        <DialogTitle>CV Details</DialogTitle>
+        <DialogTitle>Your CV Applications</DialogTitle>
         <DialogContent>
           {loading ? (
             <Typography variant="body2" color="textSecondary">Loading...</Typography>
           ) : error ? (
             <Typography variant="body2" color="error">{error}</Typography>
           ) : (
-            <Box>
-              <Typography variant="h6" gutterBottom>CV Information:</Typography>
-              <Box sx={{ display: 'flex', flexDirection: 'column', gap: 2 }}>
-                <Typography><strong>Name:</strong> {cvData?.name || 'N/A'}</Typography>
-                <Typography><strong>Email:</strong> {cvData?.email || 'N/A'}</Typography>
-                <Typography><strong>Skills:</strong> {cvData?.skills?.join(', ') || 'N/A'}</Typography>
-                <Typography><strong>Experience:</strong> {cvData?.experience || 'N/A'}</Typography>
-                <Typography><strong>Education:</strong> {cvData?.education || 'N/A'}</Typography>
-                {/* Add more fields as needed */}
-              </Box>
-            </Box>
+            <>
+              <TableContainer component={Paper} sx={{ mt: 2 }}>
+                <Table>
+                  <TableHead>
+                    <TableRow>
+                      <TableCell>Full Name</TableCell>
+                      <TableCell>Email</TableCell>
+                      <TableCell>Job ID</TableCell>
+                      <TableCell>Upload Date</TableCell>
+                      <TableCell>Actions</TableCell>
+                    </TableRow>
+                  </TableHead>
+                  <TableBody>
+                    {cvDataList.map((cv) => (
+                      <TableRow 
+                        key={cv.fileId}
+                        onClick={() => handleRowClick(cv)}
+                        selected={selectedCV?.fileId === cv.fileId}
+                        hover
+                        style={{ cursor: 'pointer' }}
+                      >
+                        <TableCell>{cv.fullName}</TableCell>
+                        <TableCell>{cv.email}</TableCell>
+                        <TableCell>{cv.jobId}</TableCell>
+                        <TableCell>{formatDate(cv.uploadDate)}</TableCell>
+                        <TableCell>
+                          <Button
+                            onClick={(e) => {
+                              e.stopPropagation();
+                              setSelectedCV(cv);
+                            }}
+                            size="sm"
+                          >
+                            View Details
+                          </Button>
+                        </TableCell>
+                      </TableRow>
+                    ))}
+                  </TableBody>
+                </Table>
+              </TableContainer>
+
+              {selectedCV && (
+                <Box sx={{ mt: 4 }}>
+                  <Typography variant="h6" gutterBottom>Selected Application Details</Typography>
+                  <Box sx={{ display: 'flex', flexDirection: 'column', gap: 2 }}>
+                    <Typography><strong>Full Name:</strong> {selectedCV.fullName}</Typography>
+                    <Typography><strong>Email:</strong> {selectedCV.email}</Typography>
+                    <Typography><strong>Job ID:</strong> {selectedCV.jobId}</Typography>
+                    <Typography><strong>Upload Date:</strong> {formatDate(selectedCV.uploadDate)}</Typography>
+                    <Typography><strong>File ID:</strong> {selectedCV.fileId}</Typography>
+                  </Box>
+                </Box>
+              )}
+            </>
           )}
         </DialogContent>
         <DialogActions>
-          <Button onClick={handleUpdate} color="primary">
-            Update
-          </Button>
-          <Button onClick={handleDelete} color="secondary">
-            Delete
-          </Button>
+          {selectedCV && (
+            <>
+              <Button onClick={handleUpdate} color="primary">
+                Update Selected
+              </Button>
+              <Button onClick={handleDelete} color="secondary">
+                Delete Selected
+              </Button>
+            </>
+          )}
           <Button onClick={handleClose} color="default">
             Close
           </Button>
         </DialogActions>
       </Dialog>
+    
     </>
 
 
