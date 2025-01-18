@@ -28,6 +28,8 @@ app.use('/api/audio', require('./routes/audioRoutes'));
 // image classification routes
 app.use('/api', require('./routes/candidate/predictionRoutes'));
 
+// cv uploading and store
+app.use('/api/cvs', require('./routes/candidate/cvRoutes'));
 
 //code complexity routes
 
