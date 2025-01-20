@@ -84,7 +84,7 @@ const JobPortalLanding = () => {
         <div className="container mx-auto px-6 py-4 flex items-center justify-between">
           {/* Logo Section */}
           <div className="flex items-center space-x-8">
-            <h3 className="text-2xl font-bold text-blue-600">TalentScope</h3>
+            <h3 className="text-2xl font-bold text-blue-600">AIPT</h3>
             <div className="hidden md:flex space-x-6">
               <Link className="text-gray-700 hover:text-blue-600 transition" to="/jobs">
                 Browse Jobs
@@ -248,7 +248,7 @@ const JobPortalLanding = () => {
       <div className="bg-gray-50 py-24">
         <div className="container mx-auto px-4">
           <div className="text-center max-w-3xl mx-auto mb-16">
-            <h2 className="text-3xl font-bold mb-4">Why Choose TalentScope</h2>
+            <h2 className="text-3xl font-bold mb-4">Why Choose AIPT</h2>
             <p className="text-gray-600">
               We're transforming recruitment with cutting-edge technology and human expertise
             </p>
