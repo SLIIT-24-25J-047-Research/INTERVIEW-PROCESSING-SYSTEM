@@ -20,6 +20,7 @@ app.use('/api/non-t-interviews', require('./routes/employer/nonTechInterviewRout
 app.use('/api/t-interviews', require('./routes/employer/TechInterviewRoutes'));
 app.use('/api/notifications', require('./routes/candidate/NotificationRoutes'));
 app.use('/api/savejobs', require('./routes/candidate/SavedJobRoutes'));
+app.use('/api/CVfiles', require('./routes/candidate/CVRoutes'));
 
 // voice confidence routes
 app.use('/api', require('./routes/voiceConfidenceRoutes'));

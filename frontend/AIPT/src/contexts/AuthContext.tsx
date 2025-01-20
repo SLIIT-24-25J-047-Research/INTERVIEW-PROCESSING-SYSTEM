@@ -35,7 +35,7 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
     const decodeAndValidateToken = (token: string): DecodedToken | null => {
         try {
             const decoded = jwtDecode<DecodedToken>(token);
-            console.log('Decoded Token:', decoded); 
+            // console.log('Decoded Token:', decoded); 
             const currentTime = Date.now() / 1000;
 
             if (decoded.exp < currentTime) {
