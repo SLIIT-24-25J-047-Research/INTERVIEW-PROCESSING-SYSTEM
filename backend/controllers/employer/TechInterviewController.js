@@ -18,7 +18,7 @@ exports.createTechnicalInterview = async (req, res) => {
     const today = new Date();
     const testDate = new Date();
     testDate.setDate(today.getDate() + 0);
-    const testTime = "10:00 AM"; // Default time 
+    const testTime = "10:00 AM";
 
 
     const interview = new TechnicalInterviewSchedule({
@@ -72,6 +72,34 @@ exports.getTechnicalInterviewById = async (req, res) => {
     res.status(400).json({ message: 'Error fetching interview schedule', error: err.message });
   }
 };
+
+
+// Get Technical Interview Schedule by User ID
+exports.getTechnicalInterviewByUserId = async (req, res) => {
+  try {
+    const { id: userId } = req.params;
+
+    // Fetch technical interview schedules for the user
+    const schedules = await TechnicalInterviewSchedule.find({ userId });
+
+    if (!schedules || schedules.length === 0) {
+      return res.status(404).json({
+        message: 'No technical interviews found for this user.',
+      });
+    }
+
+    res.status(200).json({
+      message: 'Technical interviews retrieved successfully',
+      schedules,
+    });
+  } catch (err) {
+    res.status(500).json({
+      message: 'Error retrieving technical interview schedules',
+      error: err.message,
+    });
+  }
+};
+
 
 
 
