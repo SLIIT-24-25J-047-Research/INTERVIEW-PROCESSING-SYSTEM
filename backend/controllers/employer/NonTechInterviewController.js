@@ -61,7 +61,7 @@ const scheduleInterview = async (req, res) => {
 const editInterview = async (req, res) => {
   try {
     const { id } = req.params;
-    const { interviewDate, interviewTime, media } = req.body;
+    const { interviewDate, interviewTime, media, jobId  } = req.body;
 
 
     const interview = await InterviewSchedule.findById(id);
@@ -84,6 +84,14 @@ const editInterview = async (req, res) => {
       return res.status(400).json({
         message: 'The updated interview date cannot be in the past.',
       });
+    }
+
+    if (jobId) {
+      const job = await Job.findById(jobId);
+      if (!job) {
+        return res.status(404).json({ message: 'Job not found' });
+      }
+      interview.jobId = jobId;
     }
 
 
@@ -172,7 +180,7 @@ const getSchedulesByUserId = async (req, res) => {
   try {
     const { userId } = req.params;
 
-    const schedules = await InterviewSchedule.find({ userId });
+    const schedules = await InterviewSchedule.find({ userId }).populate('jobId', 'title description'); 
     if (schedules.length === 0) {
       return res.status(404).json({ message: 'No schedules found for this user' });
     }
@@ -183,5 +191,6 @@ const getSchedulesByUserId = async (req, res) => {
     return res.status(500).json({ message: 'Error retrieving schedules by user ID', error });
   }
 };
+
 
 module.exports = { scheduleInterview, editInterview, cancelInterview, getAllSchedules, getScheduleById, getSchedulesByUserId };
