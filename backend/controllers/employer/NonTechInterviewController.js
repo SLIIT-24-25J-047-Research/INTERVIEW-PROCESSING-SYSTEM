@@ -72,7 +72,7 @@ const editInterview = async (req, res) => {
       });
     }
 
-    // Check if the new interview date is in the past
+    
     if (interviewDate && new Date(interviewDate) < currentDate) {
       return res.status(400).json({
         message: 'The updated interview date cannot be in the past.',
