@@ -114,7 +114,7 @@ const editInterview = async (req, res) => {
         return res.status(404).json({ message: 'Interview not found' });
       }
   
-      // Update the status to "canceled"
+
       interview.status = 'canceled';
   
       await interview.save();
