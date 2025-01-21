@@ -22,7 +22,7 @@ const scheduleInterview = async (req, res) => {
       return res.status(400).json({ message: 'User already has an interview scheduled within the next 3 days. Please update the existing schedule.' });
     }
 
-   
+
     const interviewDate = new Date();
     interviewDate.setDate(interviewDate.getDate() + 3);
 
@@ -38,7 +38,7 @@ const scheduleInterview = async (req, res) => {
     const notification = new Notification({
       userId,
       message: `Your interview has been scheduled on ${media} for ${interviewDate.toDateString()} at ${interviewTime}.`,
-      interviewType: 'non-technical', 
+      interviewType: 'non-technical',
     });
 
     await notification.save();
@@ -56,7 +56,7 @@ const editInterview = async (req, res) => {
     const { id } = req.params;
     const { interviewDate, interviewTime, media } = req.body;
 
-  
+
     const interview = await InterviewSchedule.findById(id);
     if (!interview) {
       return res.status(404).json({ message: 'Interview not found' });
@@ -72,7 +72,7 @@ const editInterview = async (req, res) => {
       });
     }
 
-    
+
     if (interviewDate && new Date(interviewDate) < currentDate) {
       return res.status(400).json({
         message: 'The updated interview date cannot be in the past.',
@@ -105,76 +105,76 @@ const editInterview = async (req, res) => {
 
 
 
-  const cancelInterview = async (req, res) => {
-    try {
-      const { id } = req.params; 
-  
-      const interview = await InterviewSchedule.findById(id);
-      if (!interview) {
-        return res.status(404).json({ message: 'Interview not found' });
-      }
-  
+const cancelInterview = async (req, res) => {
+  try {
+    const { id } = req.params;
 
-      interview.status = 'canceled';
-  
-      await interview.save();
-      const notification = new Notification({
-        userId: interview.userId,
-        message: `Your Non technical interview has been Canceled.`,
-        interviewType: 'non-technical',
-      });
-  
-      await notification.save();
-  
-  
-      return res.status(200).json({ message: 'Interview canceled successfully', interview });
-    } catch (error) {
-      console.error(error);
-      return res.status(500).json({ message: 'Error canceling interview', error });
+    const interview = await InterviewSchedule.findById(id);
+    if (!interview) {
+      return res.status(404).json({ message: 'Interview not found' });
     }
-  };
 
-  const getAllSchedules = async (req, res) => {
-    try {
-      const schedules = await InterviewSchedule.find();
-      return res.status(200).json({ message: 'All interview schedules retrieved', schedules });
-    } catch (error) {
-      console.error(error);
-      return res.status(500).json({ message: 'Error retrieving schedules', error });
-    }
+
+    interview.status = 'canceled';
+
+    await interview.save();
+    const notification = new Notification({
+      userId: interview.userId,
+      message: `Your Non technical interview has been Canceled.`,
+      interviewType: 'non-technical',
+    });
+
+    await notification.save();
+
+
+    return res.status(200).json({ message: 'Interview canceled successfully', interview });
+  } catch (error) {
+    console.error(error);
+    return res.status(500).json({ message: 'Error canceling interview', error });
   }
+};
 
-  // Get by  ID
+const getAllSchedules = async (req, res) => {
+  try {
+    const schedules = await InterviewSchedule.find();
+    return res.status(200).json({ message: 'All interview schedules retrieved', schedules });
+  } catch (error) {
+    console.error(error);
+    return res.status(500).json({ message: 'Error retrieving schedules', error });
+  }
+}
+
+// Get by  ID
 const getScheduleById = async (req, res) => {
-    try {
-      const { id } = req.params;
-  
-      const schedule = await InterviewSchedule.findById(id);
-      if (!schedule) {
-        return res.status(404).json({ message: 'Schedule not found' });
-      }
-  
-      return res.status(200).json({ message: 'Schedule retrieved', schedule });
-    } catch (error) {
-      console.error(error);
-      return res.status(500).json({ message: 'Error retrieving schedule', error });
-    }
-  };
+  try {
+    const { id } = req.params;
 
-  const getSchedulesByUserId = async (req, res) => {
-    try {
-      const { userId } = req.params;
-  
-      const schedules = await InterviewSchedule.find({ userId });
-      if (schedules.length === 0) {
-        return res.status(404).json({ message: 'No schedules found for this user' });
-      }
-  
-      return res.status(200).json({ message: 'Schedules retrieved for user', schedules });
-    } catch (error) {
-      console.error(error);
-      return res.status(500).json({ message: 'Error retrieving schedules by user ID', error });
+    const schedule = await InterviewSchedule.findById(id);
+    if (!schedule) {
+      return res.status(404).json({ message: 'Schedule not found' });
     }
-  };
+
+    return res.status(200).json({ message: 'Schedule retrieved', schedule });
+  } catch (error) {
+    console.error(error);
+    return res.status(500).json({ message: 'Error retrieving schedule', error });
+  }
+};
+
+const getSchedulesByUserId = async (req, res) => {
+  try {
+    const { userId } = req.params;
+
+    const schedules = await InterviewSchedule.find({ userId });
+    if (schedules.length === 0) {
+      return res.status(404).json({ message: 'No schedules found for this user' });
+    }
+
+    return res.status(200).json({ message: 'Schedules retrieved for user', schedules });
+  } catch (error) {
+    console.error(error);
+    return res.status(500).json({ message: 'Error retrieving schedules by user ID', error });
+  }
+};
 
 module.exports = { scheduleInterview, editInterview, cancelInterview, getAllSchedules, getScheduleById, getSchedulesByUserId };
