@@ -34,8 +34,6 @@ exports.createTechnicalInterview = async (req, res) => {
       });
     }
 
-
-    //  (2 days from today)
     const today = new Date();
     const testDate = new Date();
     testDate.setDate(today.getDate() + 2);
