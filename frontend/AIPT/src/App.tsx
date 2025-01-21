@@ -18,6 +18,7 @@ import JobApplicationForm from "./pages/Candidate/candidate-home/JobDetails";
 import CandidateTest from "./pages/Candidate/candidate-dashboard/CandidateTest";
 import AddJob from "./pages/Interviewer/AddJob";
 import NotificationsPage from "./pages/Candidate/candidate-home/Notifications";
+import ScheduledInterviewPage from "./pages/Candidate/candidate-dashboard/ScheduledInterviewPage";
 
 const App: React.FC = () => {
   return (
@@ -52,7 +53,7 @@ const App: React.FC = () => {
           </PrivateRoute>
         }
       />
-            <Route
+      <Route
         path="/interviewer-Vacancies"
         element={
           <PrivateRoute allowedRoles={["interviewer"]}>
@@ -80,6 +81,15 @@ const App: React.FC = () => {
         element={
           <PrivateRoute allowedRoles={["candidate"]}>
             <CandidateDashboard />
+          </PrivateRoute>
+        }
+      />
+
+      <Route
+        path="/interview"
+        element={
+          <PrivateRoute allowedRoles={["candidate"]}>
+            <ScheduledInterviewPage />
           </PrivateRoute>
         }
       />
@@ -152,7 +162,7 @@ const App: React.FC = () => {
         }
       />
 
-<Route
+      <Route
         path="/notifications"
         element={
           <PrivateRoute allowedRoles={["candidate"]}>
