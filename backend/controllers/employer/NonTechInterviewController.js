@@ -87,7 +87,7 @@ const editInterview = async (req, res) => {
     }
 
     if (jobId) {
-      const job = await Job.findById(jobId);
+      const job = await JobsModel.findById(jobId);
       if (!job) {
         return res.status(404).json({ message: 'Job not found' });
       }
