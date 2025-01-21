@@ -18,9 +18,9 @@ interface MockupTestProps {
 
 const MockupTest: React.FC<MockupTestProps> = ({}) => {
   const webcamRef = useRef<Webcam>(null);
-  const [isTesting, setIsTesting] = useState(false); // Track test state
-  const [intervalId, setIntervalId] = useState<NodeJS.Timeout | null>(null); // Track the interval ID
-  const [isEndButtonDisabled, setIsEndButtonDisabled] = useState(true); // Track if the End Test button is disabled
+  const [isTesting, setIsTesting] = useState(false); 
+  const [intervalId, setIntervalId] = useState<ReturnType<typeof setInterval> | null>(null); 
+  const [isEndButtonDisabled, setIsEndButtonDisabled] = useState(true); 
   const navigate = useNavigate();
 
   const candidateEmail = localStorage.getItem("email");
