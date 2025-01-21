@@ -1,10 +1,11 @@
 const Notification = require('../../models/candidate/Notification');
+const JobsModel = require('../../models/employer/JobsModel');
 const InterviewSchedule = require('../../models/employer/NonTechInterviewSchedule');
 const User = require('../../models/User');
 
 const scheduleInterview = async (req, res) => {
   try {
-    const { userId, userName, interviewTime, media } = req.body;
+    const { userId, userName, interviewTime, media, jobId  } = req.body;
 
     // Validate  user
     const user = await User.findById(userId);
@@ -12,8 +13,14 @@ const scheduleInterview = async (req, res) => {
       return res.status(404).json({ message: 'User not found' });
     }
 
+    const job = await JobsModel.findById(jobId);
+    if (!job) {
+      return res.status(404).json({ message: 'Job not found' });
+    }
+
     // Check if the user already has an interview scheduled within the next 3 days
     const existingInterview = await InterviewSchedule.findOne({
+      jobId,
       userId,
       interviewDate: { $gte: new Date(), $lt: new Date(new Date().setDate(new Date().getDate() + 3)) }, // Check for interviews within the next 3 days
     });
@@ -32,12 +39,13 @@ const scheduleInterview = async (req, res) => {
       interviewDate,
       interviewTime,
       media,
+      jobId,
     });
 
     await newInterview.save();
     const notification = new Notification({
       userId,
-      message: `Your interview has been scheduled on ${media} for ${interviewDate.toDateString()} at ${interviewTime}.`,
+      message: `Your interview for job "${job.title}" has been scheduled on ${media} for ${interviewDate.toDateString()} at ${interviewTime}.`,
       interviewType: 'non-technical',
     });
 
