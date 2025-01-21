@@ -2,7 +2,7 @@ import React, { useState, useEffect } from 'react';
 import { Link, useLocation } from 'react-router-dom';
 import { Home, PenTool, Users, Code, User, MoreHorizontal, Settings, LogOut } from 'lucide-react';
 import { cn } from "../../lib/Utils";
-import { Button } from '@/components/ui/button';
+import { Button } from '../ui/button';
 
 interface MenuItem {
   path: string;
