@@ -31,7 +31,7 @@ interface TechnicalSchedule {
 const ScheduledInterviewPage: React.FC = () => {
   const [technicalSchedules, setTechnicalSchedules] = useState<TechnicalSchedule[]>([]);
   const [nonTechnicalSchedules, setNonTechnicalSchedules] = useState<NonTechnicalSchedule[]>([]);
-  const userId = '60a7b8b9a5c0f0845e123456';
+  const userId = '675932b49c1a60d97c147419';
   const navigate = useNavigate();
 
   useEffect(() => {
