@@ -3,10 +3,9 @@ import { useNavigate } from 'react-router-dom';
 import axios from 'axios';
 import Sidebar from '../../../components/Candidate/CandidateSidebar';
 import Header from '../../../components/Candidate/CandidateHeader';
-import { Card, CardContent, CardHeader, CardTitle } from '../../../components/ui/card';
+import { Card, CardContent } from '../../../components/ui/card';
 import { Button } from '../../../components/ui/button';
-import { Calendar, Clock, Video, AlertCircle, Timer } from 'lucide-react';
-import { Tabs, TabsContent, TabsList, TabsTrigger } from '../../../components/ui/Tabs';
+import { Calendar, Clock, Video, AlertCircle, Timer, CheckCircle2 } from 'lucide-react';
 
 interface NonTechnicalSchedule {
   _id: string;
@@ -76,107 +75,144 @@ const ScheduledInterviewPage: React.FC = () => {
       day: 'numeric',
     });
 
-  const renderEmptyState = (type: string) => (
-    <Card className="mt-4">
-      <CardContent className="flex items-center justify-center p-12">
-        <div className="text-center">
-          <AlertCircle className="mx-auto h-12 w-12 text-gray-400" />
-          <h3 className="mt-4 text-lg font-medium text-gray-900">No {type} Interviews</h3>
-          <p className="mt-2 text-gray-500">
-            You don't have any {type.toLowerCase()} interviews scheduled at the moment.
-          </p>
-        </div>
-      </CardContent>
-    </Card>
-  );
-
-  const renderTechnicalInterviews = () =>
-    technicalSchedules.length ? (
-      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-        {technicalSchedules.map((schedule) => (
-          <Card key={schedule._id} className="hover:shadow-lg transition-shadow duration-200">
-            <CardContent className="p-6">
-              <div className="space-y-4">
-                <div className="flex items-center space-x-2">
-                  <Calendar className="h-5 w-5 text-gray-500" />
-                  <span className="text-sm text-gray-600">{formatDate(schedule.testDate)}</span>
-                </div>
-                <div className="flex items-center space-x-2">
-                  <Clock className="h-5 w-5 text-gray-500" />
-                  <span className="text-sm text-gray-600">{schedule.testTime}</span>
-                </div>
-                <div className="flex items-center space-x-2">
-                  <Timer className="h-5 w-5 text-gray-500" />
-                  <span className="text-sm text-gray-600">{schedule.duration} minutes</span>
-                </div>
-                <div className="flex items-center justify-between">
-                  <span className={`px-3 py-1 rounded-full text-xs font-medium ${getStatusColor(schedule.status)}`}>
-                    {schedule.status}
-                  </span>
-                  <Button onClick={() => window.open(schedule.testLink, '_blank')} className="bg-blue-600 hover:bg-blue-700">
-                    Start Test
-                  </Button>
-                </div>
-              </div>
-            </CardContent>
-          </Card>
-        ))}
-      </div>
-    ) : (
-      renderEmptyState('Technical')
-    );
-
-  const renderNonTechnicalInterviews = () =>
-    nonTechnicalSchedules.length ? (
-      <div className=" mt-10 grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-        {nonTechnicalSchedules.map((schedule) => (
-          <Card key={schedule._id} className="hover:shadow-lg transition-shadow duration-200">
-            <CardContent className="p-6">
-              <div className="space-y-4">
-                <div className="flex items-center space-x-2">
-                  <Calendar className="h-5 w-5 text-gray-500" />
-                  <span className="text-sm text-gray-600">{formatDate(schedule.interviewDate)}</span>
-                </div>
-                <div className="flex items-center space-x-2">
-                  <Clock className="h-5 w-5 text-gray-500" />
-                  <span className="text-sm text-gray-600">{schedule.interviewTime}</span>
-                </div>
-                <div className="flex items-center space-x-2">
-                  <Video className="h-5 w-5 text-gray-500" />
-                  <span className="text-sm text-gray-600">{schedule.media}</span>
-                </div>
-                <div className="flex items-center justify-between">
-                  <span className={`px-3 py-1 rounded-full text-xs font-medium ${getStatusColor(schedule.status)}`}>
-                    {schedule.status}
-                  </span>
-                  <Button onClick={() => navigate('/join-interview')} className="bg-blue-600 hover:bg-blue-700">
-                    Join Interview
-                  </Button>
-                </div>
-              </div>
-            </CardContent>
-          </Card>
-        ))}
-      </div>
-    ) : (
-      renderEmptyState('Non-Technical')
-    );
+  const getStepStatus = (technicalStatus: string | undefined, nonTechnicalStatus: string | undefined) => {
+    if (!technicalStatus) return 'pending';
+    if (technicalStatus.toLowerCase() === 'completed') return 'completed';
+    if (technicalStatus.toLowerCase() === 'scheduled') return 'current';
+    return 'pending';
+  };
 
   return (
-    <div className="mt-20  flex h-screen bg-gray-50">
+    <div className="mt-20 flex h-screen bg-gray-50">
       <Sidebar />
       <div className="flex-1 flex flex-col overflow-hidden">
-        <Header title="Scheduled Interviews" />
+        <Header title="Interview Process" />
         <main className="flex-1 overflow-y-auto p-6">
-          <div className="max-w-7xl mx-auto">
-            <Tabs defaultValue="technical" className="w-full">
-              <TabsList className="grid w-full grid-cols-2 mb-8">
-                <TabsTrigger value="technical">Technical Interviews</TabsTrigger>
-                <TabsTrigger value="nonTechnical">Non-Technical Interviews</TabsTrigger>
-              </TabsList>
-              <TabsContent value="technical">{renderTechnicalInterviews()}</TabsContent>
-              <TabsContent value="nonTechnical">{renderNonTechnicalInterviews()}</TabsContent>
-            </Tabs>
+          <div className="max-w-5xl mx-auto">
+            {/* Progress Steps */}
+            <div className="mb-12">
+              <div className="flex items-center justify-between relative">
+                <div className="absolute left-0 right-0 top-1/2 h-1 bg-gray-200 -z-10" />
+                <div className="absolute left-0 right-0 top-1/2 h-1 bg-blue-500 -z-10" 
+                     style={{ width: getStepStatus(technicalSchedules[0]?.status, nonTechnicalSchedules[0]?.status) === 'completed' ? '100%' : '50%' }} />
+                
+                <div className="flex flex-col items-center">
+                  <div className={`w-8 h-8 rounded-full flex items-center justify-center 
+                    ${getStepStatus(technicalSchedules[0]?.status, undefined) === 'completed' 
+                      ? 'bg-green-500 text-white' 
+                      : getStepStatus(technicalSchedules[0]?.status, undefined) === 'current'
+                        ? 'bg-blue-500 text-white'
+                        : 'bg-gray-200 text-gray-500'}`}>
+                    {getStepStatus(technicalSchedules[0]?.status, undefined) === 'completed' ? <CheckCircle2 className="w-5 h-5" /> : '1'}
+                  </div>
+                  <span className="mt-2 font-medium">Technical Interview</span>
+                </div>
+
+                <div className="flex flex-col items-center">
+                  <div className={`w-8 h-8 rounded-full flex items-center justify-center 
+                    ${getStepStatus(technicalSchedules[0]?.status, nonTechnicalSchedules[0]?.status) === 'completed' 
+                      ? 'bg-green-500 text-white'
+                      : getStepStatus(technicalSchedules[0]?.status, nonTechnicalSchedules[0]?.status) === 'current' 
+                        ? 'bg-blue-500 text-white'
+                        : 'bg-gray-200 text-gray-500'}`}>
+                    {getStepStatus(technicalSchedules[0]?.status, nonTechnicalSchedules[0]?.status) === 'completed' ? <CheckCircle2 className="w-5 h-5" /> : '2'}
+                  </div>
+                  <span className="mt-2 font-medium">Non-Technical Interview</span>
+                </div>
+              </div>
+            </div>
+
+            {/* Technical Interview Section */}
+            <div className="mb-12">
+              <h2 className="text-xl font-semibold mb-6">Technical Assessment</h2>
+              {technicalSchedules.length > 0 ? (
+                <Card className="hover:shadow-lg transition-shadow duration-200">
+                  <CardContent className="p-6">
+                    <div className="space-y-4">
+                      <div className="flex items-center space-x-2">
+                        <Calendar className="h-5 w-5 text-gray-500" />
+                        <span className="text-sm text-gray-600">{formatDate(technicalSchedules[0].testDate)}</span>
+                      </div>
+                      <div className="flex items-center space-x-2">
+                        <Clock className="h-5 w-5 text-gray-500" />
+                        <span className="text-sm text-gray-600">{technicalSchedules[0].testTime}</span>
+                      </div>
+                      <div className="flex items-center space-x-2">
+                        <Timer className="h-5 w-5 text-gray-500" />
+                        <span className="text-sm text-gray-600">{technicalSchedules[0].duration} minutes</span>
+                      </div>
+                      <div className="flex items-center justify-between">
+                        <span className={`px-3 py-1 rounded-full text-xs font-medium ${getStatusColor(technicalSchedules[0].status)}`}>
+                          {technicalSchedules[0].status}
+                        </span>
+                        {technicalSchedules[0].status.toLowerCase() !== 'completed' && (
+                          <Button 
+                            onClick={() => window.open(technicalSchedules[0].testLink, '_blank')}
+                            className="bg-blue-600 hover:bg-blue-700"
+                          >
+                            Start Assessment
+                          </Button>
+                        )}
+                      </div>
+                    </div>
+                  </CardContent>
+                </Card>
+              ) : (
+                <Card className="bg-gray-50">
+                  <CardContent className="p-6">
+                    <div className="text-center text-gray-500">
+                      No technical assessment scheduled yet
+                    </div>
+                  </CardContent>
+                </Card>
+              )}
+            </div>
+
+            {/* Non-Technical Interview Section */}
+            <div className={technicalSchedules[0]?.status.toLowerCase() !== 'completed' ? 'opacity-50' : ''}>
+              <h2 className="text-xl font-semibold mb-6">HR Interview</h2>
+              {nonTechnicalSchedules.length > 0 ? (
+                <Card className="hover:shadow-lg transition-shadow duration-200">
+                  <CardContent className="p-6">
+                    <div className="space-y-4">
+                      <div className="flex items-center space-x-2">
+                        <Calendar className="h-5 w-5 text-gray-500" />
+                        <span className="text-sm text-gray-600">{formatDate(nonTechnicalSchedules[0].interviewDate)}</span>
+                      </div>
+                      <div className="flex items-center space-x-2">
+                        <Clock className="h-5 w-5 text-gray-500" />
+                        <span className="text-sm text-gray-600">{nonTechnicalSchedules[0].interviewTime}</span>
+                      </div>
+                      <div className="flex items-center space-x-2">
+                        <Video className="h-5 w-5 text-gray-500" />
+                        <span className="text-sm text-gray-600">{nonTechnicalSchedules[0].media}</span>
+                      </div>
+                      <div className="flex items-center justify-between">
+                        <span className={`px-3 py-1 rounded-full text-xs font-medium ${getStatusColor(nonTechnicalSchedules[0].status)}`}>
+                          {nonTechnicalSchedules[0].status}
+                        </span>
+                        {technicalSchedules[0]?.status.toLowerCase() === 'completed' && (
+                          <Button 
+                            onClick={() => navigate('/join-interview')}
+                            className="bg-blue-600 hover:bg-blue-700"
+                          >
+                            Join Interview
+                          </Button>
+                        )}
+                      </div>
+                    </div>
+                  </CardContent>
+                </Card>
+              ) : (
+                <Card className="bg-gray-50">
+                  <CardContent className="p-6">
+                    <div className="text-center text-gray-500">
+                      HR interview will be scheduled after technical assessment
+                    </div>
+                  </CardContent>
+                </Card>
+              )}
+            </div>
           </div>
         </main>
       </div>
