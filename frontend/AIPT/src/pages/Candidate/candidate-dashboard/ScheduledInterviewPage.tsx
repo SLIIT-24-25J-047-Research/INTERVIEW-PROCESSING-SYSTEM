@@ -114,7 +114,7 @@ const ScheduledInterviewPage: React.FC = () => {
       return;
     }
     // Navigate to technical interview page with necessary data
-    navigate('/technical-interview', {
+    navigate('/tech-interview', {
       state: {
         interviewId: interview._id,
         testLink: interview.testLink,
