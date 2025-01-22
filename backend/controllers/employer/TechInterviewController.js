@@ -1,12 +1,19 @@
 const Notification = require('../../models/candidate/Notification');
+const JobsModel = require('../../models/employer/JobsModel');
 const TechnicalInterviewSchedule = require('../../models/employer/TechnicalInterviewSchedule');
-
-
 
 // Create 
 exports.createTechnicalInterview = async (req, res) => {
   try {
-    const { userId, userName, duration, testLink } = req.body;
+    const { userId, userName, duration, testLink, jobId  } = req.body;
+
+    if (jobId) {
+      const job = await JobsModel.findById(jobId);
+      if (!job) {
+        return res.status(404).json({ message: 'Job not found' });
+      }
+    }
+
 
     // Check if the test link is unique
     const existingTestLink = await TechnicalInterviewSchedule.findOne({ testLink });
@@ -14,11 +21,23 @@ exports.createTechnicalInterview = async (req, res) => {
       return res.status(400).json({ message: 'Test link must be unique. This link is already used by another user.' });
     }
 
-    //  (2 days from today)
+    // Check if the user already has a technical interview scheduled for the same job
+    const existingInterview = await TechnicalInterviewSchedule.findOne({
+      userId,
+      jobId,
+      status: { $in: ['scheduled', 'in-progress'] },  
+    });
+
+    if (existingInterview) {
+      return res.status(400).json({
+        message: 'User already has a technical interview scheduled for this job. Please update the existing interview.'
+      });
+    }
+
     const today = new Date();
     const testDate = new Date();
-    testDate.setDate(today.getDate() + 0);
-    const testTime = "10:00 AM"; // Default time 
+    testDate.setDate(today.getDate() + 2);
+    const testTime = "10:00 AM";
 
 
     const interview = new TechnicalInterviewSchedule({
@@ -27,7 +46,8 @@ exports.createTechnicalInterview = async (req, res) => {
       testDate,
       testTime,
       duration,
-      testLink
+      testLink,
+      jobId,
     });
 
     await interview.save();
@@ -35,11 +55,10 @@ exports.createTechnicalInterview = async (req, res) => {
     const notification = new Notification({
       userId,
       message: `Your Non technical interview has been scheduled for ${testDate.toDateString()} at ${testTime}.`,
-      interviewType: 'technical', // Set the type based on the context
+      interviewType: 'technical', 
     });
 
     await notification.save();
-
 
     res.status(201).json({ message: 'Technical interview scheduled successfully', interview });
   } catch (err) {
@@ -72,6 +91,34 @@ exports.getTechnicalInterviewById = async (req, res) => {
     res.status(400).json({ message: 'Error fetching interview schedule', error: err.message });
   }
 };
+
+
+// Get Technical Interview Schedule by User ID
+exports.getTechnicalInterviewByUserId = async (req, res) => {
+  try {
+    const { id: userId } = req.params;
+
+    // Fetch technical interview schedules for the user
+    const schedules = await TechnicalInterviewSchedule.find({ userId });
+
+    if (!schedules || schedules.length === 0) {
+      return res.status(404).json({
+        message: 'No technical interviews found for this user.',
+      });
+    }
+
+    res.status(200).json({
+      message: 'Technical interviews retrieved successfully',
+      schedules,
+    });
+  } catch (err) {
+    res.status(500).json({
+      message: 'Error retrieving technical interview schedules',
+      error: err.message,
+    });
+  }
+};
+
 
 
 

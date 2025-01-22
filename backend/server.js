@@ -16,7 +16,7 @@ app.use('/api/jobs', require('./routes/employer/JobsRoutes'));
 app.use('/api/questions', require('./routes/employer/questionRoutes')); 
 app.use('/api/skillGroups', require('./routes/employer/skillGroupRoutes')); 
 app.use('/api/classification', require('./routes/candidate/predictionRoutes'));
-app.use('/api/non-t-interviews', require('./routes/employer/nonTechInterviewRoutes'));
+app.use('/api/non-t-interviews', require('./routes/employer/NonTechInterviewRoutes'));
 app.use('/api/t-interviews', require('./routes/employer/TechInterviewRoutes'));
 app.use('/api/notifications', require('./routes/candidate/NotificationRoutes'));
 app.use('/api/savejobs', require('./routes/candidate/SavedJobRoutes'));

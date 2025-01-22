@@ -17,7 +17,7 @@ const CandidateTest: React.FC = () => {
 
   useEffect(() => {
     const user = JSON.parse(localStorage.getItem("user") || "{}");
-    setUserId(user.id || "6738cd63339fff5ad4245b97"); // Replace with actual user ID
+    setUserId(user.id || "6738cd63339fff5ad4245b97"); 
   }, []);
 
   const handleCodeChange = (code: string | undefined) => {
@@ -48,7 +48,7 @@ const CandidateTest: React.FC = () => {
     try {
       const responses = await Promise.all(
         answers.map((answer, index) => {
-          const questionId = "67380880f1637de88de029e9"; // Replace with actual question ID mapping
+          const questionId = "67380880f1637de88de029e9"; 
           const requestData = {
             userId,
             questionId,
