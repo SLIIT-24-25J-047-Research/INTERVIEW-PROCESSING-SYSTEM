@@ -5,7 +5,7 @@ import Sidebar from '../../../components/Candidate/CandidateSidebar';
 import Header from '../../../components/Candidate/CandidateHeader';
 import { Card, CardContent, CardHeader, CardTitle } from '../../../components/ui/card';
 import { Button } from '../../../components/ui/button';
-import { Calendar, Clock, Video, Timer, Briefcase, CheckCircle } from 'lucide-react';
+import { Calendar, Clock, Video, AlertCircle, Timer, CheckCircle2, Briefcase } from 'lucide-react';
 
 interface NonTechnicalSchedule {
   _id: string;
@@ -101,68 +101,14 @@ const ScheduledInterviewPage: React.FC = () => {
       case 'scheduled':
         return 'bg-blue-100 text-blue-800';
       case 'completed':
-      case 'done':
         return 'bg-green-100 text-green-800';
-      case 'canceled':
-      case 'not attended':
+      case 'cancelled':
         return 'bg-red-100 text-red-800';
       case 'updated':
         return 'bg-yellow-100 text-yellow-800';
-      case 'in-progress':
-        return 'bg-purple-100 text-purple-800';
       default:
         return 'bg-gray-100 text-gray-800';
     }
-  };
-
-  const getStageStatus = (stage: 'technical' | 'nonTechnical', status?: string) => {
-    if (!status) return 'pending';
-    
-    const technicalStatusMap: Record<string, string> = {
-      'scheduled': 'Scheduled',
-      'in-progress': 'In Progress',
-      'updated': 'Rescheduled',
-      'completed': 'Completed',
-      'not attended': 'Incomplete',
-      'canceled': 'Cancelled'
-    };
-
-    const nonTechnicalStatusMap: Record<string, string> = {
-      'scheduled': 'Scheduled',
-      'updated': 'Rescheduled',
-      'done': 'Completed',
-      'not attended': 'Incomplete',
-      'canceled': 'Cancelled'
-    };
-
-    return stage === 'technical' 
-      ? technicalStatusMap[status.toLowerCase()] || status 
-      : nonTechnicalStatusMap[status.toLowerCase()] || status;
-  };
-
-  const getProgressSegments = (application: JobApplication) => {
-    const techStatus = application.technicalInterview?.status.toLowerCase();
-    const nonTechStatus = application.nonTechnicalInterview?.status.toLowerCase();
-
-    return [
-      {
-        label: 'Technical Assessment',
-        status: getStageStatus('technical', techStatus),
-        completed: techStatus === 'completed',
-        active: techStatus === 'scheduled' || techStatus === 'in-progress',
-        failed: techStatus === 'not attended' || techStatus === 'canceled',
-        current: techStatus === 'scheduled' || techStatus === 'in-progress'
-      },
-      {
-        label: 'HR Interview',
-        status: getStageStatus('nonTechnical', nonTechStatus),
-        completed: nonTechStatus === 'done',
-        active: techStatus === 'completed' && (nonTechStatus === 'scheduled' || nonTechStatus === 'updated'),
-        failed: nonTechStatus === 'not attended' || nonTechStatus === 'canceled',
-        current: techStatus === 'completed' && (nonTechStatus === 'scheduled' || nonTechStatus === 'updated'),
-        disabled: !techStatus || techStatus !== 'completed'
-      }
-    ];
   };
 
   const formatDate = (dateString: string) =>
@@ -172,6 +118,64 @@ const ScheduledInterviewPage: React.FC = () => {
       month: 'long',
       day: 'numeric',
     });
+
+  // const getProgress = (application: JobApplication) => {
+  //   if (!application.technicalInterview) return 0;
+  //   if (application.technicalInterview.status.toLowerCase() === 'completed') return 50;
+  //   if (application.nonTechnicalInterview?.status.toLowerCase() === 'completed') return 100;
+  //   return 25;
+  // };
+
+  const getStageStatus = (stage: 'technical' | 'nonTechnical', status?: string) => {
+    if (!status) return 'pending';
+
+    // Map internal status to candidate-friendly status
+    const technicalStatusMap: Record<string, string> = {
+      'scheduled': 'scheduled',
+      'in-progress': 'in progress',
+      'updated': 'rescheduled',
+      'completed': 'completed',
+      'not attended': 'incomplete',
+      'canceled': 'cancelled'
+    };
+
+    const nonTechnicalStatusMap: Record<string, string> = {
+      'scheduled': 'scheduled',
+      'updated': 'rescheduled',
+      'done': 'completed',
+      'not attended': 'incomplete',
+      'canceled': 'cancelled'
+    };
+
+    return stage === 'technical'
+      ? technicalStatusMap[status.toLowerCase()] || status
+      : nonTechnicalStatusMap[status.toLowerCase()] || status;
+  };
+
+  const getProgressSegments = (application: JobApplication) => {
+    const techStatus = application.technicalInterview?.status.toLowerCase();
+    const nonTechStatus = application.nonTechnicalInterview?.status.toLowerCase();
+
+    
+
+    return [
+      {
+        label: 'Technical Assessment',
+        status: getStageStatus('technical', techStatus),
+        completed: techStatus === 'completed',
+        active: techStatus === 'scheduled' || techStatus === 'in-progress',
+        width: '50%'
+      },
+      {
+        label: 'HR Interview',
+        status: getStageStatus('nonTechnical', nonTechStatus),
+        completed: nonTechStatus === 'done',
+        active: techStatus === 'completed' && (nonTechStatus === 'scheduled' || nonTechStatus === 'updated'),
+        width: '50%'
+      }
+    ];
+  };
+
 
   return (
     <div className="mt-20 flex h-screen bg-gray-50">
@@ -191,57 +195,60 @@ const ScheduledInterviewPage: React.FC = () => {
                   </div>
                 </CardHeader>
                 <CardContent className="p-6">
-                  {/* Enhanced Progress Tracker */}
+                  {/* Progress Bar */}
                   <div className="mb-8">
-                    <div className="relative">
-                      <div className="absolute top-1/2 left-0 right-0 h-0.5 bg-gray-200" />
-                      <div className="relative flex justify-between">
+                    <div className="relative pt-1">
+                      <div className="flex mb-4">
                         {getProgressSegments(application).map((segment, index) => (
                           <div
                             key={index}
-                            className={`flex flex-col items-center w-64 ${
-                              segment.disabled ? 'opacity-50' : ''
-                            }`}
+                            className="relative"
+                            style={{ width: segment.width }}
                           >
-                            {/* Stage Indicator */}
-                            <div
-                              className={`w-8 h-8 rounded-full flex items-center justify-center border-2 ${
-                                segment.completed
-                                  ? 'bg-green-500 border-green-500'
-                                  : segment.failed
-                                  ? 'bg-red-500 border-red-500'
-                                  : segment.current
-                                  ? 'bg-blue-500 border-blue-500'
-                                  : 'bg-white border-gray-300'
-                              }`}
-                            >
-                              {segment.completed ? (
-                                <CheckCircle className="w-5 h-5 text-white" />
-                              ) : (
-                                <span className={`text-sm font-medium ${
-                                  segment.current ? 'text-white' : 'text-gray-500'
-                                }`}>
-                                  {index + 1}
-                                </span>
-                              )}
-                            </div>
-
-                            {/* Stage Label */}
-                            <div className="mt-2 text-sm font-medium text-gray-900">
-                              {segment.label}
-                            </div>
-
-                            {/* Stage Status */}
-                            <div className={`mt-1 px-3 py-1 rounded-full text-xs font-medium ${
-                              getStatusColor(segment.status.toLowerCase())
-                            }`}>
-                              {segment.status}
+                            <div className="flex flex-col">
+                              <div className="text-xs font-medium mb-1">{segment.label}</div>
+                              <div className="relative h-2 w-full rounded overflow-hidden bg-gray-200">
+                                <div
+                                  className={`absolute top-0 left-0 h-full transition-all duration-300 ${segment.completed
+                                    ? 'bg-green-500'
+                                    : segment.active
+                                      ? 'bg-blue-500'
+                                      : 'bg-gray-300'
+                                    }`}
+                                  style={{
+                                    width: segment.completed
+                                      ? '100%'
+                                      : segment.active
+                                        ? '50%'
+                                        : '0%',
+                                  }}
+                                />
+                                {/* Moving Dot */}
+                                <div
+                                  className="absolute top-1/2 transform -translate-y-1/2 w-4 h-4 rounded-full border-2 border-white z-10"
+                                  style={{
+                                    left: segment.completed
+                                      ? '100%'
+                                      : segment.active
+                                        ? '50%'
+                                        : '0%',
+                                    backgroundColor: segment.completed
+                                      ? '#16a34a' // green
+                                      : segment.active
+                                        ? '#2563eb' // blue
+                                        : '#d1d5db', // gray
+                                  }}
+                                />
+                              </div>
+                              <div className="text-xs mt-1 text-gray-600">{segment.status}</div>
                             </div>
                           </div>
                         ))}
                       </div>
                     </div>
                   </div>
+
+
 
                   <div className="grid md:grid-cols-2 gap-6">
                     {/* Technical Interview Card */}
@@ -265,7 +272,7 @@ const ScheduledInterviewPage: React.FC = () => {
                               </div>
                               <div className="flex items-center justify-between">
                                 <span className={`px-2 py-1 rounded-full text-xs font-medium ${getStatusColor(application.technicalInterview.status)}`}>
-                                  {getStageStatus('technical', application.technicalInterview.status)}
+                                  {application.technicalInterview.status}
                                 </span>
                                 {application.technicalInterview.status.toLowerCase() !== 'completed' && (
                                   <Button
@@ -311,7 +318,7 @@ const ScheduledInterviewPage: React.FC = () => {
                                 </div>
                                 <div className="flex items-center justify-between">
                                   <span className={`px-2 py-1 rounded-full text-xs font-medium ${getStatusColor(application.nonTechnicalInterview.status)}`}>
-                                    {getStageStatus('nonTechnical', application.nonTechnicalInterview.status)}
+                                    {application.nonTechnicalInterview.status}
                                   </span>
                                   {application.technicalInterview?.status.toLowerCase() === 'completed' && (
                                     <Button
