@@ -2,7 +2,7 @@ import React, { useState, useEffect } from 'react';
 import { Link, useLocation } from 'react-router-dom';
 import { Home, PenTool, Users, Code, User, MoreHorizontal, Settings, LogOut } from 'lucide-react';
 import { cn } from "../../lib/Utils";
-import { Button } from '@/components/ui/button';
+import { Button } from '../ui/button';
 
 interface MenuItem {
   path: string;
@@ -13,6 +13,7 @@ interface MenuItem {
 const menuItems: MenuItem[] = [
   { path: '/dashboard', icon: Home, label: 'Dashboard' },
   { path: '/candidate-mockup', icon: PenTool, label: 'Mockup-Test' },
+  { path: '/interview', icon: Users, label: ' Interview' },
   { path: '/non-tech-interview', icon: Users, label: 'Non Technical Interview' },
   { path: '/tech-interview', icon: Code, label: 'Technical Interview' },
   { path: '/profile', icon: User, label: 'Profile' },
