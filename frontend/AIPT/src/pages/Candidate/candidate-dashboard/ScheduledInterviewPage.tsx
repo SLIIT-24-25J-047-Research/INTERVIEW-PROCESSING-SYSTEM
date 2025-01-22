@@ -96,6 +96,37 @@ const ScheduledInterviewPage: React.FC = () => {
     fetchInterviews();
   }, [userId]);
 
+
+  const isTestDay = (testDate: string) => {
+    const today = new Date();
+    const scheduledDate = new Date(testDate);
+    
+    // Compare year, month, and day only
+    return (
+      today.getFullYear() === scheduledDate.getFullYear() &&
+      today.getMonth() === scheduledDate.getMonth() &&
+      today.getDate() === scheduledDate.getDate()
+    );
+  };
+
+  const handleStartTest = (interview: TechnicalSchedule) => {
+    if (!isTestDay(interview.testDate)) {
+      return;
+    }
+    // Navigate to technical interview page with necessary data
+    navigate('/technical-interview', {
+      state: {
+        interviewId: interview._id,
+        testLink: interview.testLink,
+        duration: interview.duration
+      }
+    });
+  };
+
+
+
+
+
   const getStatusColor = (status: string) => {
     switch (status?.toLowerCase()) {
       case 'scheduled':
@@ -276,10 +307,11 @@ const ScheduledInterviewPage: React.FC = () => {
                                 </span>
                                 {application.technicalInterview.status.toLowerCase() !== 'completed' && (
                                   <Button
-                                    onClick={() => window.open(application.technicalInterview!.testLink, '_blank')}
-                                    size="sm"
-                                    className="bg-blue-600 hover:bg-blue-700"
-                                  >
+                                  onClick={() => handleStartTest(application.technicalInterview!)}
+                                  size="sm"
+                                  className="bg-blue-600 hover:bg-blue-700"
+                                  disabled={!isTestDay(application.technicalInterview.testDate)}
+                                >
                                     Start Test
                                   </Button>
                                 )}
