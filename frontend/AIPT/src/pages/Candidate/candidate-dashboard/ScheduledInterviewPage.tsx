@@ -6,6 +6,9 @@ import Header from '../../../components/Candidate/CandidateHeader';
 import { Card, CardContent, CardHeader, CardTitle } from '../../../components/ui/card';
 import { Button } from '../../../components/ui/button';
 import { Calendar, Clock, Video, AlertCircle, Timer, CheckCircle2, Briefcase } from 'lucide-react';
+import { differenceInMinutes, differenceInHours, formatDistanceToNow } from 'date-fns';
+
+
 
 interface NonTechnicalSchedule {
   _id: string;
