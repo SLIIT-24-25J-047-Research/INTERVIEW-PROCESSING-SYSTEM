@@ -97,20 +97,26 @@ const ScheduledInterviewPage: React.FC = () => {
   }, [userId]);
 
 
-  const isTestDay = (testDate: string) => {
-    const today = new Date();
-    const scheduledDate = new Date(testDate);
-    
-    // Compare year, month, and day only
-    return (
-      today.getFullYear() === scheduledDate.getFullYear() &&
-      today.getMonth() === scheduledDate.getMonth() &&
-      today.getDate() === scheduledDate.getDate()
-    );
-  };
+const isTestDayAndTime = (testDate: string, testTime: string, duration: number) => {
+  const now = new Date();
+  const startTime = new Date(testDate);
+  const [hours, minutes] = testTime.split(':').map(Number);
+  const isPM = testTime.includes('PM');
+
+  // Adjust start time with the given test time
+  startTime.setHours(isPM ? hours + 12 : hours, minutes, 0, 0);
+
+  // Calculate the end time
+  const endTime = new Date(startTime);
+  endTime.setMinutes(startTime.getMinutes() + duration);
+
+  // Check if the current time falls within the interview window
+  return now >= startTime && now <= endTime;
+};
+
 
   const handleStartTest = (interview: TechnicalSchedule) => {
-    if (!isTestDay(interview.testDate)) {
+    if (!isTestDayAndTime(interview.testDate, interview.testTime, interview.duration)) {
       return;
     }
     // Navigate to technical interview page with necessary data
@@ -310,7 +316,9 @@ const ScheduledInterviewPage: React.FC = () => {
                                   onClick={() => handleStartTest(application.technicalInterview!)}
                                   size="sm"
                                   className="bg-blue-600 hover:bg-blue-700"
-                                  disabled={!isTestDay(application.technicalInterview.testDate)}
+                                  disabled={!isTestDayAndTime( application.technicalInterview!.testDate,
+                                    application.technicalInterview!.testTime,
+                                    application.technicalInterview!.duration)}
                                 >
                                     Start Test
                                   </Button>
