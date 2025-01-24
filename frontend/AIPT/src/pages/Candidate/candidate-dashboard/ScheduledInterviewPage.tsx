@@ -202,6 +202,32 @@ const ScheduledInterviewPage: React.FC = () => {
       : nonTechnicalStatusMap[status.toLowerCase()] || status;
   };
 
+  const getTimeRemaining = (testDate: string, testTime: string) => {
+    const now = new Date();
+    const startTime = new Date(testDate);
+  
+    // Extract hours and minutes and determine AM/PM
+    const [time, meridian] = testTime.split(' ');
+    const [hours, minutes] = time.split(':').map(Number);
+    const adjustedHours =
+      meridian === 'PM' && hours !== 12
+        ? hours + 12
+        : meridian === 'AM' && hours === 12
+        ? 0
+        : hours;
+  
+    // Adjust the startTime with hours and minutes
+    startTime.setHours(adjustedHours, minutes, 0, 0);
+  
+    if (now > startTime) {
+      return "Interview has already started or ended.";
+    }
+  
+    // Format distance to start time (e.g., "in 2 hours")
+    return `Starts ${formatDistanceToNow(startTime, { addSuffix: true })}`;
+  };
+  
+
   const getProgressSegments = (application: JobApplication) => {
     const techStatus = application.technicalInterview?.status.toLowerCase();
     const nonTechStatus = application.nonTechnicalInterview?.status.toLowerCase();
@@ -320,6 +346,18 @@ const ScheduledInterviewPage: React.FC = () => {
                                 <Timer className="h-4 w-4 text-gray-500" />
                                 <span className="text-sm">{application.technicalInterview.duration} minutes</span>
                               </div>
+                                   {/* Time Remaining Section */}
+          <div className="flex items-center space-x-2">
+            <Timer className="h-4 w-4 text-gray-500" />
+            <span className="text-sm text-gray-600">
+              {getTimeRemaining(
+                application.technicalInterview.testDate,
+                application.technicalInterview.testTime
+              )}
+            </span>
+          </div>
+
+
                               <div className="flex items-center justify-between">
                                 <span className={`px-2 py-1 rounded-full text-xs font-medium ${getStatusColor(application.technicalInterview.status)}`}>
                                   {application.technicalInterview.status}
