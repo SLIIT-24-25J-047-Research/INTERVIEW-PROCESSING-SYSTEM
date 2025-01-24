@@ -119,7 +119,7 @@ const CandidateTest: React.FC = () => {
     }
 
     try {
-      // Filter out empty answers
+      // Filter  empty answers
       const answeredQuestions = answers
         .map((answer, index) => ({
           answer,
@@ -148,8 +148,6 @@ const CandidateTest: React.FC = () => {
           });
         })
       );
-
-      // Check if any responses failed
       const failedResponses = responses.filter(response => !response.ok);
       
       if (failedResponses.length === 0) {
@@ -245,7 +243,7 @@ const CandidateTest: React.FC = () => {
     );
   }
 
-  // Existing test screen
+  // test screen
   return (
     <div className="flex">
       <Sidebar />
