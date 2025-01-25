@@ -19,6 +19,8 @@ const CandidateHome: React.FC = () => {
     { Header }
     const navigate = useNavigate();
     const [jobPosts, setJobPosts] = useState<any[]>([]);
+
+    
     useEffect(() => {
         axios.get('http://localhost:5000/api/jobs/all')
             .then(response => {
@@ -42,6 +44,9 @@ const CandidateHome: React.FC = () => {
     const [dateFilter, setDateFilter] = useState('all');
     const [orderBy, setOrderBy] = useState('newest');
     const [typeFilter, setTypeFilter] = useState('all');
+    const [savedJobs, setSavedJobs] = useState<Set<string>>(new Set());
+
+    
 
     const filteredJobPosts = jobPosts
         .filter((job) =>
@@ -65,7 +70,18 @@ const CandidateHome: React.FC = () => {
         });
 
         const { user } = useAuth();
-        console.log(user);
+        // console.log(user);
+
+        useEffect(() => {
+            if (user) {
+                axios.get(`http://localhost:5000/api/savejobs/getSavedJobs/${user.id}`)
+                    .then(response => {
+                        setSavedJobs(new Set(response.data.savedJobIds));
+                        console.log('savedJobs' , savedJobs);
+                    })
+                    .catch(error => console.error("Error fetching saved jobs:", error));
+            }
+        }, [user]);
 
 
         const saveJob = async (jobId: string) => {
@@ -75,16 +91,14 @@ const CandidateHome: React.FC = () => {
             }
     
             try {
-                const response = await axios.post('http://localhost:5000/api/jobs/save', {
+                const response = await axios.post('http://localhost:5000/api/savejobs/save', {
                     jobId,
                     userId: user.id
-                }, {
-                    headers: {
-                        'Authorization': `Bearer ${localStorage.getItem('token')}`
-                    }
                 });
                 
                 if (response.status === 200) {
+                    setSavedJobs((prev) => new Set([...prev, jobId]));
+                    console.log('Saved job:', jobId);
                     toast.success('Job saved successfully!');
                 }
             } catch (error: any) {
@@ -96,6 +110,9 @@ const CandidateHome: React.FC = () => {
                 }
             }
         };
+
+ 
+    
     
 
     return (
@@ -209,7 +226,7 @@ const CandidateHome: React.FC = () => {
                                                 {new Date(job.date).toLocaleDateString()}
                                             </div>
                                             <div>
-                                                <Button className="bg-gray-200 hover:bg-gray-300 mr-2" onClick={() => saveJob(job._id)}>Save</Button>
+                                                <Button className={savedJobs.has(job.jobID) ? 'bg-green-500' : 'bg-gray-200'} onClick={() => saveJob(job._id)}> {savedJobs.has(job.jobID) ? 'Saved' : 'Save Job'}</Button>
                                                 <Button
                                                     className="bg-blue-500 text-white hover:bg-blue-600"
                                                     onClick={() => navigate(`/candidate-home/job/${job.jobID}/apply`)}
