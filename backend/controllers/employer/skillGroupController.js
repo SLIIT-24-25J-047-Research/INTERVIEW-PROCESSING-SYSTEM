@@ -162,8 +162,8 @@ exports.getSkillGroupsByFocus = async (req, res) => {
 
           if (matchedSkills.length === 1) {
             groupedResults["1 matched item"].push({
-              ...group._doc,  // Include the full group details
-              matchedSkills  // Include matched skills for clarity
+              ...group._doc,
+              matchedSkills  
             });
           } else if (matchedSkills.length === 2) {
             groupedResults["2 matched items"].push({
@@ -173,8 +173,7 @@ exports.getSkillGroupsByFocus = async (req, res) => {
           }
         }
       });
-  
-      // Return the grouped results
+
       res.status(200).json(groupedResults);
   
     } catch (error) {
