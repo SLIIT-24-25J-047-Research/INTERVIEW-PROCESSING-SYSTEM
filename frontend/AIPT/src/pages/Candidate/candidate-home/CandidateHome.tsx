@@ -85,7 +85,7 @@ const CandidateHome: React.FC = () => {
     };
 
 
-    // Filtering and sorting logic remains the same
+    // Filtering and sorting logic 
     const filteredJobPosts = jobPosts
         .filter((job) =>
             job.jobRole.toLowerCase().includes(searchQuery.toLowerCase()) ||
