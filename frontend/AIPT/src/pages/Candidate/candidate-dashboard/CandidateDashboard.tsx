@@ -5,15 +5,18 @@ import { useState, useEffect } from "react";
 import CandidateHeader from "../../../components/Candidate/CandidateHeader";
 import { Card, CardContent } from "../../../components/ui/card";
 import { Button } from "../../../components/ui/button";
-import {Select, SelectContent,SelectItem, SelectTrigger,  SelectValue,} from "../../../components/ui/select";
-import { Briefcase,  Calendar,  Mail,  MapPin,  User,  DollarSign,  BookmarkIcon,Trash2} from "lucide-react";
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue, } from "../../../components/ui/select";
+import { Briefcase, Calendar, Mail, MapPin, User, DollarSign, BookmarkIcon, Trash2 } from "lucide-react";
 import CandidateLayout from "../../../components/Candidate/CandidateLayout";
 import { useAuth } from "../../../contexts/AuthContext";
 import image from "../../../assets/hh.png";
 import axios from "axios";
-import {  Dialog,  DialogActions,  DialogContent,  DialogTitle,  Typography,Box,  Table,  TableBody,  TableCell,  TableContainer,  TableHead,  TableRow,  Paper,  Grid,  Chip,
-  IconButton,  Divider,} from "@mui/material";
-import {  PieChart,  Pie,  Cell,  LineChart,  Line,  XAxis,
+import {
+  Dialog, DialogActions, DialogContent, DialogTitle, Typography, Box, Table, TableBody, TableCell, TableContainer, TableHead, TableRow, Paper, Grid, Chip,
+  IconButton, Divider,
+} from "@mui/material";
+import {
+  PieChart, Pie, Cell, LineChart, Line, XAxis,
   YAxis,
   CartesianGrid,
   Tooltip,
@@ -95,7 +98,7 @@ export default function CandidateDashboard() {
   const [savedJobsList, setSavedJobsList] = useState<(SavedJob & { jobDetails?: JobData })[]>([]);
   const [savedJobsModalOpen, setSavedJobsModalOpen] = useState(false);
   const [techInterviews, setTechInterviews] = useState<any[]>([]);
-const [nonTechInterviews, setNonTechInterviews] = useState<any[]>([]);
+  const [nonTechInterviews, setNonTechInterviews] = useState<any[]>([]);
 
   console.log("hello", user);
 
@@ -232,7 +235,7 @@ const [nonTechInterviews, setNonTechInterviews] = useState<any[]>([]);
   const removeSavedJob = async (jobId: string) => {
     try {
       await axios.delete(`http://localhost:5000/api/savejobs/removeSavedJob/${user?.id}/${jobId}`);
-      await fetchSavedJobs(); // Refresh the list after removal
+      await fetchSavedJobs(); // Refresh 
     } catch (error) {
       console.error("Error removing saved job:", error);
     }
@@ -242,24 +245,24 @@ const [nonTechInterviews, setNonTechInterviews] = useState<any[]>([]);
   const fetchInterviews = async () => {
     try {
       if (!user) return;
-  
-      // Fetch technical interviews
+
+      // technical interviews
       const techResponse = await axios.get(
         `http://localhost:5000/api/t-interviews/schedule/user/${user.id}`
       );
-  
-      // Fetch non-technical interviews
+
+      // non-technical interviews
       const nonTechResponse = await axios.get(
         `http://localhost:5000/api/non-t-interviews/schedule/user/${user.id}`
       );
-  
+
       setTechInterviews(techResponse.data.schedules);
       setNonTechInterviews(nonTechResponse.data.schedules);
     } catch (error) {
       console.error("Error fetching interviews:", error);
     }
   };
-  
+
   useEffect(() => {
     fetchInterviews();
   }, [user]);
@@ -859,100 +862,100 @@ const [nonTechInterviews, setNonTechInterviews] = useState<any[]>([]);
                   </Grid>
                 </Grid>
 
-                
+
               )}
               <Grid item xs={12} md={12}>
-  <Card>
-    <CardContent>
-      <Box
-        sx={{
-          display: "flex",
-          alignItems: "center",
-          gap: 1,
-          mb: 2,
-        }}
-      >
-        <Calendar size={20} />
-        <Typography variant="h6">Interview Schedules</Typography>
-      </Box>
-      <Divider sx={{ mb: 2 }} />
-      
-      {/* Technical Interviews */}
-      {selectedCV && techInterviews
-        .filter(interview => interview.jobId === selectedCV.job.data?._id)
-        .map((interview) => (
-          <Box key={interview._id} sx={{ mb: 2 }}>
-            <Typography variant="subtitle1" fontWeight="bold">
-              Technical Interview
-            </Typography>
-            <Box sx={{ display: "flex", gap: 2, alignItems: "center" }}>
-              <Chip 
-                label={interview.status} 
-                color={
-                  interview.status === 'completed' ? 'success' :
-                  interview.status === 'scheduled' ? 'primary' :
-                  interview.status === 'canceled' ? 'error' : 'default'
-                } 
-                size="small" 
-              />
-              <Typography variant="body2">
-                {new Date(interview.testDate).toLocaleDateString()} at {interview.testTime}
-              </Typography>
+                <Card>
+                  <CardContent>
+                    <Box
+                      sx={{
+                        display: "flex",
+                        alignItems: "center",
+                        gap: 1,
+                        mb: 2,
+                      }}
+                    >
+                      <Calendar size={20} />
+                      <Typography variant="h6">Interview Schedules</Typography>
+                    </Box>
+                    <Divider sx={{ mb: 2 }} />
+
+                    {/* Technical Interviews */}
+                    {selectedCV && techInterviews
+                      .filter(interview => interview.jobId === selectedCV.job.data?._id)
+                      .map((interview) => (
+                        <Box key={interview._id} sx={{ mb: 2 }}>
+                          <Typography variant="subtitle1" fontWeight="bold">
+                            Technical Interview
+                          </Typography>
+                          <Box sx={{ display: "flex", gap: 2, alignItems: "center" }}>
+                            <Chip
+                              label={interview.status}
+                              color={
+                                interview.status === 'completed' ? 'success' :
+                                  interview.status === 'scheduled' ? 'primary' :
+                                    interview.status === 'canceled' ? 'error' : 'default'
+                              }
+                              size="small"
+                            />
+                            <Typography variant="body2">
+                              {new Date(interview.testDate).toLocaleDateString()} at {interview.testTime}
+                            </Typography>
+                          </Box>
+                          {interview.testLink && (
+                            <Button
+                              variant="outline"
+                              size="sm"
+                              onClick={() => window.open(interview.testLink, '_blank')}
+                              style={{ marginTop: '0.25rem' }}
+                            >
+                              Join Interview
+                            </Button>
+                          )}
+                        </Box>
+                      ))}
+
+                    {/* Non-Technical Interviews */}
+                    {selectedCV && nonTechInterviews
+                      .filter(interview => interview.jobId?._id === selectedCV.job.data?._id)
+                      .map((interview) => (
+                        <Box key={interview._id} sx={{ mb: 2 }}>
+                          <Typography variant="subtitle1" fontWeight="bold">
+                            Non-Technical Interview
+                          </Typography>
+                          <Box sx={{ display: "flex", gap: 2, alignItems: "center" }}>
+                            <Chip
+                              label={interview.status}
+                              color={
+                                interview.status === 'done' ? 'success' :
+                                  interview.status === 'scheduled' ? 'primary' :
+                                    interview.status === 'canceled' ? 'error' : 'default'
+                              }
+                              size="small"
+                            />
+                            <Typography variant="body2">
+                              {new Date(interview.interviewDate).toLocaleDateString()} at {interview.interviewTime}
+                            </Typography>
+                          </Box>
+                          {interview.media && (
+                            <Typography variant="body2" sx={{ mt: 1 }}>
+                              Platform: {interview.media}
+                            </Typography>
+                          )}
+                        </Box>
+                      ))}
+
+                    {selectedCV && techInterviews.filter(interview => interview.jobId === selectedCV.job.data?._id).length === 0 &&
+                      nonTechInterviews.filter(interview => interview.jobId?._id === selectedCV.job.data?._id).length === 0 && (
+                        <Typography variant="body2" color="text.secondary">
+                          No interview schedules for this job.
+                        </Typography>
+                      )}
+                  </CardContent>
+                </Card>
+              </Grid>
             </Box>
-            {interview.testLink && (
-              <Button 
-                variant="outline" 
-                size="sm" 
-                onClick={() => window.open(interview.testLink, '_blank')}
-                style={{ marginTop: '0.25rem' }}
-              >
-                Join Interview
-              </Button>
-            )}
-          </Box>
-        ))}
-      
-      {/* Non-Technical Interviews */}
-      {selectedCV && nonTechInterviews
-        .filter(interview => interview.jobId?._id === selectedCV.job.data?._id)
-        .map((interview) => (
-          <Box key={interview._id} sx={{ mb: 2 }}>
-            <Typography variant="subtitle1" fontWeight="bold">
-              Non-Technical Interview
-            </Typography>
-            <Box sx={{ display: "flex", gap: 2, alignItems: "center" }}>
-              <Chip 
-                label={interview.status} 
-                color={
-                  interview.status === 'done' ? 'success' :
-                  interview.status === 'scheduled' ? 'primary' :
-                  interview.status === 'canceled' ? 'error' : 'default'
-                } 
-                size="small" 
-              />
-              <Typography variant="body2">
-                {new Date(interview.interviewDate).toLocaleDateString()} at {interview.interviewTime}
-              </Typography>
-            </Box>
-            {interview.media && (
-              <Typography variant="body2" sx={{ mt: 1 }}>
-                Platform: {interview.media}
-              </Typography>
-            )}
-          </Box>
-        ))}
-      
-      {selectedCV && techInterviews.filter(interview => interview.jobId === selectedCV.job.data?._id).length === 0 &&
-       nonTechInterviews.filter(interview => interview.jobId?._id === selectedCV.job.data?._id).length === 0 && (
-        <Typography variant="body2" color="text.secondary">
-          No interview schedules for this job.
-        </Typography>
-      )}
-    </CardContent>
-  </Card>
-</Grid>
-            </Box>
-            
+
           )}
         </DialogContent>
 
@@ -982,18 +985,18 @@ const [nonTechInterviews, setNonTechInterviews] = useState<any[]>([]);
                         {savedJob.jobDetails.jobRole}
                       </Typography>
                       <div className="flex items-center space-x-2">
-                      <Chip
-                        icon={<BookmarkIcon size={16} />}
-                        label="Saved"
-                        color="primary"
-                        size="small"
-                      />
-                       <button 
-                        onClick={() => removeSavedJob(savedJob.jobId)}
-                        className="hover:bg-red-100 rounded-full p-1 transition-colors"
-                      >
-                        <Trash2 size={16} className="text-red-500" />
-                      </button>
+                        <Chip
+                          icon={<BookmarkIcon size={16} />}
+                          label="Saved"
+                          color="primary"
+                          size="small"
+                        />
+                        <button
+                          onClick={() => removeSavedJob(savedJob.jobId)}
+                          className="hover:bg-red-100 rounded-full p-1 transition-colors"
+                        >
+                          <Trash2 size={16} className="text-red-500" />
+                        </button>
                       </div>
 
                     </div>
