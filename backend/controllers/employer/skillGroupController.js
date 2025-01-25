@@ -131,21 +131,52 @@ exports.getSkillGroupsByFocus = async (req, res) => {
   };
   
 
-exports.getSkillGroupsBySkill = async (req, res) => {
+  exports.getSkillGroupsBySkills = async (req, res) => {
     try {
-      const { skill } = req.params;
-      const skillGroups = await SkillGroup.find({ skills: skill });
+      const { skills } = req.body;  // Expecting an array of skills in the request body
   
-      if (!skillGroups.length) {
-        return res.status(404).json({ error: `No skill groups found containing skill: ${skill}` });
+      // Ensure skills is an array and is not empty
+      if (!Array.isArray(skills) || skills.length === 0) {
+        return res.status(400).json({ error: "Please provide an array of skills." });
       }
   
-      res.status(200).json(skillGroups);
+      // Find all skill groups where 'skills' array contains at least one of the provided skills
+      const skillGroups = await SkillGroup.find({
+        skills: { $in: skills }  // Use $in operator to check if any of the skills match
+      });
+  
+      if (skillGroups.length === 0) {
+        return res.status(404).json({ error: "No skill groups found containing the provided skills." });
+      }
+  
+      // Group the results based on how many matched skills they have
+      const groupedResults = {
+        "1 matched item": [],
+        "2 matched items": []
+      };
+  
+      skillGroups.forEach(group => {
+        // Count how many of the provided skills are in the group's skills
+        const matchedSkills = group.skills.filter(skill => skills.includes(skill));
+  
+        if (matchedSkills.length > 0) {
+          const matchedLabel = `${matchedSkills.length} matched item${matchedSkills.length > 1 ? 's' : ''}`;
+          groupedResults[matchedLabel].push({
+            ...group._doc,  // Return the original group document (without Mongo internals)
+            matchedSkills  // Add the matched skills to the response for reference
+          });
+        }
+      });
+  
+      // Return the grouped results
+      res.status(200).json(groupedResults);
+  
     } catch (error) {
+      console.error(error);
       res.status(500).json({ error: error.message });
     }
   };
-
+  
 
   exports.getSkillGroupsBySkills = async (req, res) => {
     try {
