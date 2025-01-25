@@ -133,7 +133,7 @@ const CandidateHome: React.FC = () => {
                                 <h3 className="text-lg font-semibold text-gray-900">Filters</h3>
                             </CardHeader>
                             <CardContent>
-                                <div className="space-y-6"> {/* Increased spacing between sections */}
+                                <div className="space-y-6"> 
                                     {/* Search Section */}
                                     <div className="select-wrapper">
                                         <label className="select-label">Search</label>
