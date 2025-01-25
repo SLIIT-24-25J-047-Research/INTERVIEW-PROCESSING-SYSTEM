@@ -6,7 +6,6 @@ const router = express.Router();
 
 router.post('/', skillGroupController.createSkillGroup);
 router.get('/', skillGroupController.getAllSkillGroups);
-
 router.get('/skills', skillGroupController.getSkillGroupsBySkills);  
 router.get('/:id', skillGroupController.getSkillGroupById);
 router.put('/:id', skillGroupController.updateSkillGroup);
