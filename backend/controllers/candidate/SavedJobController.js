@@ -20,7 +20,7 @@ const savedJobController = {
             res.status(500).json({ message: 'Error saving job', error: error.message });
         }
     },
-// Get all saved jobs for a user without using populate
+
 getSavedJobs: async (req, res) => {
     try {
         const { userId } = req.params;
