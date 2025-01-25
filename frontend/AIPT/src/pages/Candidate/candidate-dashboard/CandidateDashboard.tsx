@@ -19,7 +19,8 @@ import {
   MapPin,
   User,
   DollarSign,
-  BookmarkIcon
+  BookmarkIcon,
+  Trash2
 } from "lucide-react";
 import CandidateLayout from "../../../components/Candidate/CandidateLayout";
 import { useAuth } from "../../../contexts/AuthContext";
@@ -134,6 +135,8 @@ export default function CandidateDashboard() {
 
   console.log("hello", user);
 
+
+  // fetch cv details
   const fetchCVData = async () => {
     try {
       setLoading(true);
@@ -174,6 +177,7 @@ export default function CandidateDashboard() {
     }
   };
 
+  // fetch job details
   const fetchJobDetails = async (cv: CVData) => {
     // Create or update CV with job state
     setCVDataList((prevList) =>
@@ -259,6 +263,16 @@ export default function CandidateDashboard() {
   useEffect(() => {
     fetchSavedJobs();
   }, [user]);
+
+  // remove saved jobs
+  const removeSavedJob = async (jobId: string) => {
+    try {
+      await axios.delete(`http://localhost:5000/api/savejobs/removeSavedJob/${user?.id}/${jobId}`);
+      await fetchSavedJobs(); // Refresh the list after removal
+    } catch (error) {
+      console.error("Error removing saved job:", error);
+    }
+  };
 
 
 
@@ -884,12 +898,20 @@ export default function CandidateDashboard() {
                       <Typography variant="h6" fontWeight="bold">
                         {savedJob.jobDetails.jobRole}
                       </Typography>
+                      <div className="flex items-center space-x-2">
                       <Chip
                         icon={<BookmarkIcon size={16} />}
                         label="Saved"
                         color="primary"
                         size="small"
                       />
+                       <button 
+                        onClick={() => removeSavedJob(savedJob.jobId)}
+                        className="hover:bg-red-100 rounded-full p-1 transition-colors"
+                      >
+                        <Trash2 size={16} className="text-red-500" />
+                      </button>
+                      </div>
 
                     </div>
                     <div className="space-y-2">
