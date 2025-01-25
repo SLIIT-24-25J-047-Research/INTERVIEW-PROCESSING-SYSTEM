@@ -114,7 +114,7 @@ const CandidateHome: React.FC = () => {
               <Toaster /> 
             <Header title="Candidate Home" />
 
-            {/* Header Banner Section */}
+            {/* Header Banner  */}
             <section className="header-banner">
                 <div className="banner-text">
                     <p>Find your dream job and kickstart your career with us today.</p>
