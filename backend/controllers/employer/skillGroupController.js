@@ -139,9 +139,9 @@ exports.getSkillGroupsByFocus = async (req, res) => {
         return res.status(400).json({ error: "Please provide an array of skills." });
       }
   
-      // Find all skill groups where 'skills' array contains at least one of the provided skills
+
       const skillGroups = await SkillGroup.find({
-        skills: { $in: skills }  // Use $in operator to check if any of the skills match
+        skills: { $in: skills } 
       });
   
       if (skillGroups.length === 0) {
