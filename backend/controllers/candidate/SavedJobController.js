@@ -26,7 +26,7 @@ getSavedJobs: async (req, res) => {
         const { userId } = req.params;
         const savedJobs = await SavedJob.find({ userId }).sort({ savedAt: -1 });
 
-        res.status(200).json(savedJobs); // Returns saved jobs with jobId as ObjectIDs
+        res.status(200).json(savedJobs); 
     } catch (error) {
         console.error('Error fetching saved jobs:', error);
         res.status(500).json({ message: 'Error fetching saved jobs', error: error.message });
