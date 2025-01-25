@@ -94,6 +94,8 @@ export default function CandidateDashboard() {
   const [savedJobsCount, setSavedJobsCount] = useState(0);
   const [savedJobsList, setSavedJobsList] = useState<(SavedJob & { jobDetails?: JobData })[]>([]);
   const [savedJobsModalOpen, setSavedJobsModalOpen] = useState(false);
+  const [techInterviews, setTechInterviews] = useState<any[]>([]);
+const [nonTechInterviews, setNonTechInterviews] = useState<any[]>([]);
 
   console.log("hello", user);
 
@@ -235,6 +237,32 @@ export default function CandidateDashboard() {
       console.error("Error removing saved job:", error);
     }
   };
+
+  // fetch interviews
+  const fetchInterviews = async () => {
+    try {
+      if (!user) return;
+  
+      // Fetch technical interviews
+      const techResponse = await axios.get(
+        `http://localhost:5000/api/t-interviews/schedule/user/${user.id}`
+      );
+  
+      // Fetch non-technical interviews
+      const nonTechResponse = await axios.get(
+        `http://localhost:5000/api/non-t-interviews/schedule/user/${user.id}`
+      );
+  
+      setTechInterviews(techResponse.data.schedules);
+      setNonTechInterviews(nonTechResponse.data.schedules);
+    } catch (error) {
+      console.error("Error fetching interviews:", error);
+    }
+  };
+  
+  useEffect(() => {
+    fetchInterviews();
+  }, [user]);
 
 
 
@@ -830,8 +858,101 @@ export default function CandidateDashboard() {
                     </Card>
                   </Grid>
                 </Grid>
+
+                
               )}
+              <Grid item xs={12} md={12}>
+  <Card>
+    <CardContent>
+      <Box
+        sx={{
+          display: "flex",
+          alignItems: "center",
+          gap: 1,
+          mb: 2,
+        }}
+      >
+        <Calendar size={20} />
+        <Typography variant="h6">Interview Schedules</Typography>
+      </Box>
+      <Divider sx={{ mb: 2 }} />
+      
+      {/* Technical Interviews */}
+      {selectedCV && techInterviews
+        .filter(interview => interview.jobId === selectedCV.job.data?._id)
+        .map((interview) => (
+          <Box key={interview._id} sx={{ mb: 2 }}>
+            <Typography variant="subtitle1" fontWeight="bold">
+              Technical Interview
+            </Typography>
+            <Box sx={{ display: "flex", gap: 2, alignItems: "center" }}>
+              <Chip 
+                label={interview.status} 
+                color={
+                  interview.status === 'completed' ? 'success' :
+                  interview.status === 'scheduled' ? 'primary' :
+                  interview.status === 'canceled' ? 'error' : 'default'
+                } 
+                size="small" 
+              />
+              <Typography variant="body2">
+                {new Date(interview.testDate).toLocaleDateString()} at {interview.testTime}
+              </Typography>
             </Box>
+            {interview.testLink && (
+              <Button 
+                variant="outline" 
+                size="sm" 
+                onClick={() => window.open(interview.testLink, '_blank')}
+                style={{ marginTop: '0.25rem' }}
+              >
+                Join Interview
+              </Button>
+            )}
+          </Box>
+        ))}
+      
+      {/* Non-Technical Interviews */}
+      {selectedCV && nonTechInterviews
+        .filter(interview => interview.jobId?._id === selectedCV.job.data?._id)
+        .map((interview) => (
+          <Box key={interview._id} sx={{ mb: 2 }}>
+            <Typography variant="subtitle1" fontWeight="bold">
+              Non-Technical Interview
+            </Typography>
+            <Box sx={{ display: "flex", gap: 2, alignItems: "center" }}>
+              <Chip 
+                label={interview.status} 
+                color={
+                  interview.status === 'done' ? 'success' :
+                  interview.status === 'scheduled' ? 'primary' :
+                  interview.status === 'canceled' ? 'error' : 'default'
+                } 
+                size="small" 
+              />
+              <Typography variant="body2">
+                {new Date(interview.interviewDate).toLocaleDateString()} at {interview.interviewTime}
+              </Typography>
+            </Box>
+            {interview.media && (
+              <Typography variant="body2" sx={{ mt: 1 }}>
+                Platform: {interview.media}
+              </Typography>
+            )}
+          </Box>
+        ))}
+      
+      {selectedCV && techInterviews.filter(interview => interview.jobId === selectedCV.job.data?._id).length === 0 &&
+       nonTechInterviews.filter(interview => interview.jobId?._id === selectedCV.job.data?._id).length === 0 && (
+        <Typography variant="body2" color="text.secondary">
+          No interview schedules for this job.
+        </Typography>
+      )}
+    </CardContent>
+  </Card>
+</Grid>
+            </Box>
+            
           )}
         </DialogContent>
 
