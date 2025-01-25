@@ -85,6 +85,9 @@ const CandidateHome: React.FC = () => {
     };
 
 
+    
+
+
     // Filtering and sorting logic 
     const filteredJobPosts = jobPosts
         .filter((job) =>
