@@ -134,8 +134,7 @@ exports.getSkillGroupsByFocus = async (req, res) => {
   exports.getSkillGroupsBySkills = async (req, res) => {
     try {
       const { skills } = req.body;  // Expecting an array of skills in the request body
-  
-      // Ensure skills is an array and is not empty
+
       if (!Array.isArray(skills) || skills.length === 0) {
         return res.status(400).json({ error: "Please provide an array of skills." });
       }
@@ -159,12 +158,22 @@ exports.getSkillGroupsByFocus = async (req, res) => {
         // Count how many of the provided skills are in the group's skills
         const matchedSkills = group.skills.filter(skill => skills.includes(skill));
   
+        // If there are any matches, categorize the group based on the count of matched skills
         if (matchedSkills.length > 0) {
           const matchedLabel = `${matchedSkills.length} matched item${matchedSkills.length > 1 ? 's' : ''}`;
-          groupedResults[matchedLabel].push({
-            ...group._doc,  // Return the original group document (without Mongo internals)
-            matchedSkills  // Add the matched skills to the response for reference
-          });
+  
+          // Add the group to the appropriate category based on the number of matched skills
+          if (matchedSkills.length === 1) {
+            groupedResults["1 matched item"].push({
+              ...group._doc,  // Include the full group details
+              matchedSkills  // Include matched skills for clarity
+            });
+          } else if (matchedSkills.length === 2) {
+            groupedResults["2 matched items"].push({
+              ...group._doc,
+              matchedSkills
+            });
+          }
         }
       });
   
@@ -176,6 +185,7 @@ exports.getSkillGroupsByFocus = async (req, res) => {
       res.status(500).json({ error: error.message });
     }
   };
+  
   
 
   exports.getSkillGroupsBySkills = async (req, res) => {
