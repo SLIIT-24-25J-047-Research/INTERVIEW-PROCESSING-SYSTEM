@@ -133,7 +133,7 @@ exports.getSkillGroupsByFocus = async (req, res) => {
 
   exports.getSkillGroupsBySkills = async (req, res) => {
     try {
-      const { skills } = req.body;  // Expecting an array of skills in the request body
+      const { skills } = req.body; 
 
       if (!Array.isArray(skills) || skills.length === 0) {
         return res.status(400).json({ error: "Please provide an array of skills." });
