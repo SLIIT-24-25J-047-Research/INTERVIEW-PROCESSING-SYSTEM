@@ -13,7 +13,11 @@ import image from "../../../assets/hh.png";
 import axios from "axios";
 import {  Dialog,  DialogActions,  DialogContent,  DialogTitle,  Typography,Box,  Table,  TableBody,  TableCell,  TableContainer,  TableHead,  TableRow,  Paper,  Grid,  Chip,
   IconButton,  Divider,} from "@mui/material";
-import {  PieChart,  Pie,  Cell,  LineChart,  Line,  XAxis,  YAxis,  CartesianGrid,  Tooltip,} from "recharts";
+import {  PieChart,  Pie,  Cell,  LineChart,  Line,  XAxis,
+  YAxis,
+  CartesianGrid,
+  Tooltip,
+} from "recharts";
 
 const pieData = [
   { name: "Total Order", value: 81, color: "#FF6B6B" },
@@ -444,7 +448,7 @@ export default function CandidateDashboard() {
       </CandidateLayout>
 
 
-      {/* Modal */}
+      {/* job deatails Modal */}
 
       <Dialog
         open={open}
