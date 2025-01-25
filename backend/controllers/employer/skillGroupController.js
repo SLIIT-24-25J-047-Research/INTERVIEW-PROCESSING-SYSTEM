@@ -184,29 +184,7 @@ exports.getSkillGroupsByFocus = async (req, res) => {
   
   
 
-  exports.getSkillGroupsBySkills = async (req, res) => {
-    try {
-      const { skills } = req.body;
 
-      if (!Array.isArray(skills) || skills.length === 0) {
-        return res.status(400).json({ error: "Please provide an array of skills." });
-      }
-
-      const skillGroups = await SkillGroup.find({
-        skills: { $in: skills }  
-      });
-  
-      if (skillGroups.length === 0) {
-        return res.status(404).json({ error: "No skill groups found containing the provided skills." });
-      }
-  
-      res.status(200).json(skillGroups);  
-    } catch (error) {
-      console.error(error);
-      res.status(500).json({ error: error.message });
-    }
-  };
-  
   
   
 
