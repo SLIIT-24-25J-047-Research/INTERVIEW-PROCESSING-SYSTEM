@@ -8,17 +8,29 @@ import { Input } from "../../../components/ui/input";
 import { Button } from "../../../components/ui/button";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "../../../components/ui/select";
 import axios from 'axios';
-import { toast } from 'react-hot-toast';
+import { toast, Toaster  } from 'react-hot-toast';
 import { useAuth } from '../../../contexts/AuthContext';
 import { useNavigate } from "react-router-dom";
 
 
-
+interface SavedJob {
+    _id: string;
+    userId: string;
+    jobId: string;
+}
 
 const CandidateHome: React.FC = () => {
-    { Header }
     const navigate = useNavigate();
     const [jobPosts, setJobPosts] = useState<any[]>([]);
+    const [searchQuery, setSearchQuery] = useState('');
+    const [dateFilter, setDateFilter] = useState('all');
+    const [orderBy, setOrderBy] = useState('newest');
+    const [typeFilter, setTypeFilter] = useState('all');
+    const [savedJobIds, setSavedJobIds] = useState<string[]>([]);
+
+    const { user } = useAuth();
+
+    // Fetch all jobs
     useEffect(() => {
         axios.get('http://localhost:5000/api/jobs/all')
             .then(response => {
@@ -26,23 +38,57 @@ const CandidateHome: React.FC = () => {
             })
             .catch(error => {
                 console.error("There was an error fetching the jobs:", error);
+                toast.error("Failed to fetch job listings");
             });
     }, []);
 
-    // const jobPosts = [
-    //     { jobID: 1, jobRole: "Frontend Developer", description: "Create beautiful, responsive user interfaces with React and TypeScript.", company: "TechCorp", location: "New York", salary: 90000, jobType: "Full-time", date: "2021-09-01" },
-    //     { jobID: 2, jobRole: "Backend Developer", description: "Build scalable backend systems using Python, Django, and SQL.", company: "TechCorp", location: "San Francisco", salary: 95000, jobType: "Full-time", date: "2021-09-05" },
-    //     { jobID: 3, jobRole: "Full Stack Developer", description: "Join our team to work on both front-end and back-end development.", company: "TechCorp", location: "Chicago", salary: 105000, jobType: "Full-time", date: "2021-09-10" },
-    //     { jobID: 4, jobRole: "UX/UI Designer", description: "Design and improve the user experience and interface of the platform.", company: "TechCorp", location: "Los Angeles", salary: 85000, jobType: "Full-time", date: "2021-09-15" },
-    //     { jobID: 5, jobRole: "Data Scientist", description: "Analyze data and build predictive models to guide business decisions.", company: "TechCorp", location: "Austin", salary: 120000, jobType: "Full-time", date: "2021-09-20" },
-    //     { jobID: 6, jobRole: "DevOps Engineer", description: "Manage and improve our deployment pipelines and infrastructure.", company: "TechCorp", location: "Dallas", salary: 110000, jobType: "Full-time", date: "2021-09-25" },
-    // ];
+    // Fetch saved jobs
+    useEffect(() => {
+        if (user) {
+            axios.get(`http://localhost:5000/api/savejobs/getSavedJobs/${user.id}`)
+                .then(response => {
+                    const jobIds = response.data.map((savedJob: SavedJob) => savedJob.jobId);
+                    setSavedJobIds(jobIds);
+                })
+                .catch(error => {
+                    console.error("Error fetching saved jobs:", error);
+                });
+        }
+    }, [user]);
 
-    const [searchQuery, setSearchQuery] = useState('');
-    const [dateFilter, setDateFilter] = useState('all');
-    const [orderBy, setOrderBy] = useState('newest');
-    const [typeFilter, setTypeFilter] = useState('all');
 
+    // Save job function
+    const saveJob = async (jobId: string) => {
+        if (!user) {
+            toast.error('Please login to save jobs');
+            return;
+        }
+
+        try {
+            const response = await axios.post('http://localhost:5000/api/savejobs/save', {
+                jobId,
+                userId: user.id
+            });
+            
+            if (response.status === 200) {
+                setSavedJobIds(prev => [...prev, jobId]);
+                toast.success('Job saved successfully!');
+            }
+        } catch (error: any) {
+            if (error.response?.status === 409) {
+                toast.error('Job already saved!');
+            } else {
+                toast.error('Error saving job');
+                console.error('Error saving job:', error);
+            }
+        }
+    };
+
+
+    
+
+
+    // Filtering and sorting logic 
     const filteredJobPosts = jobPosts
         .filter((job) =>
             job.jobRole.toLowerCase().includes(searchQuery.toLowerCase()) ||
@@ -63,46 +109,15 @@ const CandidateHome: React.FC = () => {
             if (orderBy === 'oldest') return new Date(a.date).getTime() - new Date(b.date).getTime();
             return 0;
         });
-
-        const { user } = useAuth();
-        console.log(user);
-
-
-        const saveJob = async (jobId: string) => {
-            if (!user) {
-                toast.error('Please login to save jobs');
-                return;
-            }
     
-            try {
-                const response = await axios.post('http://localhost:5000/api/jobs/save', {
-                    jobId,
-                    userId: user.id
-                }, {
-                    headers: {
-                        'Authorization': `Bearer ${localStorage.getItem('token')}`
-                    }
-                });
-                
-                if (response.status === 200) {
-                    toast.success('Job saved successfully!');
-                }
-            } catch (error: any) {
-                if (error.response?.status === 409) {
-                    toast.error('Job already saved!');
-                } else {
-                    toast.error('Error saving job');
-                    console.error('Error saving job:', error);
-                }
-            }
-        };
     
 
     return (
         <div className="min-h-screen bg-gray-50">
+              <Toaster /> 
             <Header title="Candidate Home" />
 
-            {/* Header Banner Section */}
+            {/* Header Banner  */}
             <section className="header-banner">
                 <div className="banner-text">
                     <p>Find your dream job and kickstart your career with us today.</p>
@@ -115,13 +130,13 @@ const CandidateHome: React.FC = () => {
             <div className="container mx-auto px-4 py-8">
                 <div className="flex gap-6">
                     {/* Left Column - Filters */}
-                    <div className="w-80"> {/* Fixed width container */}
+                    <div className="w-80"> 
                         <Card className="filter-card sticky top-4">
                             <CardHeader className="pb-2">
                                 <h3 className="text-lg font-semibold text-gray-900">Filters</h3>
                             </CardHeader>
                             <CardContent>
-                                <div className="space-y-6"> {/* Increased spacing between sections */}
+                                <div className="space-y-6"> 
                                     {/* Search Section */}
                                     <div className="select-wrapper">
                                         <label className="select-label">Search</label>
@@ -195,7 +210,7 @@ const CandidateHome: React.FC = () => {
                         {filteredJobPosts.length > 0 ? (
                             <div className="job-grid">
                                 {filteredJobPosts.map((job) => (
-                                    <div key={job.jobID} className="job-card">
+                                    <div key={job._id} className="job-card">
                                         <div className="job-header">{job.jobRole}</div>
                                         <div className="job-company text-gray-500 text-sm">{job.company}</div>
                                         <p className="job-description text-sm text-gray-600 my-2">
@@ -209,9 +224,17 @@ const CandidateHome: React.FC = () => {
                                                 {new Date(job.date).toLocaleDateString()}
                                             </div>
                                             <div>
-                                                <Button className="bg-gray-200 hover:bg-gray-300 mr-2" onClick={() => saveJob(job._id)}>Save</Button>
+                                            <Button 
+                                                    className={savedJobIds.includes(job._id) 
+                                                        ? 'bg-green-500 text-white' 
+                                                        : 'bg-gray-200 text-black'
+                                                    } 
+                                                    onClick={() => saveJob(job._id)}
+                                                >
+                                                    {savedJobIds.includes(job._id) ? 'Saved' : 'Save Job'}
+                                                </Button>
                                                 <Button
-                                                    className="bg-blue-500 text-white hover:bg-blue-600"
+                                                    className="bg-blue-500 text-white hover:bg-blue-600 ml-2"
                                                     onClick={() => navigate(`/candidate-home/job/${job.jobID}/apply`)}
                                                 >
                                                     Apply Now
