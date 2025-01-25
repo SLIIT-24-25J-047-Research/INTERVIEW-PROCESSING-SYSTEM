@@ -1,11 +1,11 @@
 const express = require('express');
 const router = express.Router();
-const predictionController = require('../../controllers/candidate/SavedJobController');
+const savedJobController = require('../../controllers/candidate/SavedJobController');
 
 
-router.post("/save", predictionController.saveJob);
-router.get("/getSavedJobs/:userId", predictionController.getSavedJobs);
-router.delete("/removeSavedJob/:userId/:jobId", predictionController.removeSavedJob);
+router.post("/save", savedJobController.saveJob);
+router.get("/getSavedJobs/:userId", savedJobController.getSavedJobs);
+router.delete("/removeSavedJob/:userId/:jobId", savedJobController.removeSavedJob);
 
 
 module.exports = router;
