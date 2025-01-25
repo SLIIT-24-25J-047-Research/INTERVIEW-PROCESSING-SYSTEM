@@ -6,6 +6,9 @@ import Header from '../../../components/Candidate/CandidateHeader';
 import { Card, CardContent, CardHeader, CardTitle } from '../../../components/ui/card';
 import { Button } from '../../../components/ui/button';
 import { Calendar, Clock, Video, AlertCircle, Timer, CheckCircle2, Briefcase } from 'lucide-react';
+import { differenceInMinutes, differenceInHours, formatDistanceToNow } from 'date-fns';
+
+
 
 interface NonTechnicalSchedule {
   _id: string;
@@ -96,6 +99,53 @@ const ScheduledInterviewPage: React.FC = () => {
     fetchInterviews();
   }, [userId]);
 
+
+  const isTestDayAndTime = (testDate: string, testTime: string, duration: number) => {
+    const now = new Date();
+    const startTime = new Date(testDate);
+  
+    // Extract hours, minutes, and check for AM/PM
+    const [time, meridian] = testTime.split(' ');
+    const [hours, minutes] = time.split(':').map(Number);
+  
+    // Adjust the hours for 12-hour format (12 AM and 12 PM edge cases)
+    const adjustedHours = meridian === 'PM' && hours !== 12 
+      ? hours + 12 
+      : meridian === 'AM' && hours === 12 
+      ? 0 
+      : hours;
+  
+    // Set the start time with the adjusted hours and minutes
+    startTime.setHours(adjustedHours, minutes, 0, 0);
+  
+    // Calculate the end time
+    const endTime = new Date(startTime);
+    endTime.setMinutes(startTime.getMinutes() + duration);
+  
+    // Check if the current time falls within the interview window
+    return now >= startTime && now <= endTime;
+  };
+  
+
+
+  const handleStartTest = (interview: TechnicalSchedule) => {
+    if (!isTestDayAndTime(interview.testDate, interview.testTime, interview.duration)) {
+      return;
+    }
+    // Navigate to technical interview page with necessary data
+    navigate('/tech-interview', {
+      state: {
+        interviewId: interview._id,
+        testLink: interview.testLink,
+        duration: interview.duration
+      }
+    });
+  };
+
+
+
+
+
   const getStatusColor = (status: string) => {
     switch (status?.toLowerCase()) {
       case 'scheduled':
@@ -151,6 +201,32 @@ const ScheduledInterviewPage: React.FC = () => {
       ? technicalStatusMap[status.toLowerCase()] || status
       : nonTechnicalStatusMap[status.toLowerCase()] || status;
   };
+
+  const getTimeRemaining = (testDate: string, testTime: string) => {
+    const now = new Date();
+    const startTime = new Date(testDate);
+  
+    // Extract hours and minutes and determine AM/PM
+    const [time, meridian] = testTime.split(' ');
+    const [hours, minutes] = time.split(':').map(Number);
+    const adjustedHours =
+      meridian === 'PM' && hours !== 12
+        ? hours + 12
+        : meridian === 'AM' && hours === 12
+        ? 0
+        : hours;
+  
+    // Adjust the startTime with hours and minutes
+    startTime.setHours(adjustedHours, minutes, 0, 0);
+  
+    if (now > startTime) {
+      return "Interview has already started or ended.";
+    }
+  
+    // Format distance to start time (e.g., "in 2 hours")
+    return `Starts ${formatDistanceToNow(startTime, { addSuffix: true })}`;
+  };
+  
 
   const getProgressSegments = (application: JobApplication) => {
     const techStatus = application.technicalInterview?.status.toLowerCase();
@@ -270,16 +346,31 @@ const ScheduledInterviewPage: React.FC = () => {
                                 <Timer className="h-4 w-4 text-gray-500" />
                                 <span className="text-sm">{application.technicalInterview.duration} minutes</span>
                               </div>
+                                   {/* Time Remaining Section */}
+          <div className="flex items-center space-x-2">
+            <Timer className="h-4 w-4 text-gray-500" />
+            <span className="text-sm text-gray-600">
+              {getTimeRemaining(
+                application.technicalInterview.testDate,
+                application.technicalInterview.testTime
+              )}
+            </span>
+          </div>
+
+
                               <div className="flex items-center justify-between">
                                 <span className={`px-2 py-1 rounded-full text-xs font-medium ${getStatusColor(application.technicalInterview.status)}`}>
                                   {application.technicalInterview.status}
                                 </span>
                                 {application.technicalInterview.status.toLowerCase() !== 'completed' && (
                                   <Button
-                                    onClick={() => window.open(application.technicalInterview!.testLink, '_blank')}
-                                    size="sm"
-                                    className="bg-blue-600 hover:bg-blue-700"
-                                  >
+                                  onClick={() => handleStartTest(application.technicalInterview!)}
+                                  size="sm"
+                                  className="bg-blue-600 hover:bg-blue-700"
+                                  disabled={!isTestDayAndTime( application.technicalInterview!.testDate,
+                                    application.technicalInterview!.testTime,
+                                    application.technicalInterview!.duration)}
+                                >
                                     Start Test
                                   </Button>
                                 )}

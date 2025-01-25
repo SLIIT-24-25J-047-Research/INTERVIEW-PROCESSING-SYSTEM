@@ -5,6 +5,7 @@ import Editor from "@monaco-editor/react";
 interface CodeEditorProps {
   language?: string;
   theme?: string;
+  readOnly: boolean;
   initialCode?: string;
   onCodeChange?: (value: string | undefined) => void;
 }

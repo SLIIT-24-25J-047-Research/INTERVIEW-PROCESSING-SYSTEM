@@ -10,7 +10,6 @@ app.use(express.json());
 app.use(cors());
 
 // Routes
-
 app.use('/api/auth', require('./routes/auth'));
 app.use('/api/jobs', require('./routes/employer/JobsRoutes')); 
 app.use('/api/questions', require('./routes/employer/questionRoutes')); 

@@ -5,51 +5,18 @@ import { useState, useEffect } from "react";
 import CandidateHeader from "../../../components/Candidate/CandidateHeader";
 import { Card, CardContent } from "../../../components/ui/card";
 import { Button } from "../../../components/ui/button";
-import {
-  Select,
-  SelectContent,
-  SelectItem,
-  SelectTrigger,
-  SelectValue,
-} from "../../../components/ui/select";
-import {
-  Briefcase,
-  Calendar,
-  Mail,
-  MapPin,
-  User,
-  DollarSign,
-} from "lucide-react";
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue, } from "../../../components/ui/select";
+import { Briefcase, Calendar, Mail, MapPin, User, DollarSign, BookmarkIcon, Trash2 } from "lucide-react";
 import CandidateLayout from "../../../components/Candidate/CandidateLayout";
 import { useAuth } from "../../../contexts/AuthContext";
 import image from "../../../assets/hh.png";
 import axios from "axios";
 import {
-  Dialog,
-  DialogActions,
-  DialogContent,
-  DialogTitle,
-  Typography,
-  Box,
-  Table,
-  TableBody,
-  TableCell,
-  TableContainer,
-  TableHead,
-  TableRow,
-  Paper,
-  Grid,
-  Chip,
-  IconButton,
-  Divider,
+  Dialog, DialogActions, DialogContent, DialogTitle, Typography, Box, Table, TableBody, TableCell, TableContainer, TableHead, TableRow, Paper, Grid, Chip,
+  IconButton, Divider,
 } from "@mui/material";
 import {
-  PieChart,
-  Pie,
-  Cell,
-  LineChart,
-  Line,
-  XAxis,
+  PieChart, Pie, Cell, LineChart, Line, XAxis,
   YAxis,
   CartesianGrid,
   Tooltip,
@@ -112,6 +79,12 @@ export default function CandidateDashboard() {
     cvCount: number;
   }
 
+  interface SavedJob {
+    _id: string;
+    jobId: string;
+    savedAt: string;
+  }
+
   const [cvData, setCVData] = useState<CVData | null>(null);
   const [cvDataList, setCVDataList] = useState<CVWithJobState[]>([]);
   const [cvCount, setCVCount] = useState<number>(0);
@@ -121,8 +94,16 @@ export default function CandidateDashboard() {
   const [open, setOpen] = useState(false);
   const { user } = useAuth();
 
+  const [savedJobsCount, setSavedJobsCount] = useState(0);
+  const [savedJobsList, setSavedJobsList] = useState<(SavedJob & { jobDetails?: JobData })[]>([]);
+  const [savedJobsModalOpen, setSavedJobsModalOpen] = useState(false);
+  const [techInterviews, setTechInterviews] = useState<any[]>([]);
+  const [nonTechInterviews, setNonTechInterviews] = useState<any[]>([]);
+
   console.log("hello", user);
 
+
+  // fetch cv details
   const fetchCVData = async () => {
     try {
       setLoading(true);
@@ -163,6 +144,7 @@ export default function CandidateDashboard() {
     }
   };
 
+  // fetch job details
   const fetchJobDetails = async (cv: CVData) => {
     // Create or update CV with job state
     setCVDataList((prevList) =>
@@ -210,6 +192,82 @@ export default function CandidateDashboard() {
       );
     }
   };
+
+
+  // saved jobs
+  const fetchSavedJobs = async () => {
+    try {
+      if (!user) return;
+
+      const savedJobsResponse = await axios.get(
+        `http://localhost:5000/api/savejobs/getSavedJobs/${user.id}`
+      );
+
+      const savedJobsWithDetails = await Promise.all(
+        savedJobsResponse.data.map(async (savedJob: SavedJob) => {
+          try {
+            const jobDetailsResponse = await axios.get(
+              `http://localhost:5000/api/jobs/${savedJob.jobId}`
+            );
+            return {
+              ...savedJob,
+              jobDetails: jobDetailsResponse.data
+            };
+          } catch (error) {
+            console.error("Error fetching job details:", error);
+            return savedJob;
+          }
+        })
+      );
+
+      setSavedJobsList(savedJobsWithDetails);
+      setSavedJobsCount(savedJobsWithDetails.length);
+    } catch (error) {
+      console.error("Error fetching saved jobs:", error);
+    }
+  };
+
+  useEffect(() => {
+    fetchSavedJobs();
+  }, [user]);
+
+  // remove saved jobs
+  const removeSavedJob = async (jobId: string) => {
+    try {
+      await axios.delete(`http://localhost:5000/api/savejobs/removeSavedJob/${user?.id}/${jobId}`);
+      await fetchSavedJobs(); // Refresh 
+    } catch (error) {
+      console.error("Error removing saved job:", error);
+    }
+  };
+
+  // fetch interviews
+  const fetchInterviews = async () => {
+    try {
+      if (!user) return;
+
+      // technical interviews
+      const techResponse = await axios.get(
+        `http://localhost:5000/api/t-interviews/schedule/user/${user.id}`
+      );
+
+      // non-technical interviews
+      const nonTechResponse = await axios.get(
+        `http://localhost:5000/api/non-t-interviews/schedule/user/${user.id}`
+      );
+
+      setTechInterviews(techResponse.data.schedules);
+      setNonTechInterviews(nonTechResponse.data.schedules);
+    } catch (error) {
+      console.error("Error fetching interviews:", error);
+    }
+  };
+
+  useEffect(() => {
+    fetchInterviews();
+  }, [user]);
+
+
 
   const handleOpen = () => {
     setOpen(true);
@@ -326,16 +384,23 @@ export default function CandidateDashboard() {
                   </div>
                 </CardContent>
               </Card>
-              <Card>
+              <Card
+                onClick={() => setSavedJobsModalOpen(true)}
+                style={{
+                  cursor: "pointer",
+                  transition: "transform 0.3s",
+                  boxShadow: "none",
+                }}
+                onMouseEnter={(e) => (e.currentTarget.style.transform = "scale(1.02)")}
+                onMouseLeave={(e) => (e.currentTarget.style.transform = "scale(1)")}
+              >
                 <CardContent className="p-6 flex items-center gap-4">
                   <div className="h-12 w-12 bg-green-100 rounded-full flex items-center justify-center">
-                    <span className="text-green-600 text-xl font-bold">7</span>
+                    <span className="text-green-600 text-xl font-bold">{savedJobsCount}</span>
                   </div>
                   <div>
-                    <p className="text-sm text-muted-foreground">
-                      New Applications
-                    </p>
-                    <h3 className="text-xl font-semibold">7</h3>
+                    <p className="text-sm text-muted-foreground">Saved Jobs</p>
+                    <h3 className="text-xl font-semibold">{savedJobsCount}</h3>
                   </div>
                 </CardContent>
               </Card>
@@ -413,8 +478,8 @@ export default function CandidateDashboard() {
         </div>
       </CandidateLayout>
 
-      
-      {/* Modal */}
+
+      {/* job deatails Modal */}
 
       <Dialog
         open={open}
@@ -796,8 +861,101 @@ export default function CandidateDashboard() {
                     </Card>
                   </Grid>
                 </Grid>
+
+
               )}
+              <Grid item xs={12} md={12}>
+                <Card>
+                  <CardContent>
+                    <Box
+                      sx={{
+                        display: "flex",
+                        alignItems: "center",
+                        gap: 1,
+                        mb: 2,
+                      }}
+                    >
+                      <Calendar size={20} />
+                      <Typography variant="h6">Interview Schedules</Typography>
+                    </Box>
+                    <Divider sx={{ mb: 2 }} />
+
+                    {/* Technical Interviews */}
+                    {selectedCV && techInterviews
+                      .filter(interview => interview.jobId === selectedCV.job.data?._id)
+                      .map((interview) => (
+                        <Box key={interview._id} sx={{ mb: 2 }}>
+                          <Typography variant="subtitle1" fontWeight="bold">
+                            Technical Interview
+                          </Typography>
+                          <Box sx={{ display: "flex", gap: 2, alignItems: "center" }}>
+                            <Chip
+                              label={interview.status}
+                              color={
+                                interview.status === 'completed' ? 'success' :
+                                  interview.status === 'scheduled' ? 'primary' :
+                                    interview.status === 'canceled' ? 'error' : 'default'
+                              }
+                              size="small"
+                            />
+                            <Typography variant="body2">
+                              {new Date(interview.testDate).toLocaleDateString()} at {interview.testTime}
+                            </Typography>
+                          </Box>
+                          {interview.testLink && (
+                            <Button
+                              variant="outline"
+                              size="sm"
+                              onClick={() => window.open(interview.testLink, '_blank')}
+                              style={{ marginTop: '0.25rem' }}
+                            >
+                              Join Interview
+                            </Button>
+                          )}
+                        </Box>
+                      ))}
+
+                    {/* Non-Technical Interviews */}
+                    {selectedCV && nonTechInterviews
+                      .filter(interview => interview.jobId?._id === selectedCV.job.data?._id)
+                      .map((interview) => (
+                        <Box key={interview._id} sx={{ mb: 2 }}>
+                          <Typography variant="subtitle1" fontWeight="bold">
+                            Non-Technical Interview
+                          </Typography>
+                          <Box sx={{ display: "flex", gap: 2, alignItems: "center" }}>
+                            <Chip
+                              label={interview.status}
+                              color={
+                                interview.status === 'done' ? 'success' :
+                                  interview.status === 'scheduled' ? 'primary' :
+                                    interview.status === 'canceled' ? 'error' : 'default'
+                              }
+                              size="small"
+                            />
+                            <Typography variant="body2">
+                              {new Date(interview.interviewDate).toLocaleDateString()} at {interview.interviewTime}
+                            </Typography>
+                          </Box>
+                          {interview.media && (
+                            <Typography variant="body2" sx={{ mt: 1 }}>
+                              Platform: {interview.media}
+                            </Typography>
+                          )}
+                        </Box>
+                      ))}
+
+                    {selectedCV && techInterviews.filter(interview => interview.jobId === selectedCV.job.data?._id).length === 0 &&
+                      nonTechInterviews.filter(interview => interview.jobId?._id === selectedCV.job.data?._id).length === 0 && (
+                        <Typography variant="body2" color="text.secondary">
+                          No interview schedules for this job.
+                        </Typography>
+                      )}
+                  </CardContent>
+                </Card>
+              </Grid>
             </Box>
+
           )}
         </DialogContent>
 
@@ -806,6 +964,70 @@ export default function CandidateDashboard() {
             Close
           </Button>
         </DialogActions>
+      </Dialog>
+
+      {/* Modal */}
+
+      <Dialog open={savedJobsModalOpen} onClose={() => setSavedJobsModalOpen(false)} maxWidth="md" fullWidth>
+        <DialogTitle>
+          <Typography variant="h6" fontWeight="bold">
+            Saved Jobs
+          </Typography>
+        </DialogTitle>
+        <DialogContent>
+          <Grid container spacing={2}>
+            {savedJobsList.map((savedJob) => savedJob.jobDetails && (
+              <Grid item xs={12} key={savedJob._id}>
+                <Card>
+                  <CardContent>
+                    <div className="flex justify-between items-center mb-4">
+                      <Typography variant="h6" fontWeight="bold">
+                        {savedJob.jobDetails.jobRole}
+                      </Typography>
+                      <div className="flex items-center space-x-2">
+                        <Chip
+                          icon={<BookmarkIcon size={16} />}
+                          label="Saved"
+                          color="primary"
+                          size="small"
+                        />
+                        <button
+                          onClick={() => removeSavedJob(savedJob.jobId)}
+                          className="hover:bg-red-100 rounded-full p-1 transition-colors"
+                        >
+                          <Trash2 size={16} className="text-red-500" />
+                        </button>
+                      </div>
+
+                    </div>
+                    <div className="space-y-2">
+                      <div className="flex items-center gap-2">
+                        <Briefcase size={16} className="text-gray-500" />
+                        <Typography variant="body2">
+                          {savedJob.jobDetails.company}
+
+
+                        </Typography>
+                      </div>
+                      <div className="flex items-center gap-2">
+                        <MapPin size={16} className="text-gray-500" />
+                        <Typography variant="body2">
+                          {savedJob.jobDetails.location}
+                        </Typography>
+                      </div>
+                      <div className="flex items-center gap-2">
+                        <DollarSign size={16} className="text-gray-500" />
+                        <Typography variant="body2">
+                          ${savedJob.jobDetails.salary.toLocaleString()} / year
+                        </Typography>
+                      </div>
+                    </div>
+                  </CardContent>
+                </Card>
+              </Grid>
+            ))}
+          </Grid>
+        </DialogContent>
       </Dialog>
     </>
   );
