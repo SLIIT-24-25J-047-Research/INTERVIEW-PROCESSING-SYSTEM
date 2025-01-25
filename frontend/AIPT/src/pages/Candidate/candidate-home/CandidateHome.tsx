@@ -47,7 +47,6 @@ const CandidateHome: React.FC = () => {
         if (user) {
             axios.get(`http://localhost:5000/api/savejobs/getSavedJobs/${user.id}`)
                 .then(response => {
-                    // Extract jobId from saved jobs
                     const jobIds = response.data.map((savedJob: SavedJob) => savedJob.jobId);
                     setSavedJobIds(jobIds);
                 })
@@ -72,7 +71,6 @@ const CandidateHome: React.FC = () => {
             });
             
             if (response.status === 200) {
-                // Update saved jobs state
                 setSavedJobIds(prev => [...prev, jobId]);
                 toast.success('Job saved successfully!');
             }
