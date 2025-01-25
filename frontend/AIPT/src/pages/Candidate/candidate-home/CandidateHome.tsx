@@ -127,7 +127,7 @@ const CandidateHome: React.FC = () => {
             <div className="container mx-auto px-4 py-8">
                 <div className="flex gap-6">
                     {/* Left Column - Filters */}
-                    <div className="w-80"> {/* Fixed width container */}
+                    <div className="w-80"> 
                         <Card className="filter-card sticky top-4">
                             <CardHeader className="pb-2">
                                 <h3 className="text-lg font-semibold text-gray-900">Filters</h3>
