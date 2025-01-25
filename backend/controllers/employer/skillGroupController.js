@@ -147,22 +147,19 @@ exports.getSkillGroupsByFocus = async (req, res) => {
       if (skillGroups.length === 0) {
         return res.status(404).json({ error: "No skill groups found containing the provided skills." });
       }
-  
-      // Group the results based on how many matched skills they have
+
       const groupedResults = {
         "1 matched item": [],
         "2 matched items": []
       };
   
       skillGroups.forEach(group => {
-        // Count how many of the provided skills are in the group's skills
+
         const matchedSkills = group.skills.filter(skill => skills.includes(skill));
-  
-        // If there are any matches, categorize the group based on the count of matched skills
+
         if (matchedSkills.length > 0) {
           const matchedLabel = `${matchedSkills.length} matched item${matchedSkills.length > 1 ? 's' : ''}`;
-  
-          // Add the group to the appropriate category based on the number of matched skills
+
           if (matchedSkills.length === 1) {
             groupedResults["1 matched item"].push({
               ...group._doc,  // Include the full group details
