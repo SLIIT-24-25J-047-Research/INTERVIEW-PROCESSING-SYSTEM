@@ -14,7 +14,7 @@ const savedJobController = {
             await savedJob.save();
             res.status(200).json({ message: 'Job saved successfully' });
         } catch (error) {
-            if (error.code === 11000) { // Duplicate key error
+            if (error.code === 11000) { 
                 return res.status(409).json({ message: 'Job already saved' });
             }
             res.status(500).json({ message: 'Error saving job', error: error.message });
