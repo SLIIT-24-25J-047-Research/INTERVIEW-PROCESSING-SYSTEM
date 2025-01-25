@@ -5,48 +5,15 @@ import { useState, useEffect } from "react";
 import CandidateHeader from "../../../components/Candidate/CandidateHeader";
 import { Card, CardContent } from "../../../components/ui/card";
 import { Button } from "../../../components/ui/button";
-import {
-  Select,
-  SelectContent,
-  SelectItem,
-  SelectTrigger,
-  SelectValue,
-} from "../../../components/ui/select";
-import {
-  Briefcase,
-  Calendar,
-  Mail,
-  MapPin,
-  User,
-  DollarSign,
-  BookmarkIcon,
-  Trash2
-} from "lucide-react";
+import {Select, SelectContent,SelectItem, SelectTrigger,  SelectValue,} from "../../../components/ui/select";
+import { Briefcase,  Calendar,  Mail,  MapPin,  User,  DollarSign,  BookmarkIcon,Trash2} from "lucide-react";
 import CandidateLayout from "../../../components/Candidate/CandidateLayout";
 import { useAuth } from "../../../contexts/AuthContext";
 import image from "../../../assets/hh.png";
 import axios from "axios";
-import {
-  Dialog,
-  DialogActions,
-  DialogContent,
-  DialogTitle,
-  Typography,
-  Box,
-  Table,
-  TableBody,
-  TableCell,
-  TableContainer,
-  TableHead,
-  TableRow,
-  Paper,
-  Grid,
-  Chip,
-  IconButton,
-  Divider,
-} from "@mui/material";
-import {
-  PieChart,
+import {  Dialog,  DialogActions,  DialogContent,  DialogTitle,  Typography,Box,  Table,  TableBody,  TableCell,  TableContainer,  TableHead,  TableRow,  Paper,  Grid,  Chip,
+  IconButton,  Divider,} from "@mui/material";
+import {  PieChart,
   Pie,
   Cell,
   LineChart,
