@@ -378,25 +378,25 @@ export default function CandidateDashboard() {
                 </CardContent>
               </Card>
               <Card
-      onClick={() => setSavedJobsModalOpen(true)}
-      style={{
-        cursor: "pointer",
-        transition: "transform 0.3s",
-        boxShadow: "none",
-      }}
-      onMouseEnter={(e) => (e.currentTarget.style.transform = "scale(1.02)")}
-      onMouseLeave={(e) => (e.currentTarget.style.transform = "scale(1)")}
-    >
-      <CardContent className="p-6 flex items-center gap-4">
-        <div className="h-12 w-12 bg-green-100 rounded-full flex items-center justify-center">
-          <span className="text-green-600 text-xl font-bold">{savedJobsCount}</span>
-        </div>
-        <div>
-          <p className="text-sm text-muted-foreground">Saved Jobs</p>
-          <h3 className="text-xl font-semibold">{savedJobsCount}</h3>
-        </div>
-      </CardContent>
-    </Card>
+                onClick={() => setSavedJobsModalOpen(true)}
+                style={{
+                  cursor: "pointer",
+                  transition: "transform 0.3s",
+                  boxShadow: "none",
+                }}
+                onMouseEnter={(e) => (e.currentTarget.style.transform = "scale(1.02)")}
+                onMouseLeave={(e) => (e.currentTarget.style.transform = "scale(1)")}
+              >
+                <CardContent className="p-6 flex items-center gap-4">
+                  <div className="h-12 w-12 bg-green-100 rounded-full flex items-center justify-center">
+                    <span className="text-green-600 text-xl font-bold">{savedJobsCount}</span>
+                  </div>
+                  <div>
+                    <p className="text-sm text-muted-foreground">Saved Jobs</p>
+                    <h3 className="text-xl font-semibold">{savedJobsCount}</h3>
+                  </div>
+                </CardContent>
+              </Card>
             </div>
 
             {/* Charts Section */}
@@ -865,70 +865,62 @@ export default function CandidateDashboard() {
           </Button>
         </DialogActions>
       </Dialog>
-    
-    {/* Modal */}
 
-    <Dialog open={savedJobsModalOpen} onClose={() => setSavedJobsModalOpen(false)} maxWidth="md" fullWidth>
-      <DialogTitle>
-        <Typography variant="h6" fontWeight="bold">
-          Saved Jobs
-        </Typography>
-      </DialogTitle>
-      <DialogContent>
-        <Grid container spacing={2}>
-          {savedJobsList.map((savedJob) => savedJob.jobDetails && (
-            <Grid item xs={12} key={savedJob._id}>
-              <Card>
-                <CardContent>
-                  <div className="flex justify-between items-center mb-4">
-                    <Typography variant="h6" fontWeight="bold">
-                      {savedJob.jobDetails.jobRole}
-                    </Typography>
-                    <Chip 
-                      icon={<BookmarkIcon size={16} />} 
-                      label="Saved" 
-                      color="primary" 
-                      size="small" 
-                    />
+      {/* Modal */}
 
-
-
-                  </div>
-                  <div className="space-y-2">
-
-
-
-                    <div className="flex items-center gap-2">
-
-
-
-                      <Briefcase size={16} className="text-gray-500" />
-                      <Typography variant="body2">
-                        {savedJob.jobDetails.company}
-
-                        
+      <Dialog open={savedJobsModalOpen} onClose={() => setSavedJobsModalOpen(false)} maxWidth="md" fullWidth>
+        <DialogTitle>
+          <Typography variant="h6" fontWeight="bold">
+            Saved Jobs
+          </Typography>
+        </DialogTitle>
+        <DialogContent>
+          <Grid container spacing={2}>
+            {savedJobsList.map((savedJob) => savedJob.jobDetails && (
+              <Grid item xs={12} key={savedJob._id}>
+                <Card>
+                  <CardContent>
+                    <div className="flex justify-between items-center mb-4">
+                      <Typography variant="h6" fontWeight="bold">
+                        {savedJob.jobDetails.jobRole}
                       </Typography>
+                      <Chip
+                        icon={<BookmarkIcon size={16} />}
+                        label="Saved"
+                        color="primary"
+                        size="small"
+                      />
+
                     </div>
-                    <div className="flex items-center gap-2">
-                      <MapPin size={16} className="text-gray-500" />
-                      <Typography variant="body2">
-                        {savedJob.jobDetails.location}
-                      </Typography>
+                    <div className="space-y-2">
+                      <div className="flex items-center gap-2">
+                        <Briefcase size={16} className="text-gray-500" />
+                        <Typography variant="body2">
+                          {savedJob.jobDetails.company}
+
+
+                        </Typography>
+                      </div>
+                      <div className="flex items-center gap-2">
+                        <MapPin size={16} className="text-gray-500" />
+                        <Typography variant="body2">
+                          {savedJob.jobDetails.location}
+                        </Typography>
+                      </div>
+                      <div className="flex items-center gap-2">
+                        <DollarSign size={16} className="text-gray-500" />
+                        <Typography variant="body2">
+                          ${savedJob.jobDetails.salary.toLocaleString()} / year
+                        </Typography>
+                      </div>
                     </div>
-                    <div className="flex items-center gap-2">
-                      <DollarSign size={16} className="text-gray-500" />
-                      <Typography variant="body2">
-                        ${savedJob.jobDetails.salary.toLocaleString()} / year
-                      </Typography>
-                    </div>
-                  </div>
-                </CardContent>
-              </Card>
-            </Grid>
-          ))}
-        </Grid>
-      </DialogContent>
-    </Dialog>
+                  </CardContent>
+                </Card>
+              </Grid>
+            ))}
+          </Grid>
+        </DialogContent>
+      </Dialog>
     </>
   );
 }
