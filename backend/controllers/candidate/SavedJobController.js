@@ -24,8 +24,6 @@ const savedJobController = {
 getSavedJobs: async (req, res) => {
     try {
         const { userId } = req.params;
-
-        // Fetch saved jobs directly without populating the jobId
         const savedJobs = await SavedJob.find({ userId }).sort({ savedAt: -1 });
 
         res.status(200).json(savedJobs); // Returns saved jobs with jobId as ObjectIDs
