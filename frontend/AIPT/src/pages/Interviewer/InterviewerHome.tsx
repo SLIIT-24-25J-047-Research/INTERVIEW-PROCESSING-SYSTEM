@@ -132,16 +132,36 @@ function InterviewerHome() {
       const [technicalResponse, nonTechnicalResponse] = await Promise.all([
         fetch("http://localhost:5000/api/t-interviews/schedule/get"),
         fetch("http://localhost:5000/api/non-t-interviews/schedule/get")
-      ])
-
-      const technicalData = await technicalResponse.json()
-      const nonTechnicalData = await nonTechnicalResponse.json()
-
+      ]);
+  
+      const technicalData = await technicalResponse.json();
+      const nonTechnicalData = await nonTechnicalResponse.json();
+  
       // Combine and format all interview data
+      interface TechnicalInterview {
+        _id: string;
+        userName: string;
+        testDate: string;
+        testTime: string;
+        duration: number;
+        status: string;
+        jobId: string;
+        type: string;
+      }
 
+      interface NonTechnicalInterview {
+        _id: string;
+        userName: string;
+        interviewDate: string;
+        interviewTime: string;
+        media: string;
+        status: string;
+        jobId: string;
+        type: string;
+      }
 
-      const combinedInterviews = [
-        ...technicalData.map((interview: any) => ({
+      const combinedInterviews: (TechnicalInterview | NonTechnicalInterview)[] = [
+        ...technicalData.map((interview: TechnicalInterview) => ({
           _id: interview._id,
           userName: interview.userName,
           testDate: interview.testDate,
@@ -151,7 +171,7 @@ function InterviewerHome() {
           jobId: interview.jobId,
           type: 'Technical',
         })),
-        ...nonTechnicalData.schedules.map((interview: any) => ({
+        ...nonTechnicalData.schedules.map((interview: NonTechnicalInterview) => ({
           _id: interview._id,
           userName: interview.userName,
           interviewDate: interview.interviewDate,
@@ -162,7 +182,8 @@ function InterviewerHome() {
           type: 'Non-Technical',
         }))
       ];
-
+  
+      // Ensure state updates properly
       setInterviewsScheduledData(combinedInterviews);
       setTotalInterviews(combinedInterviews.length);
     } catch (error) {
@@ -171,6 +192,7 @@ function InterviewerHome() {
       setTotalInterviews(0);
     }
   };
+  
 
   return (
     <DashboardLayout>
