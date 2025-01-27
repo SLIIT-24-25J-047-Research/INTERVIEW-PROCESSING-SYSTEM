@@ -65,43 +65,46 @@ function InterviewerHome() {
   const [timeToHireModal, setTimeToHireModal] = useState(false)
 
   interface Position {
-    _id: string;      
-    jobID: string;      
-    jobRole: string;    
-    description: string; 
-    company: string;   
-    location: string; 
-    salary: number;    
-    jobType: string;   
-    createdAt: string;  
-    updatedAt: string;  
+    _id: string;
+    jobID: string;
+    jobRole: string;
+    description: string;
+    company: string;
+    location: string;
+    salary: number;
+    jobType: string;
+    createdAt: string;
+    updatedAt: string;
   }
 
 
   const [openPositionsData, setOpenPositionsData] = useState<Position[]>([])
   interface Interview {
-    _id: string;         
-    userName: string;    
-    testDate?: string;   
-    interviewDate?: string; 
-    testTime?: string;   
+    _id: string;
+    userName: string;
+    testDate?: string;
+    interviewDate?: string;
+    testTime?: string;
     interviewTime?: string;
-    duration?: number;    
-    media?: string;      
-    status: string;       
-    jobId: string;        
-    type: "Technical" | "Non-Technical";     
+    duration?: number;
+    media?: string;
+    status: string;
+    jobId: string;
+    type: "Technical" | "Non-Technical";
   }
 
 
   const [interviewsScheduledData, setInterviewsScheduledData] = useState<Interview[]>([])
   const [totalInterviews, setTotalInterviews] = useState(0)
   const [openPositionsCount, setOpenPositionsCount] = useState(0)
+  const [hiringData, setHiringData] = useState<{ name: string; value: number }[]>([]);
+  
+
   interface ApplicationData {
-      month: string;
-      technical: number;
-      nonTechnical: number;
-    }
+    month: string;
+    technical: number;
+    nonTechnical: number;
+  }
 
   const [applicationData, setApplicationData] = useState<ApplicationData[]>([]);
 
@@ -128,10 +131,13 @@ function InterviewerHome() {
       console.log(data)
       setOpenPositionsData(data)
       setOpenPositionsCount(data.length)
+      const processedData = processHiringData(data);
+      setHiringData(processedData);
     } catch (error) {
       console.error("Error fetching open positions:", error)
       setOpenPositionsData([])
       setOpenPositionsCount(0)
+      setHiringData([]);
     }
   }
 
@@ -141,11 +147,11 @@ function InterviewerHome() {
         fetch("http://localhost:5000/api/t-interviews/schedule/get"),
         fetch("http://localhost:5000/api/non-t-interviews/schedule/get")
       ]);
-  
+
       const technicalData = await technicalResponse.json();
       const nonTechnicalData = await nonTechnicalResponse.json();
-  
-     
+
+
       interface TechnicalInterview {
         _id: string;
         userName: string;
@@ -193,7 +199,7 @@ function InterviewerHome() {
       setInterviewsScheduledData(combinedInterviews);
       setTotalInterviews(combinedInterviews.length);
       const trendData = processScheduleTrendData(combinedInterviews);
-    setApplicationData(trendData);
+      setApplicationData(trendData);
     } catch (error) {
       console.error("Error fetching interviews:", error);
       setInterviewsScheduledData([]);
@@ -204,8 +210,17 @@ function InterviewerHome() {
   const processScheduleTrendData = (
     interviews: Interview[]
   ): { month: string; technical: number; nonTechnical: number }[] => {
+    // Initialize all months
     const trendData: Record<string, { technical: number; nonTechnical: number }> = {};
+    const startDate = new Date("2025-01-01"); // Example 
+    const endDate = new Date(); // Current date
+    while (startDate <= endDate) {
+      const month = startDate.toLocaleString("default", { month: "long", year: "numeric" });
+      trendData[month] = { technical: 0, nonTechnical: 0 };
+      startDate.setMonth(startDate.getMonth() + 1);
+    }
   
+    // Populate data from interviews
     interviews.forEach((interview) => {
       const dateKey = interview.type === "Technical"
         ? interview.testDate
@@ -225,18 +240,48 @@ function InterviewerHome() {
       }
     });
   
-    return Object.entries(trendData).map(([month, counts]) => ({
-      month,
-      technical: counts.technical,
-      nonTechnical: counts.nonTechnical,
-    }));
+  
+    const sortedData = Object.entries(trendData)
+      .map(([month, counts]) => ({
+        month,
+        technical: counts.technical,
+        nonTechnical: counts.nonTechnical,
+        sortDate: new Date(month), // Convert month to a Date 
+      }))
+      .sort((a, b) => a.sortDate.getTime() - b.sortDate.getTime()) 
+  
+      .map(({ month, technical, nonTechnical }) => ({
+        month,
+        technical,
+        nonTechnical,
+      }));
+  
+    return sortedData;
   };
   
 
+  const processHiringData = (positions: Position[]) => {
+    const roleCounts: Record<string, number> = {};
   
+    // Count the number of positions per job role
+    positions.forEach((position) => {
+      const role = position.jobRole;
+      roleCounts[role] = (roleCounts[role] || 0) + 1;
+    });
+  
+    // Convert the object into an array format for the chart
+    return Object.entries(roleCounts).map(([name, value]) => ({
+      name,
+      value,
+    }));
+  };
 
 
-  
+
+
+
+
+
 
   return (
     <DashboardLayout>
@@ -323,57 +368,57 @@ function InterviewerHome() {
 
           {/* Charts */}
           <div className="mt-8 grid grid-cols-1 gap-8 lg:grid-cols-2">
-            {/* Applications Trend */}
             <div className="bg-white shadow rounded-lg p-6">
-  <h2 className="text-lg font-medium text-gray-900 mb-4">Interviews Scheduled Trend</h2>
-  <div className="h-80">
-    <ResponsiveContainer width="100%" height="100%">
-      <LineChart data={applicationData}>
-        <CartesianGrid strokeDasharray="3 3" />
-        <XAxis dataKey="month" />
-        <YAxis />
-        <Tooltip />
-        <Legend />
-        <Line
-          type="monotone"
-          dataKey="technical"
-          stroke="#8884d8"
-          name="Technical Interviews"
-        />
-        <Line
-          type="monotone"
-          dataKey="nonTechnical"
-          stroke="#82ca9d"
-          name="Non-Technical Interviews"
-        />
-      </LineChart>
-    </ResponsiveContainer>
-  </div>
-</div>
+              <h2 className="text-lg font-medium text-gray-900 mb-4">Interviews Scheduled Trend</h2>
+              <div className="h-80">
+                <ResponsiveContainer width="100%" height="100%">
+                  <LineChart data={applicationData}>
+                    <CartesianGrid strokeDasharray="3 3" />
+                    <XAxis dataKey="month" />
+                    <YAxis />
+                    <Tooltip />
+                    <Legend />
+                    <Line
+                      type="monotone"
+                      dataKey="technical"
+                      stroke="#8884d8"
+                      name="Technical Interviews"
+                    />
+                    <Line
+                      type="monotone"
+                      dataKey="nonTechnical"
+                      stroke="#82ca9d"
+                      name="Non-Technical Interviews"
+                    />
+                  </LineChart>
+                </ResponsiveContainer>
+
+              </div>
+            </div>
 
             {/* Department-wise Hiring */}
             <div className="bg-white shadow rounded-lg p-6">
               <h2 className="text-lg font-medium text-gray-900 mb-4">Department-wise Hiring</h2>
               <div className="h-80">
-                <ResponsiveContainer width="100%" height="100%">
-                  <PieChart>
-                    <Pie
-                      data={hiringData}
-                      cx="50%"
-                      cy="50%"
-                      labelLine={false}
-                      label={({ name, percent }) => `${name} ${(percent * 100).toFixed(0)}%`}
-                      outerRadius={80}
-                      fill="#8884d8"
-                      dataKey="value"
-                    >
-                      {hiringData.map((entry, index) => (
-                        <Cell key={`cell-${index}`} fill={COLORS[index % COLORS.length]} />
-                      ))}
-                    </Pie>
-                    <Tooltip />
-                  </PieChart>
-                </ResponsiveContainer>
+              <ResponsiveContainer width="100%" height="100%">
+            <PieChart>
+              <Pie
+                data={hiringData}
+                cx="50%"
+                cy="50%"
+                labelLine={false}
+                label={({ name, percent }) => `${name} ${(percent * 100).toFixed(0)}%`}
+                outerRadius={80}
+                fill="#8884d8"
+                dataKey="value"
+              >
+                {hiringData.map((entry, index) => (
+                  <Cell key={`cell-${index}`} fill={COLORS[index % COLORS.length]} />
+                ))}
+              </Pie>
+              <Tooltip />
+            </PieChart>
+          </ResponsiveContainer>
               </div>
             </div>
           </div>
