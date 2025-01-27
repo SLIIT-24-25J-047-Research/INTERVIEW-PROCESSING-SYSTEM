@@ -96,7 +96,7 @@ const Sidebar: React.FC = () => {
                  "transition-opacity duration-200",
                  isCollapsed && "opacity-0"
                )}>
-                 Candidate
+                 Admin
                </h2>
              </div>
    
