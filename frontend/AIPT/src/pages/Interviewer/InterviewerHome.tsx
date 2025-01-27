@@ -65,19 +65,34 @@ function InterviewerHome() {
   const [timeToHireModal, setTimeToHireModal] = useState(false)
 
   interface Position {
-    id: number;
-    title: string;
-    department: string;
+    _id: string;        // The unique identifier for the position
+    jobID: string;      // Job vacancy ID
+    jobRole: string;    // Job role (e.g., software engineer intern)
+    description: string; // Job description
+    company: string;    // Company offering the job
+    location: string;   // Job location
+    salary: number;     // Salary offered for the position
+    jobType: string;    // Type of job (e.g., Full-time, Contract)
+    createdAt: string;  // Date when the job was posted
+    updatedAt: string;  // Date when the job was last updated
   }
+
 
   const [openPositionsData, setOpenPositionsData] = useState<Position[]>([])
   interface Interview {
-    id: number;
-    candidate: string;
-    position: string;
-    date: string;
-    type?: string;
+    _id: string;          // Unique interview ID
+    userName: string;     // Candidate's name
+    testDate?: string;    // Test date (for technical interviews)
+    interviewDate?: string; // Interview date (for non-technical interviews)
+    testTime?: string;    // Test time (for technical interviews)
+    interviewTime?: string; // Interview time (for non-technical interviews)
+    duration?: number;    // Duration (for technical interviews)
+    media?: string;       // Media (for non-technical interviews)
+    status: string;       // Status of interview (scheduled, completed, etc.)
+    jobId: string;        // Job ID related to the interview
+    type: string;         // Type of interview (Technical or Non-Technical)
   }
+
 
   const [interviewsScheduledData, setInterviewsScheduledData] = useState<Interview[]>([])
   const [totalInterviews, setTotalInterviews] = useState(0)
@@ -123,33 +138,39 @@ function InterviewerHome() {
       const nonTechnicalData = await nonTechnicalResponse.json()
 
       // Combine and format all interview data
-      interface Interview {
-        id: number;
-        candidate: string;
-        position: string;
-        date: string;
-        type?: string;
-      }
 
-      const combinedInterviews: Interview[] = [
-        ...technicalData.map((interview: Omit<Interview, 'type'>) => ({
-          ...interview,
-          type: 'Technical'
+
+      const combinedInterviews = [
+        ...technicalData.map((interview: any) => ({
+          _id: interview._id,
+          userName: interview.userName,
+          testDate: interview.testDate,
+          testTime: interview.testTime,
+          duration: interview.duration,
+          status: interview.status,
+          jobId: interview.jobId,
+          type: 'Technical',
         })),
-        ...nonTechnicalData.map((interview: Omit<Interview, 'type'>) => ({
-          ...interview,
-          type: 'Non-Technical'
+        ...nonTechnicalData.schedules.map((interview: any) => ({
+          _id: interview._id,
+          userName: interview.userName,
+          interviewDate: interview.interviewDate,
+          interviewTime: interview.interviewTime,
+          media: interview.media,
+          status: interview.status,
+          jobId: interview.jobId,
+          type: 'Non-Technical',
         }))
       ];
 
-      setInterviewsScheduledData(combinedInterviews)
-      setTotalInterviews(combinedInterviews.length)
+      setInterviewsScheduledData(combinedInterviews);
+      setTotalInterviews(combinedInterviews.length);
     } catch (error) {
-      console.error("Error fetching interviews:", error)
-      setInterviewsScheduledData([])
-      setTotalInterviews(0)
+      console.error("Error fetching interviews:", error);
+      setInterviewsScheduledData([]);
+      setTotalInterviews(0);
     }
-  }
+  };
 
   return (
     <DashboardLayout>
@@ -309,45 +330,45 @@ function InterviewerHome() {
         </main>
       </div>
 
-{/* Open Positions Modal */}
-<Dialog open={openPositionsModal} onClose={() => setOpenPositionsModal(false)} maxWidth="lg" fullWidth>
-  <DialogTitle>Open Positions</DialogTitle>
-  <DialogContent>
-    <TableContainer component={Paper}>
-      <Table>
-        <TableHead>
-          <TableRow>
-            <TableCell>ID</TableCell>
-            <TableCell>Job Role</TableCell>
-            <TableCell>Company</TableCell>
-            <TableCell>Location</TableCell>
-            <TableCell>Salary</TableCell>
-            <TableCell>Job Type</TableCell>
-            <TableCell>Posted On</TableCell>
-          </TableRow>
-        </TableHead>
-        <TableBody>
-          {openPositionsData.map((position) => (
-            <TableRow key={position._id}>
-              <TableCell>{position.jobID}</TableCell>
-              <TableCell>{position.jobRole}</TableCell>
-              <TableCell>{position.company}</TableCell>
-              <TableCell>{position.location}</TableCell>
-              <TableCell>${position.salary.toLocaleString()}</TableCell>
-              <TableCell>{position.jobType}</TableCell>
-              <TableCell>{new Date(position.createdAt).toLocaleDateString()}</TableCell>
-            </TableRow>
-          ))}
-        </TableBody>
-      </Table>
-    </TableContainer>
-  </DialogContent>
-  <DialogActions>
-    <Button onClick={() => setOpenPositionsModal(false)} color="primary">
-      Close
-    </Button>
-  </DialogActions>
-</Dialog>
+      {/* Open Positions Modal */}
+      <Dialog open={openPositionsModal} onClose={() => setOpenPositionsModal(false)} maxWidth="lg" fullWidth>
+        <DialogTitle>Open Positions</DialogTitle>
+        <DialogContent>
+          <TableContainer component={Paper}>
+            <Table>
+              <TableHead>
+                <TableRow>
+                  <TableCell>ID</TableCell>
+                  <TableCell>Job Role</TableCell>
+                  <TableCell>Company</TableCell>
+                  <TableCell>Location</TableCell>
+                  <TableCell>Salary</TableCell>
+                  <TableCell>Job Type</TableCell>
+                  <TableCell>Posted On</TableCell>
+                </TableRow>
+              </TableHead>
+              <TableBody>
+                {openPositionsData.map((position) => (
+                  <TableRow key={position._id}>
+                    <TableCell>{position.jobID}</TableCell>
+                    <TableCell>{position.jobRole}</TableCell>
+                    <TableCell>{position.company}</TableCell>
+                    <TableCell>{position.location}</TableCell>
+                    <TableCell>${position.salary.toLocaleString()}</TableCell>
+                    <TableCell>{position.jobType}</TableCell>
+                    <TableCell>{new Date(position.createdAt).toLocaleDateString()}</TableCell>
+                  </TableRow>
+                ))}
+              </TableBody>
+            </Table>
+          </TableContainer>
+        </DialogContent>
+        <DialogActions>
+          <Button onClick={() => setOpenPositionsModal(false)} color="primary">
+            Close
+          </Button>
+        </DialogActions>
+      </Dialog>
 
 
       {/* Interviews Scheduled Modal */}
@@ -368,16 +389,28 @@ function InterviewerHome() {
                   <TableCell>Position</TableCell>
                   <TableCell>Type</TableCell>
                   <TableCell>Date</TableCell>
+                  <TableCell>Time</TableCell>
+                  <TableCell>Status</TableCell>
                 </TableRow>
               </TableHead>
               <TableBody>
                 {interviewsScheduledData.map((interview) => (
-                  <TableRow key={interview.id}>
-                    <TableCell>{interview.id}</TableCell>
-                    <TableCell>{interview.candidate}</TableCell>
-                    <TableCell>{interview.position}</TableCell>
+                  <TableRow key={interview._id}>
+                    <TableCell>{interview._id}</TableCell>
+                    <TableCell>{interview.userName}</TableCell>
+                    <TableCell>{interview.jobId}</TableCell>
                     <TableCell>{interview.type}</TableCell>
-                    <TableCell>{interview.date}</TableCell>
+                    <TableCell>
+                      {interview.type === 'Technical'
+                        ? interview.testDate ? new Date(interview.testDate).toLocaleDateString() : 'N/A'
+                        : interview.interviewDate ? new Date(interview.interviewDate).toLocaleDateString() : 'N/A'}
+                    </TableCell>
+                    <TableCell>
+                      {interview.type === 'Technical'
+                        ? interview.testTime
+                        : interview.interviewTime}
+                    </TableCell>
+                    <TableCell>{interview.status}</TableCell>
                   </TableRow>
                 ))}
               </TableBody>
@@ -390,6 +423,7 @@ function InterviewerHome() {
           </Button>
         </DialogActions>
       </Dialog>
+
     </DashboardLayout>
   )
 }
