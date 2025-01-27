@@ -65,32 +65,32 @@ function InterviewerHome() {
   const [timeToHireModal, setTimeToHireModal] = useState(false)
 
   interface Position {
-    _id: string;        // The unique identifier for the position
-    jobID: string;      // Job vacancy ID
-    jobRole: string;    // Job role (e.g., software engineer intern)
-    description: string; // Job description
-    company: string;    // Company offering the job
-    location: string;   // Job location
-    salary: number;     // Salary offered for the position
-    jobType: string;    // Type of job (e.g., Full-time, Contract)
-    createdAt: string;  // Date when the job was posted
-    updatedAt: string;  // Date when the job was last updated
+    _id: string;      
+    jobID: string;      
+    jobRole: string;    
+    description: string; 
+    company: string;   
+    location: string; 
+    salary: number;    
+    jobType: string;   
+    createdAt: string;  
+    updatedAt: string;  
   }
 
 
   const [openPositionsData, setOpenPositionsData] = useState<Position[]>([])
   interface Interview {
-    _id: string;          // Unique interview ID
-    userName: string;     // Candidate's name
-    testDate?: string;    // Test date (for technical interviews)
-    interviewDate?: string; // Interview date (for non-technical interviews)
-    testTime?: string;    // Test time (for technical interviews)
-    interviewTime?: string; // Interview time (for non-technical interviews)
-    duration?: number;    // Duration (for technical interviews)
-    media?: string;       // Media (for non-technical interviews)
-    status: string;       // Status of interview (scheduled, completed, etc.)
-    jobId: string;        // Job ID related to the interview
-    type: string;         // Type of interview (Technical or Non-Technical)
+    _id: string;         
+    userName: string;    
+    testDate?: string;   
+    interviewDate?: string; 
+    testTime?: string;   
+    interviewTime?: string;
+    duration?: number;    
+    media?: string;      
+    status: string;       
+    jobId: string;        
+    type: string;     
   }
 
 
