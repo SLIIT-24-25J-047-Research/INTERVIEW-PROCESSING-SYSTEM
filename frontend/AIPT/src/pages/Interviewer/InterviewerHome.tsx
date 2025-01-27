@@ -90,13 +90,21 @@ function InterviewerHome() {
     media?: string;      
     status: string;       
     jobId: string;        
-    type: string;     
+    type: "Technical" | "Non-Technical";     
   }
 
 
   const [interviewsScheduledData, setInterviewsScheduledData] = useState<Interview[]>([])
   const [totalInterviews, setTotalInterviews] = useState(0)
   const [openPositionsCount, setOpenPositionsCount] = useState(0)
+  interface ApplicationData {
+      month: string;
+      technical: number;
+      nonTechnical: number;
+    }
+
+  const [applicationData, setApplicationData] = useState<ApplicationData[]>([]);
+
 
   useEffect(() => {
     fetchAllData()
@@ -137,7 +145,7 @@ function InterviewerHome() {
       const technicalData = await technicalResponse.json();
       const nonTechnicalData = await nonTechnicalResponse.json();
   
-      // Combine and format all interview data
+     
       interface TechnicalInterview {
         _id: string;
         userName: string;
@@ -146,7 +154,7 @@ function InterviewerHome() {
         duration: number;
         status: string;
         jobId: string;
-        type: string;
+        type: "Technical";
       }
 
       interface NonTechnicalInterview {
@@ -157,7 +165,7 @@ function InterviewerHome() {
         media: string;
         status: string;
         jobId: string;
-        type: string;
+        type: "Non-Technical";
       }
 
       const combinedInterviews: (TechnicalInterview | NonTechnicalInterview)[] = [
@@ -182,16 +190,52 @@ function InterviewerHome() {
           type: 'Non-Technical',
         }))
       ];
-  
-      // Ensure state updates properly
       setInterviewsScheduledData(combinedInterviews);
       setTotalInterviews(combinedInterviews.length);
+      const trendData = processScheduleTrendData(combinedInterviews);
+    setApplicationData(trendData);
     } catch (error) {
       console.error("Error fetching interviews:", error);
       setInterviewsScheduledData([]);
       setTotalInterviews(0);
     }
   };
+
+  const processScheduleTrendData = (
+    interviews: Interview[]
+  ): { month: string; technical: number; nonTechnical: number }[] => {
+    const trendData: Record<string, { technical: number; nonTechnical: number }> = {};
+  
+    interviews.forEach((interview) => {
+      const dateKey = interview.type === "Technical"
+        ? interview.testDate
+        : interview.interviewDate;
+  
+      if (dateKey) {
+        const month = new Date(dateKey).toLocaleString("default", { month: "long", year: "numeric" });
+        if (!trendData[month]) {
+          trendData[month] = { technical: 0, nonTechnical: 0 };
+        }
+  
+        if (interview.type === "Technical") {
+          trendData[month].technical += 1;
+        } else if (interview.type === "Non-Technical") {
+          trendData[month].nonTechnical += 1;
+        }
+      }
+    });
+  
+    return Object.entries(trendData).map(([month, counts]) => ({
+      month,
+      technical: counts.technical,
+      nonTechnical: counts.nonTechnical,
+    }));
+  };
+  
+
+  
+
+
   
 
   return (
@@ -281,20 +325,31 @@ function InterviewerHome() {
           <div className="mt-8 grid grid-cols-1 gap-8 lg:grid-cols-2">
             {/* Applications Trend */}
             <div className="bg-white shadow rounded-lg p-6">
-              <h2 className="text-lg font-medium text-gray-900 mb-4">Applications Trend</h2>
-              <div className="h-80">
-                <ResponsiveContainer width="100%" height="100%">
-                  <LineChart data={applicationData}>
-                    <CartesianGrid strokeDasharray="3 3" />
-                    <XAxis dataKey="month" />
-                    <YAxis />
-                    <Tooltip />
-                    <Legend />
-                    <Line type="monotone" dataKey="applications" stroke="#8884d8" />
-                  </LineChart>
-                </ResponsiveContainer>
-              </div>
-            </div>
+  <h2 className="text-lg font-medium text-gray-900 mb-4">Interviews Scheduled Trend</h2>
+  <div className="h-80">
+    <ResponsiveContainer width="100%" height="100%">
+      <LineChart data={applicationData}>
+        <CartesianGrid strokeDasharray="3 3" />
+        <XAxis dataKey="month" />
+        <YAxis />
+        <Tooltip />
+        <Legend />
+        <Line
+          type="monotone"
+          dataKey="technical"
+          stroke="#8884d8"
+          name="Technical Interviews"
+        />
+        <Line
+          type="monotone"
+          dataKey="nonTechnical"
+          stroke="#82ca9d"
+          name="Non-Technical Interviews"
+        />
+      </LineChart>
+    </ResponsiveContainer>
+  </div>
+</div>
 
             {/* Department-wise Hiring */}
             <div className="bg-white shadow rounded-lg p-6">
