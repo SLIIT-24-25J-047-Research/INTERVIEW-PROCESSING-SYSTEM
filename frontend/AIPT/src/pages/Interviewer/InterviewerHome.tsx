@@ -98,7 +98,7 @@ function InterviewerHome() {
   const [totalInterviews, setTotalInterviews] = useState(0)
   const [openPositionsCount, setOpenPositionsCount] = useState(0)
   const [hiringData, setHiringData] = useState<{ name: string; value: number }[]>([]);
-  
+
 
   interface ApplicationData {
     month: string;
@@ -219,19 +219,19 @@ function InterviewerHome() {
       trendData[month] = { technical: 0, nonTechnical: 0 };
       startDate.setMonth(startDate.getMonth() + 1);
     }
-  
+
     // Populate data from interviews
     interviews.forEach((interview) => {
       const dateKey = interview.type === "Technical"
         ? interview.testDate
         : interview.interviewDate;
-  
+
       if (dateKey) {
         const month = new Date(dateKey).toLocaleString("default", { month: "long", year: "numeric" });
         if (!trendData[month]) {
           trendData[month] = { technical: 0, nonTechnical: 0 };
         }
-  
+
         if (interview.type === "Technical") {
           trendData[month].technical += 1;
         } else if (interview.type === "Non-Technical") {
@@ -239,8 +239,8 @@ function InterviewerHome() {
         }
       }
     });
-  
-  
+
+
     const sortedData = Object.entries(trendData)
       .map(([month, counts]) => ({
         month,
@@ -248,27 +248,27 @@ function InterviewerHome() {
         nonTechnical: counts.nonTechnical,
         sortDate: new Date(month), // Convert month to a Date 
       }))
-      .sort((a, b) => a.sortDate.getTime() - b.sortDate.getTime()) 
-  
+      .sort((a, b) => a.sortDate.getTime() - b.sortDate.getTime())
+
       .map(({ month, technical, nonTechnical }) => ({
         month,
         technical,
         nonTechnical,
       }));
-  
+
     return sortedData;
   };
-  
+
 
   const processHiringData = (positions: Position[]) => {
     const roleCounts: Record<string, number> = {};
-  
+
     // Count the number of positions per job role
     positions.forEach((position) => {
       const role = position.jobRole;
       roleCounts[role] = (roleCounts[role] || 0) + 1;
     });
-  
+
     // Convert the object into an array format for the chart
     return Object.entries(roleCounts).map(([name, value]) => ({
       name,
@@ -400,25 +400,25 @@ function InterviewerHome() {
             <div className="bg-white shadow rounded-lg p-6">
               <h2 className="text-lg font-medium text-gray-900 mb-4">Department-wise Hiring</h2>
               <div className="h-80">
-              <ResponsiveContainer width="100%" height="100%">
-            <PieChart>
-              <Pie
-                data={hiringData}
-                cx="50%"
-                cy="50%"
-                labelLine={false}
-                label={({ name, percent }) => `${name} ${(percent * 100).toFixed(0)}%`}
-                outerRadius={80}
-                fill="#8884d8"
-                dataKey="value"
-              >
-                {hiringData.map((entry, index) => (
-                  <Cell key={`cell-${index}`} fill={COLORS[index % COLORS.length]} />
-                ))}
-              </Pie>
-              <Tooltip />
-            </PieChart>
-          </ResponsiveContainer>
+                <ResponsiveContainer width="100%" height="100%">
+                  <PieChart>
+                    <Pie
+                      data={hiringData}
+                      cx="50%"
+                      cy="50%"
+                      labelLine={false}
+                      label={({ name, percent }) => `${name} ${(percent * 100).toFixed(0)}%`}
+                      outerRadius={80}
+                      fill="#8884d8"
+                      dataKey="value"
+                    >
+                      {hiringData.map((entry, index) => (
+                        <Cell key={`cell-${index}`} fill={COLORS[index % COLORS.length]} />
+                      ))}
+                    </Pie>
+                    <Tooltip />
+                  </PieChart>
+                </ResponsiveContainer>
               </div>
             </div>
           </div>
