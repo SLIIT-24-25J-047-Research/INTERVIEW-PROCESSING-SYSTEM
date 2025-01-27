@@ -64,74 +64,95 @@ function InterviewerHome() {
   const [interviewsScheduledModal, setInterviewsScheduledModal] = useState(false)
   const [timeToHireModal, setTimeToHireModal] = useState(false)
 
-  const [totalCandidatesData, setTotalCandidatesData] = useState<{ id: number; name: string; position: string }[]>([])
-  const [openPositionsData, setOpenPositionsData] = useState<{ id: number; title: string; department: string }[]>([])
-  const [interviewsScheduledData, setInterviewsScheduledData] = useState<{ id: number; candidate: string; position: string; date: string }[]>([])
-  const [timeToHireData, setTimeToHireData] = useState<{ department: string; avgDays: number }[]>([])
+  interface Position {
+    id: number;
+    title: string;
+    department: string;
+  }
+
+  const [openPositionsData, setOpenPositionsData] = useState<Position[]>([])
+  interface Interview {
+    id: number;
+    candidate: string;
+    position: string;
+    date: string;
+    type?: string;
+  }
+
+  const [interviewsScheduledData, setInterviewsScheduledData] = useState<Interview[]>([])
+  const [totalInterviews, setTotalInterviews] = useState(0)
+  const [openPositionsCount, setOpenPositionsCount] = useState(0)
 
   useEffect(() => {
-    // Simulate API calls
-    fetchTotalCandidatesData()
-    fetchOpenPositionsData()
-    fetchInterviewsScheduledData()
-    fetchTimeToHireData()
+    fetchAllData()
   }, [])
 
-  const fetchTotalCandidatesData = () => {
-    // Simulated API call
-    setTimeout(() => {
-      setTotalCandidatesData([
-        { id: 1, name: "John Doe", position: "Software Engineer" },
-        { id: 2, name: "Jane Smith", position: "Product Manager" },
-        { id: 3, name: "Mike Johnson", position: "Data Scientist" },
-        { id: 4, name: "Emily Brown", position: "UX Designer" },
-        { id: 5, name: "Chris Lee", position: "Marketing Specialist" },
+  const fetchAllData = async () => {
+    try {
+      await Promise.all([
+        fetchOpenPositions(),
+        fetchInterviews()
       ])
-    }, 500)
+    } catch (error) {
+      console.error("Error fetching data:", error)
+    }
   }
 
-  const fetchOpenPositionsData = () => {
-    // Simulated API call
-    setTimeout(() => {
-      setOpenPositionsData([
-        { id: 1, title: "Senior Software Engineer", department: "Engineering" },
-        { id: 2, title: "Product Manager", department: "Product" },
-        { id: 3, title: "Data Analyst", department: "Data Science" },
-        { id: 4, title: "UX/UI Designer", department: "Design" },
-        { id: 5, title: "Marketing Manager", department: "Marketing" },
-      ])
-    }, 500)
+  const fetchOpenPositions = async () => {
+    try {
+      const response = await fetch("http://localhost:5000/api/jobs/all")
+      const data = await response.json()
+      console.log(data)
+      setOpenPositionsData(data)
+      setOpenPositionsCount(data.length)
+    } catch (error) {
+      console.error("Error fetching open positions:", error)
+      setOpenPositionsData([])
+      setOpenPositionsCount(0)
+    }
   }
 
-  const fetchInterviewsScheduledData = () => {
-    // Simulated API call
-    setTimeout(() => {
-      setInterviewsScheduledData([
-        { id: 1, candidate: "Alice Johnson", position: "Software Engineer", date: "2023-07-15" },
-        { id: 2, candidate: "Bob Williams", position: "Product Manager", date: "2023-07-16" },
-        { id: 3, candidate: "Carol Davis", position: "Data Scientist", date: "2023-07-17" },
-        { id: 4, candidate: "David Miller", position: "UX Designer", date: "2023-07-18" },
-        { id: 5, candidate: "Eva Wilson", position: "Marketing Specialist", date: "2023-07-19" },
+  const fetchInterviews = async () => {
+    try {
+      const [technicalResponse, nonTechnicalResponse] = await Promise.all([
+        fetch("http://localhost:5000/api/t-interviews/schedule/get"),
+        fetch("http://localhost:5000/api/non-t-interviews/schedule/get")
       ])
-    }, 500)
-  }
 
-  const fetchTimeToHireData = () => {
-    // Simulated API call
-    setTimeout(() => {
-      setTimeToHireData([
-        { department: "Engineering", avgDays: 20 },
-        { department: "Product", avgDays: 25 },
-        { department: "Data Science", avgDays: 18 },
-        { department: "Design", avgDays: 15 },
-        { department: "Marketing", avgDays: 22 },
-      ])
-    }, 500)
+      const technicalData = await technicalResponse.json()
+      const nonTechnicalData = await nonTechnicalResponse.json()
+
+      // Combine and format all interview data
+      interface Interview {
+        id: number;
+        candidate: string;
+        position: string;
+        date: string;
+        type?: string;
+      }
+
+      const combinedInterviews: Interview[] = [
+        ...technicalData.map((interview: Omit<Interview, 'type'>) => ({
+          ...interview,
+          type: 'Technical'
+        })),
+        ...nonTechnicalData.map((interview: Omit<Interview, 'type'>) => ({
+          ...interview,
+          type: 'Non-Technical'
+        }))
+      ];
+
+      setInterviewsScheduledData(combinedInterviews)
+      setTotalInterviews(combinedInterviews.length)
+    } catch (error) {
+      console.error("Error fetching interviews:", error)
+      setInterviewsScheduledData([])
+      setTotalInterviews(0)
+    }
   }
 
   return (
-    <>
-        <DashboardLayout>
+    <DashboardLayout>
       <div className="min-h-screen bg-gray-50 mt-10">
         <main className="max-w-full mx-auto px-4 sm:px-6 lg:px-8 py-8">
           {/* Stats */}
@@ -167,7 +188,7 @@ function InterviewerHome() {
                   <div className="ml-5 w-0 flex-1">
                     <dl>
                       <dt className="text-sm font-medium text-gray-500 truncate">Open Positions</dt>
-                      <dd className="text-lg font-medium text-gray-900">23</dd>
+                      <dd className="text-lg font-medium text-gray-900">{openPositionsCount}</dd>
                     </dl>
                   </div>
                 </div>
@@ -186,7 +207,7 @@ function InterviewerHome() {
                   <div className="ml-5 w-0 flex-1">
                     <dl>
                       <dt className="text-sm font-medium text-gray-500 truncate">Interviews Scheduled</dt>
-                      <dd className="text-lg font-medium text-gray-900">45</dd>
+                      <dd className="text-lg font-medium text-gray-900">{totalInterviews}</dd>
                     </dl>
                   </div>
                 </div>
@@ -269,7 +290,7 @@ function InterviewerHome() {
                 <div key={item} className="px-6 py-4 flex items-center">
                   <img
                     className="h-10 w-10 rounded-full"
-                    src={`https://images.unsplash.com/photo-${1500000000000 + item}?ixlib=rb-1.2.1&ixid=eyJhcHBfaWQiOjEyMDd9&auto=format&fit=facearea&facepad=2&w=256&h=256&q=80`}
+                    src={`/api/placeholder/40/40`}
                     alt=""
                   />
                   <div className="ml-4 flex-1">
@@ -288,69 +309,46 @@ function InterviewerHome() {
         </main>
       </div>
 
-      {/* Total Candidates Modal */}
-      <Dialog open={totalCandidatesModal} onClose={() => setTotalCandidatesModal(false)} maxWidth="lg" fullWidth>
-        <DialogTitle>Total Candidates</DialogTitle>
-        <DialogContent>
-          <TableContainer component={Paper}>
-            <Table>
-              <TableHead>
-                <TableRow>
-                  <TableCell>ID</TableCell>
-                  <TableCell>Name</TableCell>
-                  <TableCell>Position</TableCell>
-                </TableRow>
-              </TableHead>
-              <TableBody>
-                {totalCandidatesData.map((candidate) => (
-                  <TableRow key={candidate.id}>
-                    <TableCell>{candidate.id}</TableCell>
-                    <TableCell>{candidate.name}</TableCell>
-                    <TableCell>{candidate.position}</TableCell>
-                  </TableRow>
-                ))}
-              </TableBody>
-            </Table>
-          </TableContainer>
-        </DialogContent>
-        <DialogActions>
-          <Button onClick={() => setTotalCandidatesModal(false)} color="primary">
-            Close
-          </Button>
-        </DialogActions>
-      </Dialog>
+{/* Open Positions Modal */}
+<Dialog open={openPositionsModal} onClose={() => setOpenPositionsModal(false)} maxWidth="lg" fullWidth>
+  <DialogTitle>Open Positions</DialogTitle>
+  <DialogContent>
+    <TableContainer component={Paper}>
+      <Table>
+        <TableHead>
+          <TableRow>
+            <TableCell>ID</TableCell>
+            <TableCell>Job Role</TableCell>
+            <TableCell>Company</TableCell>
+            <TableCell>Location</TableCell>
+            <TableCell>Salary</TableCell>
+            <TableCell>Job Type</TableCell>
+            <TableCell>Posted On</TableCell>
+          </TableRow>
+        </TableHead>
+        <TableBody>
+          {openPositionsData.map((position) => (
+            <TableRow key={position._id}>
+              <TableCell>{position.jobID}</TableCell>
+              <TableCell>{position.jobRole}</TableCell>
+              <TableCell>{position.company}</TableCell>
+              <TableCell>{position.location}</TableCell>
+              <TableCell>${position.salary.toLocaleString()}</TableCell>
+              <TableCell>{position.jobType}</TableCell>
+              <TableCell>{new Date(position.createdAt).toLocaleDateString()}</TableCell>
+            </TableRow>
+          ))}
+        </TableBody>
+      </Table>
+    </TableContainer>
+  </DialogContent>
+  <DialogActions>
+    <Button onClick={() => setOpenPositionsModal(false)} color="primary">
+      Close
+    </Button>
+  </DialogActions>
+</Dialog>
 
-      {/* Open Positions Modal */}
-      <Dialog open={openPositionsModal} onClose={() => setOpenPositionsModal(false)} maxWidth="lg" fullWidth>
-        <DialogTitle>Open Positions</DialogTitle>
-        <DialogContent>
-          <TableContainer component={Paper}>
-            <Table>
-              <TableHead>
-                <TableRow>
-                  <TableCell>ID</TableCell>
-                  <TableCell>Title</TableCell>
-                  <TableCell>Department</TableCell>
-                </TableRow>
-              </TableHead>
-              <TableBody>
-                {openPositionsData.map((position) => (
-                  <TableRow key={position.id}>
-                    <TableCell>{position.id}</TableCell>
-                    <TableCell>{position.title}</TableCell>
-                    <TableCell>{position.department}</TableCell>
-                  </TableRow>
-                ))}
-              </TableBody>
-            </Table>
-          </TableContainer>
-        </DialogContent>
-        <DialogActions>
-          <Button onClick={() => setOpenPositionsModal(false)} color="primary">
-            Close
-          </Button>
-        </DialogActions>
-      </Dialog>
 
       {/* Interviews Scheduled Modal */}
       <Dialog
@@ -368,6 +366,7 @@ function InterviewerHome() {
                   <TableCell>ID</TableCell>
                   <TableCell>Candidate</TableCell>
                   <TableCell>Position</TableCell>
+                  <TableCell>Type</TableCell>
                   <TableCell>Date</TableCell>
                 </TableRow>
               </TableHead>
@@ -377,6 +376,7 @@ function InterviewerHome() {
                     <TableCell>{interview.id}</TableCell>
                     <TableCell>{interview.candidate}</TableCell>
                     <TableCell>{interview.position}</TableCell>
+                    <TableCell>{interview.type}</TableCell>
                     <TableCell>{interview.date}</TableCell>
                   </TableRow>
                 ))}
@@ -390,43 +390,8 @@ function InterviewerHome() {
           </Button>
         </DialogActions>
       </Dialog>
-
-      {/* Time to Hire Modal */}
-      <Dialog open={timeToHireModal} onClose={() => setTimeToHireModal(false)} maxWidth="lg" fullWidth>
-        <DialogTitle>Time to Hire</DialogTitle>
-        <DialogContent>
-          <TableContainer component={Paper}>
-            <Table>
-              <TableHead>
-                <TableRow>
-                  <TableCell>Department</TableCell>
-                  <TableCell>Average Days to Hire</TableCell>
-                </TableRow>
-              </TableHead>
-              <TableBody>
-                {timeToHireData.map((item, index) => (
-                  <TableRow key={index}>
-                    <TableCell>{item.department}</TableCell>
-                    <TableCell>{item.avgDays}</TableCell>
-                  </TableRow>
-                ))}
-              </TableBody>
-            </Table>
-          </TableContainer>
-        </DialogContent>
-        <DialogActions>
-          <Button onClick={() => setTimeToHireModal(false)} color="primary">
-            Close
-          </Button>
-        </DialogActions>
-      </Dialog>
     </DashboardLayout>
-
-
-    </>
-   
   )
 }
 
 export default InterviewerHome
-
