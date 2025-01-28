@@ -7,6 +7,7 @@ import librosa
 import numpy as np
 import os
 import whisper  # For speech-to-text transcription
+
 from transformers import BertTokenizer, BertModel
 from difflib import SequenceMatcher
 import torch
@@ -15,7 +16,10 @@ app = Flask(__name__)
 
 # Load the trained model
 # model = joblib.load(r'/app/models/confidence_model.pkl')
-model = joblib.load('C:\\Users\\Lenovo\\Downloads\\3y2s\\4Y\\INTERVIEW-PROCESSING-SYSTEM\\backend\\voice-confidence-service\\models\\confidence_model.pkl')
+model = joblib.load('D:\\personel\\3y2s\\4Y\\INTERVIEW-PROCESSING-SYSTEM\\backend\\voice-confidence-service\\models\\confidence_model.pkl')
+
+# D:\personel\3y2s\4Y\INTERVIEW-PROCESSING-SYSTEM\backend\voice-confidence-service\models\confidence_model.pkl
+
 # Whisper model
 whisper_model = whisper.load_model("tiny")
 print("Whisper model loaded successfully!")
@@ -78,8 +82,10 @@ def transcribe():
             return jsonify({'error': 'No audio file provided'}), 400
 
         audio_file = request.files['audio']
-        audio_file_path = 'C:\\Users\\Lenovo\\Downloads\\3y2s\\4Y\\INTERVIEW-PROCESSING-SYSTEM\\backend\\voice-confidence-service\\uploads\\audio_file.wav'
+        audio_file_path = 'D:\\personel\\3y2s\\4Y\\INTERVIEW-PROCESSING-SYSTEM\\backend\\uploads\\audio_file.wav'
         # audio_file_path = os.path.join('/app/uploads', 'audio_file.wav')
+        
+        # D:\personel\3y2s\4Y\INTERVIEW-PROCESSING-SYSTEM\backend\uploads
 
         audio_file.save(audio_file_path)
 
