@@ -2,7 +2,7 @@ import React, { useState, useEffect } from "react";
 import { useLocation, useNavigate } from "react-router-dom";
 import Sidebar from "../../../components/Candidate/CandidateSidebar";
 import Header from "../../../components/Candidate/CandidateHeader";
-import CodeEditor from "../../../components/Candidate/CodeEditor";
+import { CodeEditor } from "../../../components/Candidate/CodeEditor";
 import { Timer } from "lucide-react";
 
 interface InterviewState {
@@ -294,12 +294,12 @@ const CandidateTest: React.FC = () => {
             <div className="flex-1 flex flex-col gap-4">
               <p className="text-lg font-medium">{questions[currentQuestionIndex]}</p>
               <div className="relative w-full h-[60vh] border rounded shadow bg-gray-800">
-                <CodeEditor
+                {/* <CodeEditor
                   key={currentQuestionIndex}
-                  onCodeChange={handleCodeChange}
-                  initialCode={answers[currentQuestionIndex]}
+                  onChange={handleCodeChange}
+                  value={answers[currentQuestionIndex]}
                   readOnly={isTestEnded}
-                />
+                /> */}
               </div>
             </div>
           </div>
