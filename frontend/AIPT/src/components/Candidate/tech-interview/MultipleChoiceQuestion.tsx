@@ -3,15 +3,18 @@ import React, { useState } from 'react';
 interface MultipleChoiceQuestionProps {
   options: string[];
   onChange: (selectedIndex: number) => void;
+  disabled?: boolean;
 }
 
 export const MultipleChoiceQuestion: React.FC<MultipleChoiceQuestionProps> = ({
   options,
   onChange,
+  disabled = false,
 }) => {
   const [selected, setSelected] = useState<number | null>(null);
 
   const handleSelect = (index: number) => {
+    if (disabled) return;
     setSelected(index);
     onChange(index);
   };
@@ -22,11 +25,12 @@ export const MultipleChoiceQuestion: React.FC<MultipleChoiceQuestionProps> = ({
         <button
           key={index}
           onClick={() => handleSelect(index)}
+          disabled={disabled}
           className={`w-full p-4 text-left rounded-lg border transition-all ${
             selected === index
               ? 'border-blue-500 bg-blue-50 text-blue-700'
               : 'border-gray-200 hover:border-gray-300 hover:bg-gray-50'
-          }`}
+          } ${disabled ? 'opacity-50 cursor-not-allowed' : ''}`}
         >
           <div className="flex items-center space-x-3">
             <div
