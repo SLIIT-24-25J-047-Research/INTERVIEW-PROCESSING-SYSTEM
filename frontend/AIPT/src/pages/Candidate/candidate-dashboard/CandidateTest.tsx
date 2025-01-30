@@ -2,7 +2,7 @@ import React, { useState, useEffect } from "react";
 import { useLocation, useNavigate } from "react-router-dom";
 import Sidebar from "../../../components/Candidate/CandidateSidebar";
 import Header from "../../../components/Candidate/CandidateHeader";
-import { CodeEditor } from "../../../components/Candidate/CodeEditor";
+import { CodeEditor } from "../../../components/Candidate/tech-interview/CodeEditor";
 import { Timer } from "lucide-react";
 
 interface InterviewState {
