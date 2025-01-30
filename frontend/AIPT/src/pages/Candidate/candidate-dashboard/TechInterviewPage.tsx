@@ -7,11 +7,11 @@ import React from 'react';
 import { Trophy, Flag, Star, ChevronLeft, ChevronRight } from 'lucide-react';
 import { useInterviewStore } from '../../../components/store/InterviewStore';
 import { Timer } from '../../../components/Candidate/Timer';
-import { CodeEditor } from '../../../components/Candidate/CodeEditor';
+import { CodeEditor } from '../../../components/Candidate/tech-interview/CodeEditor';
 import { Question } from '../../../components/types';
-import { DragDropQuestion } from '../../../components/Candidate/DragDropQuestion';
-import { FillBlanksQuestion } from '../../../components/Candidate/FillBlanksQuestion';
-import { MultipleChoiceQuestion } from '../../../components/Candidate/MultipleChoiceQuestion';
+import { DragDropQuestion } from '../../../components/Candidate/tech-interview/DragDropQuestion';
+import { FillBlanksQuestion } from '../../../components/Candidate/tech-interview/FillBlanksQuestion';
+import { MultipleChoiceQuestion } from '../../../components/Candidate/tech-interview/MultipleChoiceQuestion';
 
 const mockQuestions: Question[] = [
     {
