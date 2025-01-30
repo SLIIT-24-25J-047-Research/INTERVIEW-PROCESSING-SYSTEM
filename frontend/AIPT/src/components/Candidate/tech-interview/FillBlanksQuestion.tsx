@@ -9,16 +9,19 @@ interface FillBlanksQuestionProps {
   text: string;
   blanks: Blank[];
   onChange: (answers: Record<string, string>) => void;
+  disabled?: boolean;
 }
 
 export const FillBlanksQuestion: React.FC<FillBlanksQuestionProps> = ({
   text,
   blanks,
   onChange,
+  disabled = false,
 }) => {
   const [answers, setAnswers] = useState<Record<string, string>>({});
 
   const handleChange = (id: string, value: string) => {
+    if (disabled) return;
     const newAnswers = { ...answers, [id]: value };
     setAnswers(newAnswers);
     onChange(newAnswers);
@@ -38,7 +41,10 @@ export const FillBlanksQuestion: React.FC<FillBlanksQuestionProps> = ({
                 type="text"
                 value={answers[blankId] || ''}
                 onChange={(e) => handleChange(blankId, e.target.value)}
-                className="mx-1 px-2 py-1 border border-gray-300 rounded-md focus:ring-2 focus:ring-blue-500 focus:border-blue-500 w-32"
+                disabled={disabled}
+                className={`mx-1 px-2 py-1 border border-gray-300 rounded-md focus:ring-2 focus:ring-blue-500 focus:border-blue-500 w-32 ${
+                  disabled ? 'opacity-50 cursor-not-allowed bg-gray-100' : ''
+                }`}
                 placeholder={`Blank ${blankId}`}
               />
             );
