@@ -225,7 +225,7 @@ const ScheduledInterviewPage: React.FC = () => {
     const now = new Date();
     const startTime = new Date(testDate);
 
-    // Extract hours and minutes and determine AM/PM
+
     const [time, meridian] = testTime.split(" ");
     const [hours, minutes] = time.split(":").map(Number);
     const adjustedHours =
