@@ -235,7 +235,7 @@ const ScheduledInterviewPage: React.FC = () => {
         ? 0
         : hours;
 
-    // Adjust the startTime with hours and minutes
+
     startTime.setHours(adjustedHours, minutes, 0, 0);
 
     if (now > startTime) {
