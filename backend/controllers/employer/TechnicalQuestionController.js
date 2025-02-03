@@ -1,6 +1,6 @@
 const Question = require("../../models/employer/TechnicalQuestions");
 
-// Fetch all questions
+// get all 
 exports.getQuestions = async (req, res) => {
   try {
     const questions = await Question.find();
@@ -10,7 +10,7 @@ exports.getQuestions = async (req, res) => {
   }
 };
 
-// Fetch a single question by ID
+// get by ID
 exports.getQuestionById = async (req, res) => {
   try {
     const question = await Question.findById(req.params.id);
@@ -21,7 +21,7 @@ exports.getQuestionById = async (req, res) => {
   }
 };
 
-// Create a new question
+// Create 
 exports.createQuestion = async (req, res) => {
   try {
     const newQuestion = new Question(req.body);
@@ -32,7 +32,7 @@ exports.createQuestion = async (req, res) => {
   }
 };
 
-// Update a question
+// Update 
 exports.updateQuestion = async (req, res) => {
   try {
     const updatedQuestion = await Question.findByIdAndUpdate(
@@ -47,7 +47,7 @@ exports.updateQuestion = async (req, res) => {
   }
 };
 
-// Delete a question
+// Delete 
 exports.deleteQuestion = async (req, res) => {
   try {
     const deletedQuestion = await Question.findByIdAndDelete(req.params.id);
