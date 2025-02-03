@@ -1,6 +1,6 @@
 import Sidebar from "../../../components/Candidate/CandidateSidebar";
 import Header from "../../../components/Candidate/CandidateHeader";
-
+import { useLocation } from "react-router-dom";
 import React from "react";
 import {
   Trophy,
@@ -17,6 +17,12 @@ import { Question } from "../../../components/types";
 import { DragDropQuestion } from "../../../components/Candidate/tech-interview/DragDropQuestion";
 import { FillBlanksQuestion } from "../../../components/Candidate/tech-interview/FillBlanksQuestion";
 import { MultipleChoiceQuestion } from "../../../components/Candidate/tech-interview/MultipleChoiceQuestion";
+
+interface LocationState {
+  interviewId: string;
+  testLink: string;
+  duration: number;
+}
 
 const mockQuestions: Question[] = [
   {
@@ -146,6 +152,8 @@ const mockQuestions: Question[] = [
   },
 ];
 const Techexam: React.FC = () => {
+  const location = useLocation();
+  const { interviewId, testLink, duration } = location.state as LocationState;
   const { currentQuestionIndex, setCurrentQuestion, isQuestionLocked } =
     useInterviewStore();
   const currentQuestion = mockQuestions[currentQuestionIndex];
