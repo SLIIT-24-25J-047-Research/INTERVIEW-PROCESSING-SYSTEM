@@ -124,12 +124,10 @@ const ScheduledInterviewPage: React.FC = () => {
   ) => {
     const now = new Date();
     const startTime = new Date(testDate);
-
-    // Extract hours, minutes, and check for AM/PM
     const [time, meridian] = testTime.split(" ");
     const [hours, minutes] = time.split(":").map(Number);
 
-    // Adjust the hours for 12-hour format (12 AM and 12 PM edge cases)
+
     const adjustedHours =
       meridian === "PM" && hours !== 12
         ? hours + 12
@@ -137,14 +135,10 @@ const ScheduledInterviewPage: React.FC = () => {
         ? 0
         : hours;
 
-    // Set the start time with the adjusted hours and minutes
     startTime.setHours(adjustedHours, minutes, 0, 0);
 
-    // Calculate the end time
     const endTime = new Date(startTime);
     endTime.setMinutes(startTime.getMinutes() + duration);
-
-    // Check if the current time falls within the interview window
     return now >= startTime && now <= endTime;
   };
 
