@@ -245,15 +245,9 @@ const Techexam: React.FC = () => {
   return (
     <div className="flex  bg-gray-50">
       <Sidebar />
-      {/* Sidebar */}
-
-      {/* Main Content Area */}
       <div className="flex-1 flex flex-col">
-        {/* Header */}
         <div className="flex-shrink-0">
           <Header title="Technical Assessment " />
-
-          {/* Sub-header with timer and score */}
           <div className="bg-white shadow-sm mt-20">
             <div className="max-w-7xl mx-auto px-4 py-4 sm:px-6 lg:px-8">
               <div className="flex justify-between items-center">
