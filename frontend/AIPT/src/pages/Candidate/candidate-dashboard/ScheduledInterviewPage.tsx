@@ -348,6 +348,7 @@ const ScheduledInterviewPage: React.FC = () => {
                   </div>
 
                   <div className="grid md:grid-cols-2 gap-6">
+                    
                     {/* Technical Interview Card */}
                     <div className="space-y-4">
                       <h3 className="font-medium text-gray-900">
