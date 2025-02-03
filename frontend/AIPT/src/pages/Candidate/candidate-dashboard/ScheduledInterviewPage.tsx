@@ -152,7 +152,7 @@ const ScheduledInterviewPage: React.FC = () => {
     ) {
       return;
     }
-    // Navigate to technical interview page with necessary data
+
     navigate("/tech", {
       state: {
         interviewId: interview._id,
