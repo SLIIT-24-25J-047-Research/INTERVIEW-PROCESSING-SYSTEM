@@ -234,15 +234,12 @@ const ScheduledInterviewPage: React.FC = () => {
         : meridian === "AM" && hours === 12
         ? 0
         : hours;
-
-
     startTime.setHours(adjustedHours, minutes, 0, 0);
 
     if (now > startTime) {
       return "Interview has already started or ended.";
     }
 
-    // Format distance to start time (e.g., "in 2 hours")
     return `Starts ${formatDistanceToNow(startTime, { addSuffix: true })}`;
   };
 
