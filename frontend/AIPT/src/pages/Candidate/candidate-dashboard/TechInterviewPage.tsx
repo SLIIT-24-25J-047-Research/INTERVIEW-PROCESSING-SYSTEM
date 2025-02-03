@@ -25,7 +25,7 @@ const mockQuestions: Question[] = [
     title: "Two Sum",
     description:
       "Given an array of integers nums and an integer target, return indices of the two numbers in the array that add up to target. You may assume that each input would have exactly one solution.",
-    timeLimit: 60, // 15 minutes
+    timeLimit: 900, // 15 minutes
     points: 100,
     difficulty: "medium",
     content: {
@@ -68,18 +68,18 @@ const mockQuestions: Question[] = [
     difficulty: "medium",
     content: {
       text: `function useCounter(initialValue = 0) {
-    const [___1___] = useState(initialValue);
-  
-    const increment = ___2___ => {
-      setCount(prev => prev + 1);
-    };
-  
-    const decrement = ___3___ => {
-      setCount(prev => prev - 1);
-    };
-  
-    return { count, ___4___, decrement };
-  }`,
+  const [___1___] = useState(initialValue);
+
+  const increment = ___2___ => {
+    setCount(prev => prev + 1);
+  };
+
+  const decrement = ___3___ => {
+    setCount(prev => prev - 1);
+  };
+
+  return { count, ___4___, decrement };
+}`,
       blanks: [
         { id: "1", answer: "count, setCount" },
         { id: "2", answer: "() =>" },
@@ -145,19 +145,14 @@ const mockQuestions: Question[] = [
     },
   },
 ];
-
 const Techexam: React.FC = () => {
-  const { currentQuestionIndex, setCurrentQuestion } = useInterviewStore();
+  const { currentQuestionIndex, setCurrentQuestion, isQuestionLocked } =
+    useInterviewStore();
   const currentQuestion = mockQuestions[currentQuestionIndex];
 
   const handleTimeUp = () => {
     // Auto-submit logic here
     console.log("Time is up! Question auto-submitted");
-  };
-
-  const isQuestionLocked = (questionId: number) => {
-    // Logic to determine if the question is locked
-    return false; // Replace with actual logic
   };
 
   const renderQuestion = (question: Question) => {
