@@ -1,7 +1,7 @@
 import Sidebar from "../../../components/Candidate/CandidateSidebar";
 import Header from "../../../components/Candidate/CandidateHeader";
 import { useLocation } from "react-router-dom";
-import React from "react";
+import React, { useEffect } from "react";
 import {
   Trophy,
   Flag,
@@ -154,6 +154,7 @@ const mockQuestions: Question[] = [
 const Techexam: React.FC = () => {
   const location = useLocation();
   const { interviewId, testLink, duration } = location.state as LocationState;
+
   const { currentQuestionIndex, setCurrentQuestion, isQuestionLocked } =
     useInterviewStore();
   const currentQuestion = mockQuestions[currentQuestionIndex];
@@ -215,6 +216,31 @@ const Techexam: React.FC = () => {
         return null;
     }
   };
+
+  
+  useEffect(() => {
+    // You could fetch the actual questions here using the testLink
+    const fetchQuestions = async () => {
+      try {
+        // Replace mockQuestions with actual API call using testLink
+        // const response = await axios.get(testLink);
+        // setQuestions(response.data);
+      } catch (error) {
+        console.error("Error fetching questions:", error);
+      }
+    };
+
+    if (testLink) {
+      fetchQuestions();
+    }
+  }, [testLink]);
+
+
+  useEffect(() => {
+    console.log("Interview ID:", interviewId);
+    console.log("Test Link:", testLink);
+    console.log("Duration:", duration);
+  }, [interviewId, testLink, duration]);
 
   return (
     <div className="flex  bg-gray-50">
