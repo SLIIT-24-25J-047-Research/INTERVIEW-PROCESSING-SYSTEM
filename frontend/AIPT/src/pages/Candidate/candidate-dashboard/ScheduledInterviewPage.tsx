@@ -198,7 +198,7 @@ const ScheduledInterviewPage: React.FC = () => {
   ) => {
     if (!status) return "pending";
 
-    // Map internal status to candidate-friendly status
+
     const technicalStatusMap: Record<string, string> = {
       scheduled: "scheduled",
       "in-progress": "in progress",
