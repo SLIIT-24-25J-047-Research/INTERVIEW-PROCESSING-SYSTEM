@@ -1,14 +1,28 @@
-import React, { useState, useEffect } from 'react';
-import { useNavigate } from 'react-router-dom';
-import axios from 'axios';
-import Sidebar from '../../../components/Candidate/CandidateSidebar';
-import Header from '../../../components/Candidate/CandidateHeader';
-import { Card, CardContent, CardHeader, CardTitle } from '../../../components/ui/card';
-import { Button } from '../../../components/ui/button';
-import { Calendar, Clock, Video, AlertCircle, Timer, CheckCircle2, Briefcase } from 'lucide-react';
-import { differenceInMinutes, differenceInHours, formatDistanceToNow } from 'date-fns';
+import React, { useState, useEffect } from "react";
+import { useNavigate } from "react-router-dom";
+import axios from "axios";
+import Sidebar from "../../../components/Candidate/CandidateSidebar";
+import Header from "../../../components/Candidate/CandidateHeader";
+import {
+  Card,
+  CardContent,
+  CardHeader,
+  CardTitle,
+} from "../../../components/ui/card";
+import { Button } from "../../../components/ui/button";
+import {
+  Calendar,
+  Clock,
+  Video,
 
+  Timer,
 
+  Briefcase,
+} from "lucide-react";
+import {
+
+  formatDistanceToNow,
+} from "date-fns";
 
 interface NonTechnicalSchedule {
   _id: string;
@@ -45,15 +59,19 @@ interface JobApplication {
 
 const ScheduledInterviewPage: React.FC = () => {
   const [jobApplications, setJobApplications] = useState<JobApplication[]>([]);
-  const userId = '675932b49c1a60d97c147419';
+  const userId = "675932b49c1a60d97c147419";
   const navigate = useNavigate();
 
   useEffect(() => {
     const fetchInterviews = async () => {
       try {
         const [technicalRes, nonTechnicalRes] = await Promise.all([
-          axios.get(`http://localhost:5000/api/t-interviews/schedule/user/${userId}`),
-          axios.get(`http://localhost:5000/api/non-t-interviews/schedule/user/${userId}`)
+          axios.get(
+            `http://localhost:5000/api/t-interviews/schedule/user/${userId}`
+          ),
+          axios.get(
+            `http://localhost:5000/api/non-t-interviews/schedule/user/${userId}`
+          ),
         ]);
 
         const techSchedules = technicalRes.data?.schedules || [];
@@ -66,9 +84,9 @@ const ScheduledInterviewPage: React.FC = () => {
           if (!applications.has(tech.jobId)) {
             applications.set(tech.jobId, {
               jobId: tech.jobId,
-              jobDescription: '',
+              jobDescription: "",
               technicalInterview: tech,
-              nonTechnicalInterview: null
+              nonTechnicalInterview: null,
             });
           } else {
             applications.get(tech.jobId)!.technicalInterview = tech;
@@ -81,7 +99,7 @@ const ScheduledInterviewPage: React.FC = () => {
               jobId: nonTech.jobId._id,
               jobDescription: nonTech.jobId.description,
               technicalInterview: null,
-              nonTechnicalInterview: nonTech
+              nonTechnicalInterview: nonTech,
             });
           } else {
             const app = applications.get(nonTech.jobId._id)!;
@@ -92,81 +110,79 @@ const ScheduledInterviewPage: React.FC = () => {
 
         setJobApplications(Array.from(applications.values()));
       } catch (error) {
-        console.error('Error fetching interview schedules:', error);
+        console.error("Error fetching interview schedules:", error);
       }
     };
 
     fetchInterviews();
   }, [userId]);
 
-
-  const isTestDayAndTime = (testDate: string, testTime: string, duration: number) => {
+  const isTestDayAndTime = (
+    testDate: string,
+    testTime: string,
+    duration: number
+  ) => {
     const now = new Date();
     const startTime = new Date(testDate);
-  
-    // Extract hours, minutes, and check for AM/PM
-    const [time, meridian] = testTime.split(' ');
-    const [hours, minutes] = time.split(':').map(Number);
-  
-    // Adjust the hours for 12-hour format (12 AM and 12 PM edge cases)
-    const adjustedHours = meridian === 'PM' && hours !== 12 
-      ? hours + 12 
-      : meridian === 'AM' && hours === 12 
-      ? 0 
-      : hours;
-  
-    // Set the start time with the adjusted hours and minutes
+    const [time, meridian] = testTime.split(" ");
+    const [hours, minutes] = time.split(":").map(Number);
+
+
+    const adjustedHours =
+      meridian === "PM" && hours !== 12
+        ? hours + 12
+        : meridian === "AM" && hours === 12
+        ? 0
+        : hours;
+
     startTime.setHours(adjustedHours, minutes, 0, 0);
-  
-    // Calculate the end time
+
     const endTime = new Date(startTime);
     endTime.setMinutes(startTime.getMinutes() + duration);
-  
-    // Check if the current time falls within the interview window
     return now >= startTime && now <= endTime;
   };
-  
-
 
   const handleStartTest = (interview: TechnicalSchedule) => {
-    if (!isTestDayAndTime(interview.testDate, interview.testTime, interview.duration)) {
+    if (
+      !isTestDayAndTime(
+        interview.testDate,
+        interview.testTime,
+        interview.duration
+      )
+    ) {
       return;
     }
-    // Navigate to technical interview page with necessary data
-    navigate('/tech-interview', {
+
+    navigate("/tech", {
       state: {
         interviewId: interview._id,
         testLink: interview.testLink,
-        duration: interview.duration
-      }
+        duration: interview.duration,
+      },
     });
   };
 
-
-
-
-
   const getStatusColor = (status: string) => {
     switch (status?.toLowerCase()) {
-      case 'scheduled':
-        return 'bg-blue-100 text-blue-800';
-      case 'completed':
-        return 'bg-green-100 text-green-800';
-      case 'cancelled':
-        return 'bg-red-100 text-red-800';
-      case 'updated':
-        return 'bg-yellow-100 text-yellow-800';
+      case "scheduled":
+        return "bg-blue-100 text-blue-800";
+      case "completed":
+        return "bg-green-100 text-green-800";
+      case "cancelled":
+        return "bg-red-100 text-red-800";
+      case "updated":
+        return "bg-yellow-100 text-yellow-800";
       default:
-        return 'bg-gray-100 text-gray-800';
+        return "bg-gray-100 text-gray-800";
     }
   };
 
   const formatDate = (dateString: string) =>
-    new Date(dateString).toLocaleDateString('en-US', {
-      weekday: 'long',
-      year: 'numeric',
-      month: 'long',
-      day: 'numeric',
+    new Date(dateString).toLocaleDateString("en-US", {
+      weekday: "long",
+      year: "numeric",
+      month: "long",
+      day: "numeric",
     });
 
   // const getProgress = (application: JobApplication) => {
@@ -176,28 +192,31 @@ const ScheduledInterviewPage: React.FC = () => {
   //   return 25;
   // };
 
-  const getStageStatus = (stage: 'technical' | 'nonTechnical', status?: string) => {
-    if (!status) return 'pending';
+  const getStageStatus = (
+    stage: "technical" | "nonTechnical",
+    status?: string
+  ) => {
+    if (!status) return "pending";
 
-    // Map internal status to candidate-friendly status
+
     const technicalStatusMap: Record<string, string> = {
-      'scheduled': 'scheduled',
-      'in-progress': 'in progress',
-      'updated': 'rescheduled',
-      'completed': 'completed',
-      'not attended': 'incomplete',
-      'canceled': 'cancelled'
+      scheduled: "scheduled",
+      "in-progress": "in progress",
+      updated: "rescheduled",
+      completed: "completed",
+      "not attended": "incomplete",
+      canceled: "cancelled",
     };
 
     const nonTechnicalStatusMap: Record<string, string> = {
-      'scheduled': 'scheduled',
-      'updated': 'rescheduled',
-      'done': 'completed',
-      'not attended': 'incomplete',
-      'canceled': 'cancelled'
+      scheduled: "scheduled",
+      updated: "rescheduled",
+      done: "completed",
+      "not attended": "incomplete",
+      canceled: "cancelled",
     };
 
-    return stage === 'technical'
+    return stage === "technical"
       ? technicalStatusMap[status.toLowerCase()] || status
       : nonTechnicalStatusMap[status.toLowerCase()] || status;
   };
@@ -205,53 +224,49 @@ const ScheduledInterviewPage: React.FC = () => {
   const getTimeRemaining = (testDate: string, testTime: string) => {
     const now = new Date();
     const startTime = new Date(testDate);
-  
-    // Extract hours and minutes and determine AM/PM
-    const [time, meridian] = testTime.split(' ');
-    const [hours, minutes] = time.split(':').map(Number);
+
+
+    const [time, meridian] = testTime.split(" ");
+    const [hours, minutes] = time.split(":").map(Number);
     const adjustedHours =
-      meridian === 'PM' && hours !== 12
+      meridian === "PM" && hours !== 12
         ? hours + 12
-        : meridian === 'AM' && hours === 12
+        : meridian === "AM" && hours === 12
         ? 0
         : hours;
-  
-    // Adjust the startTime with hours and minutes
     startTime.setHours(adjustedHours, minutes, 0, 0);
-  
+
     if (now > startTime) {
       return "Interview has already started or ended.";
     }
-  
-    // Format distance to start time (e.g., "in 2 hours")
+
     return `Starts ${formatDistanceToNow(startTime, { addSuffix: true })}`;
   };
-  
 
   const getProgressSegments = (application: JobApplication) => {
     const techStatus = application.technicalInterview?.status.toLowerCase();
-    const nonTechStatus = application.nonTechnicalInterview?.status.toLowerCase();
-
-    
+    const nonTechStatus =
+      application.nonTechnicalInterview?.status.toLowerCase();
 
     return [
       {
-        label: 'Technical Assessment',
-        status: getStageStatus('technical', techStatus),
-        completed: techStatus === 'completed',
-        active: techStatus === 'scheduled' || techStatus === 'in-progress',
-        width: '50%'
+        label: "Technical Assessment",
+        status: getStageStatus("technical", techStatus),
+        completed: techStatus === "completed",
+        active: techStatus === "scheduled" || techStatus === "in-progress",
+        width: "50%",
       },
       {
-        label: 'HR Interview',
-        status: getStageStatus('nonTechnical', nonTechStatus),
-        completed: nonTechStatus === 'done',
-        active: techStatus === 'completed' && (nonTechStatus === 'scheduled' || nonTechStatus === 'updated'),
-        width: '50%'
-      }
+        label: "HR Interview",
+        status: getStageStatus("nonTechnical", nonTechStatus),
+        completed: nonTechStatus === "done",
+        active:
+          techStatus === "completed" &&
+          (nonTechStatus === "scheduled" || nonTechStatus === "updated"),
+        width: "50%",
+      },
     ];
   };
-
 
   return (
     <div className="mt-20 flex h-screen bg-gray-50">
@@ -266,7 +281,8 @@ const ScheduledInterviewPage: React.FC = () => {
                   <div className="flex items-center space-x-2">
                     <Briefcase className="h-5 w-5 text-gray-500" />
                     <CardTitle className="text-lg">
-                      Job Application: {application.jobDescription || 'Position'}
+                      Job Application:{" "}
+                      {application.jobDescription || "Position"}
                     </CardTitle>
                   </div>
                 </CardHeader>
@@ -275,102 +291,133 @@ const ScheduledInterviewPage: React.FC = () => {
                   <div className="mb-8">
                     <div className="relative pt-1">
                       <div className="flex mb-4">
-                        {getProgressSegments(application).map((segment, index) => (
-                          <div
-                            key={index}
-                            className="relative"
-                            style={{ width: segment.width }}
-                          >
-                            <div className="flex flex-col">
-                              <div className="text-xs font-medium mb-1">{segment.label}</div>
-                              <div className="relative h-2 w-full rounded overflow-hidden bg-gray-200">
-                                <div
-                                  className={`absolute top-0 left-0 h-full transition-all duration-300 ${segment.completed
-                                    ? 'bg-green-500'
-                                    : segment.active
-                                      ? 'bg-blue-500'
-                                      : 'bg-gray-300'
+                        {getProgressSegments(application).map(
+                          (segment, index) => (
+                            <div
+                              key={index}
+                              className="relative"
+                              style={{ width: segment.width }}
+                            >
+                              <div className="flex flex-col">
+                                <div className="text-xs font-medium mb-1">
+                                  {segment.label}
+                                </div>
+                                <div className="relative h-2 w-full rounded overflow-hidden bg-gray-200">
+                                  <div
+                                    className={`absolute top-0 left-0 h-full transition-all duration-300 ${
+                                      segment.completed
+                                        ? "bg-green-500"
+                                        : segment.active
+                                        ? "bg-blue-500"
+                                        : "bg-gray-300"
                                     }`}
-                                  style={{
-                                    width: segment.completed
-                                      ? '100%'
-                                      : segment.active
-                                        ? '50%'
-                                        : '0%',
-                                  }}
-                                />
-                                {/* Moving Dot */}
-                                <div
-                                  className="absolute top-1/2 transform -translate-y-1/2 w-4 h-4 rounded-full border-2 border-white z-10"
-                                  style={{
-                                    left: segment.completed
-                                      ? '100%'
-                                      : segment.active
-                                        ? '50%'
-                                        : '0%',
-                                    backgroundColor: segment.completed
-                                      ? '#16a34a' // green
-                                      : segment.active
-                                        ? '#2563eb' // blue
-                                        : '#d1d5db', // gray
-                                  }}
-                                />
+                                    style={{
+                                      width: segment.completed
+                                        ? "100%"
+                                        : segment.active
+                                        ? "50%"
+                                        : "0%",
+                                    }}
+                                  />
+                                  {/* Moving Dot */}
+                                  <div
+                                    className="absolute top-1/2 transform -translate-y-1/2 w-4 h-4 rounded-full border-2 border-white z-10"
+                                    style={{
+                                      left: segment.completed
+                                        ? "100%"
+                                        : segment.active
+                                        ? "50%"
+                                        : "0%",
+                                      backgroundColor: segment.completed
+                                        ? "#16a34a" // green
+                                        : segment.active
+                                        ? "#2563eb" // blue
+                                        : "#d1d5db", // gray
+                                    }}
+                                  />
+                                </div>
+                                <div className="text-xs mt-1 text-gray-600">
+                                  {segment.status}
+                                </div>
                               </div>
-                              <div className="text-xs mt-1 text-gray-600">{segment.status}</div>
                             </div>
-                          </div>
-                        ))}
+                          )
+                        )}
                       </div>
                     </div>
                   </div>
 
-
-
                   <div className="grid md:grid-cols-2 gap-6">
+                    
                     {/* Technical Interview Card */}
                     <div className="space-y-4">
-                      <h3 className="font-medium text-gray-900">Technical Assessment</h3>
+                      <h3 className="font-medium text-gray-900">
+                        Technical Assessment
+                      </h3>
                       {application.technicalInterview ? (
                         <Card>
                           <CardContent className="p-4">
                             <div className="space-y-3">
                               <div className="flex items-center space-x-2">
                                 <Calendar className="h-4 w-4 text-gray-500" />
-                                <span className="text-sm">{formatDate(application.technicalInterview.testDate)}</span>
+                                <span className="text-sm">
+                                  {formatDate(
+                                    application.technicalInterview.testDate
+                                  )}
+                                </span>
                               </div>
                               <div className="flex items-center space-x-2">
                                 <Clock className="h-4 w-4 text-gray-500" />
-                                <span className="text-sm">{application.technicalInterview.testTime}</span>
+                                <span className="text-sm">
+                                  {application.technicalInterview.testTime}
+                                </span>
                               </div>
                               <div className="flex items-center space-x-2">
                                 <Timer className="h-4 w-4 text-gray-500" />
-                                <span className="text-sm">{application.technicalInterview.duration} minutes</span>
+                                <span className="text-sm">
+                                  {application.technicalInterview.duration}{" "}
+                                  minutes
+                                </span>
                               </div>
-                                   {/* Time Remaining Section */}
-          <div className="flex items-center space-x-2">
-            <Timer className="h-4 w-4 text-gray-500" />
-            <span className="text-sm text-gray-600">
-              {getTimeRemaining(
-                application.technicalInterview.testDate,
-                application.technicalInterview.testTime
-              )}
-            </span>
-          </div>
-
+                              {/* Time Remaining Section */}
+                              <div className="flex items-center space-x-2">
+                                <Timer className="h-4 w-4 text-gray-500" />
+                                <span className="text-sm text-gray-600">
+                                  {getTimeRemaining(
+                                    application.technicalInterview.testDate,
+                                    application.technicalInterview.testTime
+                                  )}
+                                </span>
+                              </div>
 
                               <div className="flex items-center justify-between">
-                                <span className={`px-2 py-1 rounded-full text-xs font-medium ${getStatusColor(application.technicalInterview.status)}`}>
+                                <span
+                                  className={`px-2 py-1 rounded-full text-xs font-medium ${getStatusColor(
+                                    application.technicalInterview.status
+                                  )}`}
+                                >
                                   {application.technicalInterview.status}
                                 </span>
-                                {application.technicalInterview.status.toLowerCase() !== 'completed' && (
+                                {application.technicalInterview.status.toLowerCase() !==
+                                  "completed" && (
                                   <Button
-                                  onClick={() => handleStartTest(application.technicalInterview!)}
-                                  size="sm"
-                                  className="bg-blue-600 hover:bg-blue-700"
-                                  disabled={!isTestDayAndTime( application.technicalInterview!.testDate,
-                                    application.technicalInterview!.testTime,
-                                    application.technicalInterview!.duration)}
-                                >
+                                    onClick={() =>
+                                      handleStartTest(
+                                        application.technicalInterview!
+                                      )
+                                    }
+                                    size="sm"
+                                    className="bg-blue-600 hover:bg-blue-700"
+                                    disabled={
+                                      !isTestDayAndTime(
+                                        application.technicalInterview!
+                                          .testDate,
+                                        application.technicalInterview!
+                                          .testTime,
+                                        application.technicalInterview!.duration
+                                      )
+                                    }
+                                  >
                                     Start Test
                                   </Button>
                                 )}
@@ -389,31 +436,59 @@ const ScheduledInterviewPage: React.FC = () => {
 
                     {/* Non-Technical Interview Card */}
                     <div className="space-y-4">
-                      <h3 className="font-medium text-gray-900">HR Interview</h3>
-                      <div className={application.technicalInterview?.status.toLowerCase() !== 'completed' ? 'opacity-50' : ''}>
+                      <h3 className="font-medium text-gray-900">
+                        HR Interview
+                      </h3>
+                      <div
+                        className={
+                          application.technicalInterview?.status.toLowerCase() !==
+                          "completed"
+                            ? "opacity-50"
+                            : ""
+                        }
+                      >
                         {application.nonTechnicalInterview ? (
                           <Card>
                             <CardContent className="p-4">
                               <div className="space-y-3">
                                 <div className="flex items-center space-x-2">
                                   <Calendar className="h-4 w-4 text-gray-500" />
-                                  <span className="text-sm">{formatDate(application.nonTechnicalInterview.interviewDate)}</span>
+                                  <span className="text-sm">
+                                    {formatDate(
+                                      application.nonTechnicalInterview
+                                        .interviewDate
+                                    )}
+                                  </span>
                                 </div>
                                 <div className="flex items-center space-x-2">
                                   <Clock className="h-4 w-4 text-gray-500" />
-                                  <span className="text-sm">{application.nonTechnicalInterview.interviewTime}</span>
+                                  <span className="text-sm">
+                                    {
+                                      application.nonTechnicalInterview
+                                        .interviewTime
+                                    }
+                                  </span>
                                 </div>
                                 <div className="flex items-center space-x-2">
                                   <Video className="h-4 w-4 text-gray-500" />
-                                  <span className="text-sm">{application.nonTechnicalInterview.media}</span>
+                                  <span className="text-sm">
+                                    {application.nonTechnicalInterview.media}
+                                  </span>
                                 </div>
                                 <div className="flex items-center justify-between">
-                                  <span className={`px-2 py-1 rounded-full text-xs font-medium ${getStatusColor(application.nonTechnicalInterview.status)}`}>
+                                  <span
+                                    className={`px-2 py-1 rounded-full text-xs font-medium ${getStatusColor(
+                                      application.nonTechnicalInterview.status
+                                    )}`}
+                                  >
                                     {application.nonTechnicalInterview.status}
                                   </span>
-                                  {application.technicalInterview?.status.toLowerCase() === 'completed' && (
+                                  {application.technicalInterview?.status.toLowerCase() ===
+                                    "completed" && (
                                     <Button
-                                      onClick={() => navigate('/join-interview')}
+                                      onClick={() =>
+                                        navigate("/join-interview")
+                                      }
                                       size="sm"
                                       className="bg-blue-600 hover:bg-blue-700"
                                     >
@@ -427,7 +502,8 @@ const ScheduledInterviewPage: React.FC = () => {
                         ) : (
                           <Card className="bg-gray-50">
                             <CardContent className="p-4 text-center text-gray-500 text-sm">
-                              HR interview will be scheduled after technical assessment
+                              HR interview will be scheduled after technical
+                              assessment
                             </CardContent>
                           </Card>
                         )}

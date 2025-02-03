@@ -58,22 +58,48 @@ const NonTechInterview = () => {
   const handleNextQuestion = async () => {
     const audioToSend = uploadedAudio || audioBlob;
     if (audioToSend) {
-      const formData = new FormData();
-      formData.append("audio", audioToSend, `answer_${currentQuestionIndex}.wav`);
-      formData.append("questionId", questions[currentQuestionIndex]._id);
-
+      // Create FormData for both requests
+      const confidenceFormData = new FormData();
+      const transcribeFormData = new FormData();
+      
+      // Append the same audio file to both FormData objects
+      confidenceFormData.append("audio", audioToSend, `answer_${currentQuestionIndex}.wav`);
+      confidenceFormData.append("questionId", questions[currentQuestionIndex]._id);
+      
+      transcribeFormData.append("audio", audioToSend, `answer_${currentQuestionIndex}.wav`);
+      transcribeFormData.append("questionId", questions[currentQuestionIndex]._id);
+  
       try {
-        await axios.post("http://localhost:5000/api/predict", formData, {
-          headers: { "Content-Type": "multipart/form-data" },
-        });
-
+        // Make both API calls concurrently using Promise.all
+        const [confidenceResponse, transcribeResponse] = await Promise.all([
+          axios.post("http://localhost:5000/api/predict", confidenceFormData, {
+            headers: { "Content-Type": "multipart/form-data" },
+          }),
+          axios.post("http://localhost:5000/api/audio/audio", transcribeFormData, {
+            headers: { "Content-Type": "multipart/form-data" },
+          })
+        ]);
+  
+        // Handle the responses
+        console.log("Confidence Response:", confidenceResponse.data);
+        console.log("Transcribe Response:", transcribeResponse.data);
+  
+        // Clear the audio states
         setUploadedAudio(null);
         setAudioBlob(null);
+  
+        // You might want to store the responses in state
+        // setConfidenceResult(confidenceResponse.data);
+        // setTranscribeResult(transcribeResponse.data);
+  
       } catch (error) {
-        console.error("Error sending audio to backend:", error);
+        console.error("Error processing audio:", error);
+        // You might want to show an error message to the user
+        // setError("Failed to process audio. Please try again.");
       }
     }
-
+  
+    // Move to next question if not at the end
     if (currentQuestionIndex < questions.length - 1) {
       setCurrentQuestionIndex(currentQuestionIndex + 1);
     }

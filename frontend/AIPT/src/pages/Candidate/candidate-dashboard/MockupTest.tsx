@@ -4,7 +4,7 @@ import axios from "axios";
 import { useNavigate } from "react-router-dom";
 import CandidateLayout from "../../../components/Candidate/CandidateLayout";
 import MockupQuestion from "../../../components/Candidate/MockupQuestion";
-import Instructions from "../../../components/Candidate/Instructions";
+import Instructions from "../../../components/Candidate/tech-interview/Instructions";
 
 // Define the PredictionResponse type
 interface PredictionResponse {

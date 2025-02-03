@@ -1,5 +1,5 @@
 import React from "react";
-import { Routes, Route, Navigate } from "react-router-dom";
+import { Routes, Route } from "react-router-dom";
 import Login from "./components/Login";
 import Register from "./components/Register";
 import InterviewerHome from "./pages/Interviewer/InterviewerHome";
@@ -19,6 +19,7 @@ import CandidateTest from "./pages/Candidate/candidate-dashboard/CandidateTest";
 import AddJob from "./pages/Interviewer/AddJob";
 import NotificationsPage from "./pages/Candidate/candidate-home/Notifications";
 import ScheduledInterviewPage from "./pages/Candidate/candidate-dashboard/ScheduledInterviewPage";
+import Techexam from "./pages/Candidate/candidate-dashboard/TechInterviewPage";
 
 const App: React.FC = () => {
   return (
@@ -167,6 +168,14 @@ const App: React.FC = () => {
         element={
           <PrivateRoute allowedRoles={["candidate"]}>
             <NotificationsPage />
+          </PrivateRoute>
+        }
+      />
+          <Route
+        path="/tech"
+        element={
+          <PrivateRoute allowedRoles={["candidate"]}>
+            <Techexam />
           </PrivateRoute>
         }
       />
