@@ -1,4 +1,6 @@
 const InterviewAnswer = require('../../models/employer/TechnicalAnswers');
+const User = require('../../models/User');  // Import User model
+const Question = require('../../models/employer/TechnicalQuestions');
 
 // Submit answers
 
@@ -6,23 +8,33 @@ exports.submitAnswers = async (req, res) => {
     try {
       const { interviewId, userId, answers } = req.body;
   
-
       if (!interviewId || !userId || !answers) {
         return res.status(400).json({ message: 'Missing required fields' });
       }
   
-
       if (!Array.isArray(answers)) {
         return res.status(400).json({ message: 'Answers must be an array' });
       }
-
+  
+      // Validate userId
+      const user = await User.findById(userId);
+      if (!user) {
+        return res.status(400).json({ message: 'Invalid userId' });
+      }
+  
       for (const answer of answers) {
         const { questionId, type, response } = answer;
   
         if (!questionId || !type || !response) {
           return res.status(400).json({ message: 'Each answer must include questionId, type, and response' });
         }
- 
+  
+        // Validate questionId
+        const question = await Question.findById(questionId);
+        if (!question) {
+          return res.status(400).json({ message: 'Invalid questionId' });
+        }
+  
         switch (type) {
           case 'code':
             if (typeof response !== 'string') {
@@ -31,7 +43,6 @@ exports.submitAnswers = async (req, res) => {
             break;
   
           case 'multipleChoice':
-    
             if (typeof response !== 'number') {
               return res.status(400).json({ message: 'Multiple choice response must be a number' });
             }
@@ -71,7 +82,7 @@ exports.submitAnswers = async (req, res) => {
   };
 
 
-  
+
 // Get submitted answers by user
 exports.getUserAnswers = async (req, res) => {
   try {
