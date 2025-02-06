@@ -1,4 +1,4 @@
-import React, { useEffect } from 'react';
+import React, { useEffect, useRef, useState } from 'react';
 import { Timer as TimerIcon } from 'lucide-react';
 import { useInterviewStore } from '../../store/InterviewStore';
 
@@ -15,41 +15,68 @@ export const Timer: React.FC<TimerProps> = ({
   questionId, 
   displayOnly = false 
 }) => {
-  const { timeRemaining, updateTimeRemaining, lockQuestion, isQuestionLocked } = useInterviewStore();
+  const { updateTimeRemaining, lockQuestion, isQuestionLocked } = useInterviewStore();
+
+  // Local state to control time remaining for this timer instance
+  const [localTimeRemaining, setLocalTimeRemaining] = useState<number>(duration);
+
+  // Using a ref to avoid re-triggering updates
+  const isMounted = useRef(true);
+  const isInitialRender = useRef(true);  // To track the first render
 
   useEffect(() => {
-    // Only the main timer should set up the interval and update the time
-    if (displayOnly) return;
+    isMounted.current = true;
 
-    if (isQuestionLocked(questionId)) {
-      updateTimeRemaining(0);
+    return () => {
+      isMounted.current = false; // Set to false on unmount to stop updates
+    };
+  }, []);
+
+  useEffect(() => {
+    if (displayOnly) {
+      // Set the local time for display only (doesn't start countdown)
+      setLocalTimeRemaining(duration);
       return;
     }
 
-    updateTimeRemaining(duration);
-    
+    // Stop if the question is locked
+    if (isQuestionLocked(questionId)) {
+      setLocalTimeRemaining(0); // Set to 0 if the question is locked
+      return;
+    }
+
+    // Initialize the timer only once during the first render
+    if (isInitialRender.current) {
+      updateTimeRemaining(duration);  // Update global store with initial duration
+      isInitialRender.current = false;
+    }
+
     const interval = setInterval(() => {
-      updateTimeRemaining((prev: number) => {
-        if (prev <= 1) {
+      // Avoid updating the state after component unmount
+      if (!isMounted.current) return;
+
+      // Decrease the time by 1 second
+      setLocalTimeRemaining((prevTime) => {
+        if (prevTime <= 1) {
           clearInterval(interval);
           lockQuestion(questionId);
           onTimeUp();
           return 0;
         }
-        return prev - 1;
+        return prevTime - 1;
       });
     }, 1000);
 
     return () => clearInterval(interval);
-  }, [duration, questionId, displayOnly]);
+  }, [duration, questionId, displayOnly, lockQuestion, onTimeUp]);
 
-  const minutes = Math.floor((timeRemaining || 0) / 60);
-  const seconds = (timeRemaining || 0) % 60;
+  const minutes = Math.floor((localTimeRemaining || 0) / 60);
+  const seconds = (localTimeRemaining || 0) % 60;
 
   return (
     <div className="flex items-center space-x-2 text-lg font-semibold">
       <TimerIcon className="w-6 h-6" />
-      <span className={timeRemaining && timeRemaining < 30 ? 'text-red-500' : ''}>
+      <span className={localTimeRemaining && localTimeRemaining < 30 ? 'text-red-500' : ''}>
         {String(minutes).padStart(2, '0')}:{String(seconds).padStart(2, '0')}
       </span>
     </div>
