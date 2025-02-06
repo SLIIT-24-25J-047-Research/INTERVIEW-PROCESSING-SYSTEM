@@ -171,7 +171,7 @@ const App: React.FC = () => {
           </PrivateRoute>
         }
       />
-          <Route
+      <Route
         path="/tech"
         element={
           <PrivateRoute allowedRoles={["candidate"]}>
@@ -179,6 +179,10 @@ const App: React.FC = () => {
           </PrivateRoute>
         }
       />
+
+
+
+
     </Routes>
   );
 };
