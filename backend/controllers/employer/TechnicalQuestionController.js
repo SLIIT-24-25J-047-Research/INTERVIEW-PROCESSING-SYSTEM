@@ -4,7 +4,36 @@ const Question = require("../../models/employer/TechnicalQuestions");
 exports.getQuestions = async (req, res) => {
   try {
     const questions = await Question.find();
-    res.json(questions);
+    
+    // Map the fetched questions to the desired response format
+    const formattedQuestions = questions.map(question => {
+      return {
+        _id: question._id.toString(), // Convert ObjectId to string for consistency
+        type: question.type,
+        title: question.title,
+        description: question.description,
+        timeLimit: question.timeLimit,
+        points: question.points,
+        difficulty: question.difficulty,
+        __v: question.__v, // Include __v if needed
+        content: {
+          initialCode: question.content.initialCode,
+          language: question.content.language,
+          testCases: question.content.testCases.map(testCase => ({
+            input: testCase.input,
+            expectedOutput: testCase.expectedOutput,
+            _id: testCase._id.toString(), // Convert ObjectId to string
+          })),
+          blanks: question.content.blanks,
+          items: question.content.items,
+          correctOrder: question.content.correctOrder,
+          options: question.content.options,
+        }
+      };
+    });
+    
+    // Send the formatted response
+    res.json(formattedQuestions);
   } catch (err) {
     res.status(500).json({ error: err.message });
   }
