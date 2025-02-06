@@ -1,6 +1,6 @@
 import Sidebar from "../../../components/Candidate/CandidateSidebar";
 import Header from "../../../components/Candidate/CandidateHeader";
-import { useLocation } from "react-router-dom";
+import { useLocation, Navigate } from "react-router-dom";
 import React, { useEffect, useState } from "react";
 import {
   Trophy,
@@ -24,6 +24,13 @@ interface LocationState {
   duration: number;
 }
 
+interface Answer {
+  questionId: string;
+  type: string;
+  response: string | number | boolean | object;
+  timeTaken: number;
+}
+
 
 
 const Techexam: React.FC = () => {
@@ -32,15 +39,152 @@ const Techexam: React.FC = () => {
   const [questions, setQuestions] = useState<Question[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
+  const [startTimes, setStartTimes] = useState<Record<string, number>>({});
+  const { submitInterview, isSubmitted } = useInterviewStore();
+  const [answers, setAnswers] = useState<Record<string, Answer>>({});
+
 
   const { currentQuestionIndex, setCurrentQuestion, isQuestionLocked } =
     useInterviewStore();
-  // const currentQuestion = mockQuestions[currentQuestionIndex];
-  const currentQuestion = questions[currentQuestionIndex];
+  const currentQuestion = questions[currentQuestionIndex] as Question & { id: string };
+
+  useEffect(() => {
+    if (currentQuestion && !startTimes[currentQuestion.id]) {
+      setStartTimes(prev => ({
+        ...prev,
+        [currentQuestion.id]: Date.now()
+      }));
+    }
+  }, [currentQuestion]);
+
+  const updateAnswer = (questionId: string, type: string, response: string | number | boolean | object) => {
+    const timeTaken = Math.floor((Date.now() - (startTimes[questionId] || Date.now())) / 1000);
+
+    let formattedResponse = response;
+    switch (type) {
+      case 'code':
+        formattedResponse = response || '';
+        break;
+      case 'multipleChoice':
+        formattedResponse = typeof response === 'number' ? response : -1;
+        break;
+      case 'dragDrop':
+        formattedResponse = Array.isArray(response) ? response : [];
+        break;
+      case 'fillBlanks':
+        formattedResponse = typeof response === 'object' ? response : {};
+        break;
+      default:
+        formattedResponse = response || '';
+    }
+    
+    setAnswers(prev => ({
+      ...prev,
+      [questionId]: {
+        questionId,
+        type,
+        response: formattedResponse,
+        timeTaken
+      }
+    }));
+  };
 
 
+  const handleSubmit = async () => {
+    if (!window.confirm('Are you sure you want to submit the interview? This action cannot be undone.')) {
+      return;
+    }
+
+    try {
+      // Update time taken for the current question before submission
+      if (currentQuestion) {
+        updateAnswer(
+          currentQuestion.id,
+          currentQuestion.type,
+          answers[currentQuestion.id]?.response
+        );
+      }
+
+      const formattedAnswers = questions.map(question => {
+        const answer = answers[question.id] || {
+          questionId: question.id,
+          type: question.type,
+          response: getDefaultResponse(question.type),
+          timeTaken: 0
+        };
+  
+        return {
+          questionId: answer.questionId,
+          type: answer.type,
+          response: answer.response,
+          timeTaken: answer.timeTaken
+        };
+      });
 
   
+
+      const submissionData = {
+        interviewId,
+        userId: "675932b49c1a60d97c147419",
+        answers: formattedAnswers
+      };
+
+      console.log('Submitting data:', submissionData); // For debugging
+
+      const response = await fetch('http://localhost:5000/api/techAnswers/submit', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify(submissionData)
+      });
+
+      if (!response.ok) {
+        const errorData = await response.json();
+        throw new Error(errorData.message || 'Failed to submit answers');
+      }
+
+      const responseData = await response.json();
+      console.log('Submission successful:', responseData);
+
+      submitInterview();
+    } catch (error) {
+      console.error('Error submitting answers:', error);
+      alert('Failed to submit answers. Please try again.');
+    }
+  };
+
+  const getDefaultResponse = (type: string) => {
+    switch (type) {
+      case 'code':
+        return '';
+      case 'multipleChoice':
+        return -1;
+      case 'dragDrop':
+        return [];
+      case 'fillBlanks':
+        return {};
+      default:
+        return '';
+    }
+  };
+
+
+  useEffect(() => {
+    console.log("Interview ID:", interviewId);
+    console.log("Test Link:", testLink);
+    console.log("Duration:", duration);
+  }, [interviewId, testLink, duration]);
+
+
+  useEffect(() => {
+    fetchQuestions();
+  }, []);
+
+
+
+
+
   const fetchQuestions = async () => {
     try {
       setLoading(true);
@@ -59,9 +203,7 @@ const Techexam: React.FC = () => {
     }
   };
 
-  useEffect(() => {
-    fetchQuestions();
-  }, []);
+
 
   const handleTimeUp = () => {
     // Auto-submit logic here
@@ -70,7 +212,8 @@ const Techexam: React.FC = () => {
 
   const renderQuestion = (question: Question) => {
     const isLocked = isQuestionLocked(question.id);
-
+    const currentAnswer = answers[question.id];
+  
     if (isLocked) {
       return (
         <div className="flex flex-col items-center justify-center p-12 space-y-4 bg-gray-50 rounded-lg">
@@ -81,14 +224,14 @@ const Techexam: React.FC = () => {
         </div>
       );
     }
-
+  
     switch (question.type) {
       case "code":
         return (
           <CodeEditor
             language={question.content.language}
-            code={question.content.initialCode}
-            onChange={(value) => console.log(value)}
+            code={currentAnswer?.response || question.content.initialCode}
+            onChange={(value) => updateAnswer(question.id, "code", value)}
           />
         );
       case "fillBlanks":
@@ -96,7 +239,8 @@ const Techexam: React.FC = () => {
           <FillBlanksQuestion
             text={question.content.text}
             blanks={question.content.blanks}
-            onChange={(answers) => console.log(answers)}
+            onChange={(value) => updateAnswer(question.id, "fillBlanks", value)}
+            value={currentAnswer?.response || {}}
             disabled={isLocked}
           />
         );
@@ -104,7 +248,8 @@ const Techexam: React.FC = () => {
         return (
           <DragDropQuestion
             items={question.content.items}
-            onChange={(order) => console.log(order)}
+            onChange={(value) => updateAnswer(question.id, "dragDrop", value)}
+            value={currentAnswer?.response || []}
             disabled={isLocked}
           />
         );
@@ -112,7 +257,8 @@ const Techexam: React.FC = () => {
         return (
           <MultipleChoiceQuestion
             options={question.content.options}
-            onChange={(answer) => console.log(answer)}
+            onChange={(value) => updateAnswer(question.id, "multipleChoice", value)}
+            value={currentAnswer?.response || -1}
             disabled={isLocked}
           />
         );
@@ -121,11 +267,6 @@ const Techexam: React.FC = () => {
     }
   };
 
-  useEffect(() => {
-    console.log("Interview ID:", interviewId);
-    console.log("Test Link:", testLink);
-    console.log("Duration:", duration);
-  }, [interviewId, testLink, duration]);
 
   if (loading) {
     return <div className="flex justify-center items-center h-screen">Loading questions...</div>;
@@ -137,6 +278,10 @@ const Techexam: React.FC = () => {
 
   if (!questions.length) {
     return <div className="flex justify-center items-center h-screen">No questions available</div>;
+  }
+
+  if (isSubmitted) {
+    return <Navigate to="/dashboard" />;
   }
 
 
@@ -179,11 +324,10 @@ const Techexam: React.FC = () => {
                     <button
                       key={q.id}
                       onClick={() => setCurrentQuestion(index)}
-                      className={`w-full text-left p-3 rounded-lg transition ${
-                        currentQuestionIndex === index
+                      className={`w-full text-left p-3 rounded-lg transition ${currentQuestionIndex === index
                           ? "bg-blue-50 text-blue-700"
                           : "hover:bg-gray-50"
-                      }`}
+                        }`}
                     >
                       <div className="flex items-center justify-between">
                         <span>Question {index + 1}</span>
@@ -234,13 +378,12 @@ const Techexam: React.FC = () => {
                       </div>
                     </div>
                     <span
-                      className={`px-2 py-1 rounded-full text-xs font-medium ${
-                        currentQuestion.difficulty === "easy"
+                      className={`px-2 py-1 rounded-full text-xs font-medium ${currentQuestion.difficulty === "easy"
                           ? "bg-green-100 text-green-800"
                           : currentQuestion.difficulty === "medium"
-                          ? "bg-yellow-100 text-yellow-800"
-                          : "bg-red-100 text-red-800"
-                      }`}
+                            ? "bg-yellow-100 text-yellow-800"
+                            : "bg-red-100 text-red-800"
+                        }`}
                     >
                       {currentQuestion.difficulty}
                     </span>
@@ -261,21 +404,22 @@ const Techexam: React.FC = () => {
                     <ChevronLeft className="w-4 h-4 mr-2" />
                     Previous
                   </button>
-                  <button
-                    onClick={() =>
-                      setCurrentQuestion(
-                        Math.min(
-                          questions.length - 1,
-                          currentQuestionIndex + 1
-                        )
-                      )
-                    }
-                    className="flex items-center px-4 py-2 text-sm font-medium text-white bg-blue-600 rounded-md hover:bg-blue-700"
-                    disabled={currentQuestionIndex === questions.length - 1}
-                  >
-                    Next
-                    <ChevronRight className="w-4 h-4 ml-2" />
-                  </button>
+                  {currentQuestionIndex === questions.length - 1 ? (
+                    <button
+                      onClick={handleSubmit}
+                      className="flex items-center px-6 py-2 text-sm font-medium text-white bg-green-600 rounded-md hover:bg-green-700"
+                    >
+                      Submit Interview
+                    </button>
+                  ) : (
+                    <button
+                      onClick={() => setCurrentQuestion(Math.min(questions.length - 1, currentQuestionIndex + 1))}
+                      className="flex items-center px-4 py-2 text-sm font-medium text-white bg-blue-600 rounded-md hover:bg-blue-700"
+                    >
+                      Next
+                      <ChevronRight className="w-4 h-4 ml-2" />
+                    </button>
+                  )}
                 </div>
               </div>
             </div>
@@ -285,5 +429,6 @@ const Techexam: React.FC = () => {
     </div>
   );
 };
+
 
 export default Techexam;
