@@ -42,11 +42,26 @@ const Techexam: React.FC = () => {
   const [startTimes, setStartTimes] = useState<Record<string, number>>({});
   const { submitInterview, isSubmitted } = useInterviewStore();
   const [answers, setAnswers] = useState<Record<string, Answer>>({});
-
+  const { 
+    setAnswer,
+    startQuestion
+  } = useInterviewStore();
 
   const { currentQuestionIndex, setCurrentQuestion, isQuestionLocked } =
     useInterviewStore();
-  const currentQuestion = questions[currentQuestionIndex] as Question & { id: string };
+  const currentQuestion = questions[currentQuestionIndex];
+
+
+  React.useEffect(() => {
+    if (currentQuestion) {
+      startQuestion(currentQuestion.id);
+    }
+  }, [currentQuestion, startQuestion]);
+
+  const handleTimeUp = () => {
+    console.log('Time is up! Question auto-submitted');
+  };
+
 
   useEffect(() => {
     if (currentQuestion && !startTimes[currentQuestion.id]) {
@@ -57,117 +72,21 @@ const Techexam: React.FC = () => {
     }
   }, [currentQuestion]);
 
-  const updateAnswer = (questionId: string, type: string, response: string | number | boolean | object) => {
-    const timeTaken = Math.floor((Date.now() - (startTimes[questionId] || Date.now())) / 1000);
 
-    let formattedResponse = response;
-    switch (type) {
-      case 'code':
-        formattedResponse = response || '';
-        break;
-      case 'multipleChoice':
-        formattedResponse = typeof response === 'number' ? response : -1;
-        break;
-      case 'dragDrop':
-        formattedResponse = Array.isArray(response) ? response : [];
-        break;
-      case 'fillBlanks':
-        formattedResponse = typeof response === 'object' ? response : {};
-        break;
-      default:
-        formattedResponse = response || '';
-    }
-    
-    setAnswers(prev => ({
-      ...prev,
-      [questionId]: {
-        questionId,
-        type,
-        response: formattedResponse,
-        timeTaken
-      }
-    }));
-  };
 
 
   const handleSubmit = async () => {
-    if (!window.confirm('Are you sure you want to submit the interview? This action cannot be undone.')) {
-      return;
-    }
-
-    try {
-      // Update time taken for the current question before submission
-      if (currentQuestion) {
-        updateAnswer(
-          currentQuestion.id,
-          currentQuestion.type,
-          answers[currentQuestion.id]?.response
-        );
+    if (window.confirm('Are you sure you want to submit the interview? This action cannot be undone.')) {
+      try {
+        await submitInterview();
+        // Navigate to completion page is handled by the isSubmitted check
+      } catch (error) {
+        alert('Failed to submit interview. Please try again.');
       }
-
-      const formattedAnswers = questions.map(question => {
-        const answer = answers[question.id] || {
-          questionId: question.id,
-          type: question.type,
-          response: getDefaultResponse(question.type),
-          timeTaken: 0
-        };
-  
-        return {
-          questionId: answer.questionId,
-          type: answer.type,
-          response: answer.response,
-          timeTaken: answer.timeTaken
-        };
-      });
-
-  
-
-      const submissionData = {
-        interviewId,
-        userId: "675932b49c1a60d97c147419",
-        answers: formattedAnswers
-      };
-
-      console.log('Submitting data:', submissionData); // For debugging
-
-      const response = await fetch('http://localhost:5000/api/techAnswers/submit', {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-        },
-        body: JSON.stringify(submissionData)
-      });
-
-      if (!response.ok) {
-        const errorData = await response.json();
-        throw new Error(errorData.message || 'Failed to submit answers');
-      }
-
-      const responseData = await response.json();
-      console.log('Submission successful:', responseData);
-
-      submitInterview();
-    } catch (error) {
-      console.error('Error submitting answers:', error);
-      alert('Failed to submit answers. Please try again.');
     }
   };
 
-  const getDefaultResponse = (type: string) => {
-    switch (type) {
-      case 'code':
-        return '';
-      case 'multipleChoice':
-        return -1;
-      case 'dragDrop':
-        return [];
-      case 'fillBlanks':
-        return {};
-      default:
-        return '';
-    }
-  };
+
 
 
   useEffect(() => {
@@ -205,60 +124,51 @@ const Techexam: React.FC = () => {
 
 
 
-  const handleTimeUp = () => {
-    // Auto-submit logic here
-    console.log("Time is up! Question auto-submitted");
-  };
+
 
   const renderQuestion = (question: Question) => {
     const isLocked = isQuestionLocked(question.id);
-    const currentAnswer = answers[question.id];
-  
+
     if (isLocked) {
       return (
         <div className="flex flex-col items-center justify-center p-12 space-y-4 bg-gray-50 rounded-lg">
           <Lock className="w-12 h-12 text-gray-400" />
-          <p className="text-lg text-gray-600 font-medium">
-            Time's up! This question has been submitted.
-          </p>
+          <p className="text-lg text-gray-600 font-medium">Time's up! This question has been submitted.</p>
         </div>
       );
     }
-  
+
     switch (question.type) {
-      case "code":
+      case 'code':
         return (
           <CodeEditor
             language={question.content.language}
-            code={currentAnswer?.response || question.content.initialCode}
-            onChange={(value) => updateAnswer(question.id, "code", value)}
+            code={question.content.initialCode}
+            onChange={(value) => console.log(value)}
           />
         );
-      case "fillBlanks":
+      case 'fillBlanks':
         return (
           <FillBlanksQuestion
             text={question.content.text}
             blanks={question.content.blanks}
-            onChange={(value) => updateAnswer(question.id, "fillBlanks", value)}
-            value={currentAnswer?.response || {}}
+            onChange={(answers) => console.log(answers)}
             disabled={isLocked}
           />
         );
-      case "dragDrop":
+      case 'dragDrop':
         return (
           <DragDropQuestion
             items={question.content.items}
-            onChange={(value) => updateAnswer(question.id, "dragDrop", value)}
-            value={currentAnswer?.response || []}
+            onChange={(order) => console.log(order)}
             disabled={isLocked}
           />
         );
-      case "multipleChoice":
+      case 'multipleChoice':
         return (
           <MultipleChoiceQuestion
             options={question.content.options}
-            onChange={(value) => updateAnswer(question.id, "multipleChoice", value)}
-            value={currentAnswer?.response || -1}
+            onChange={(answer) => console.log(answer)}
             disabled={isLocked}
           />
         );
