@@ -6,35 +6,32 @@ exports.submitAnswers = async (req, res) => {
     try {
       const { interviewId, userId, answers } = req.body;
   
-      // Validate required fields
+
       if (!interviewId || !userId || !answers) {
         return res.status(400).json({ message: 'Missing required fields' });
       }
   
-      // Validate answers structure
+
       if (!Array.isArray(answers)) {
         return res.status(400).json({ message: 'Answers must be an array' });
       }
-  
-      // Process each answer based on the question type
+
       for (const answer of answers) {
         const { questionId, type, response } = answer;
   
         if (!questionId || !type || !response) {
           return res.status(400).json({ message: 'Each answer must include questionId, type, and response' });
         }
-  
-        // Validate and process based on question type
+ 
         switch (type) {
           case 'code':
-            // Validate code response
             if (typeof response !== 'string') {
               return res.status(400).json({ message: 'Code response must be a string' });
             }
             break;
   
           case 'multipleChoice':
-            // Validate multiple choice response
+    
             if (typeof response !== 'number') {
               return res.status(400).json({ message: 'Multiple choice response must be a number' });
             }
