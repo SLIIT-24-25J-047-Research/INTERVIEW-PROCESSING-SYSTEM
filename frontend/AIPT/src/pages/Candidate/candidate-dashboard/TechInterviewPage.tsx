@@ -40,7 +40,9 @@ const Techexam: React.FC = () => {
     questions,
     isLoading,
     error,
-    fetchQuestions
+    fetchQuestions,
+    startExam,
+    isExamStarted
   } = useInterviewStore();
   // const currentQuestion = mockQuestions[currentQuestionIndex];
   // const questions = getQuestions();
@@ -80,6 +82,32 @@ const Techexam: React.FC = () => {
     );
   }
 
+  if (!isExamStarted()) {
+    return (
+      <div className="min-h-screen flex items-center justify-center bg-gray-50">
+        <div className="max-w-md w-full bg-white rounded-lg shadow-lg p-8">
+          <h1 className="text-2xl font-bold text-center mb-6">Technical Interview</h1>
+          <div className="space-y-4 mb-8">
+            <h2 className="text-lg font-semibold">Important Instructions:</h2>
+            <ul className="list-disc pl-5 space-y-2">
+              <li>You cannot pause the exam once started</li>
+              <li>Each question has a specific time limit</li>
+              <li>Switching windows/tabs will trigger warnings</li>
+              <li>Three window switches will auto-submit the current question</li>
+              <li>Ensure stable internet connection</li>
+            </ul>
+          </div>
+          <button
+            onClick={startExam}
+            className="w-full py-3 px-4 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors"
+          >
+            Start Exam
+          </button>
+        </div>
+      </div>
+    );
+  }
+
   const currentQuestion = questions[currentQuestionIndex];
 
 
@@ -109,11 +137,11 @@ const Techexam: React.FC = () => {
   // }, []);
 
   const handleTimeUp = () => {
-    // Auto-navigate to next question if available
     if (currentQuestionIndex < questions.length - 1) {
       setCurrentQuestion(currentQuestionIndex + 1);
     }
   };
+
 
   const renderQuestion = (question: Question) => {
     const isLocked = isQuestionLocked(question._id);
