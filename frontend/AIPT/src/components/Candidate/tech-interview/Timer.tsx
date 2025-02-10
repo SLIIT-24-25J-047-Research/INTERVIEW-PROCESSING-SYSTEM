@@ -11,7 +11,6 @@ interface TimerProps {
 export const Timer: React.FC<TimerProps> = ({ duration, onTimeUp, questionId }) => {
   const { lockQuestion, isQuestionLocked, updateTimer, getTimeLeft } = useInterviewStore();
   
-  // Initialize timeLeft state with the full duration if no saved state exists
   const [timeLeft, setTimeLeft] = useState(() => {
     const savedTime = getTimeLeft(questionId, duration);
     return savedTime === duration ? duration : savedTime;
@@ -30,13 +29,14 @@ export const Timer: React.FC<TimerProps> = ({ duration, onTimeUp, questionId }) 
         const newCount = prev + 1;
         if (newCount >= 3) {
           setIsTimerActive(false);
-          lockQuestion(questionId);
+          const timeTaken = duration - timeLeft;
+          lockQuestion(questionId, timeTaken);
           onTimeUp();
         }
         return newCount;
       });
     }
-  }, [questionId, lockQuestion, onTimeUp]);
+  }, [questionId, lockQuestion, onTimeUp, duration, timeLeft]);
 
   useEffect(() => {
     document.addEventListener('visibilitychange', handleVisibilityChange);
@@ -46,7 +46,6 @@ export const Timer: React.FC<TimerProps> = ({ duration, onTimeUp, questionId }) 
   }, [handleVisibilityChange]);
 
   useEffect(() => {
-    // Reset timer state when question changes
     setTimeLeft(duration);
     setIsTimerActive(true);
     setWarningCount(0);
@@ -62,7 +61,8 @@ export const Timer: React.FC<TimerProps> = ({ duration, onTimeUp, questionId }) 
         if (prevTime <= 0) {
           clearInterval(interval);
           setIsTimerActive(false);
-          lockQuestion(questionId);
+          const timeTaken = duration;
+          lockQuestion(questionId, timeTaken);
           onTimeUp();
           return 0;
         }
@@ -76,7 +76,7 @@ export const Timer: React.FC<TimerProps> = ({ duration, onTimeUp, questionId }) 
     return () => {
       clearInterval(interval);
     };
-  }, [questionId, lockQuestion, onTimeUp, isQuestionLocked, isTimerActive, updateTimer]);
+  }, [questionId, lockQuestion, onTimeUp, isQuestionLocked, isTimerActive, updateTimer, duration]);
 
   const minutes = Math.floor(timeLeft / 60);
   const seconds = timeLeft % 60;
