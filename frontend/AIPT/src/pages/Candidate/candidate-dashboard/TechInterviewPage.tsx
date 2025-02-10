@@ -61,16 +61,16 @@ const Techexam: React.FC = () => {
     );
   }
 
-  if (error) {
-    return (
-      <div className="min-h-screen flex items-center justify-center">
-        <div className="bg-red-50 text-red-800 p-4 rounded-lg">
-          <h2 className="text-lg font-semibold">Error</h2>
-          <p>{error}</p>
-        </div>
-      </div>
-    );
-  }
+  // if (error) {
+  //   return (
+  //     <div className="min-h-screen flex items-center justify-center">
+  //       <div className="bg-red-50 text-red-800 p-4 rounded-lg">
+  //         <h2 className="text-lg font-semibold">Error</h2>
+  //         <p>{error}</p>
+  //       </div>
+  //     </div>
+  //   );
+  // }
 
   if (questions.length === 0) {
     return (
