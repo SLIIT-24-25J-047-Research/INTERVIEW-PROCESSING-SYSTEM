@@ -1,54 +1,38 @@
 export type QuestionType = 'code' | 'fillBlanks' | 'dragDrop' | 'multipleChoice';
+export type Difficulty = 'easy' | 'medium' | 'hard';
+
+interface TestCase {
+  input: string;
+  expectedOutput: string;
+  _id: string;
+}
+
+interface DragDropItem {
+  id: string;
+  text: string;
+  _id: string;
+}
+interface QuestionContent {
+  text?: string;
+  initialCode?: string;
+  language?: string;
+  testCases: TestCase[];
+  blanks: Array<{
+    id: string;
+    answer: string;
+  }>;
+  items: DragDropItem[];
+  correctOrder: string[];
+  options: string[];
+}
 
 export interface Question {
-  id: number;
+  _id: string;
   type: QuestionType;
   title: string;
   description: string;
-  timeLimit: number; // in seconds
+  timeLimit: number;
   points: number;
-  difficulty: 'easy' | 'medium' | 'hard';
-  content: any;
-}
-
-export interface CodeQuestion extends Question {
-  type: 'code';
-  content: {
-    initialCode: string;
-    language: string;
-    testCases: Array<{
-      input: string;
-      expectedOutput: string;
-    }>;
-  };
-}
-
-export interface FillBlanksQuestion extends Question {
-  type: 'fillBlanks';
-  content: {
-    text: string;
-    blanks: Array<{
-      id: string;
-      answer: string;
-    }>;
-  };
-}
-
-export interface DragDropQuestion extends Question {
-  type: 'dragDrop';
-  content: {
-    items: Array<{
-      id: string;
-      text: string;
-    }>;
-    correctOrder: string[];
-  };
-}
-
-export interface MultipleChoiceQuestion extends Question {
-  type: 'multipleChoice';
-  content: {
-    options: string[];
-    correctAnswer: number;
-  };
+  difficulty: Difficulty;
+  content: QuestionContent;
 }

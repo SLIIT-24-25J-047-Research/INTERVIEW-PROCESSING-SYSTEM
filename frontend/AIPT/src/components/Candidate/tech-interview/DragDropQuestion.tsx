@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { DragDropContext, Droppable, Draggable } from '@hello-pangea/dnd';
+import { DragDropContext, Droppable, Draggable, DropResult } from '@hello-pangea/dnd';
 
 interface DragDropItem {
   id: string;
@@ -19,7 +19,7 @@ export const DragDropQuestion: React.FC<DragDropQuestionProps> = ({
 }) => {
   const [items, setItems] = useState(initialItems);
 
-  const handleDragEnd = (result: any) => {
+  const handleDragEnd = (result: DropResult) => {
     if (!result.destination || disabled) return;
 
     const newItems = Array.from(items);

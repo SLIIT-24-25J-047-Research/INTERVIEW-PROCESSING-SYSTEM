@@ -12,21 +12,21 @@ const QuestionSchema = new mongoose.Schema({
     language: { type: String },
     testCases: [
       {
-        input: { type: String },
-        expectedOutput: { type: String },
+        input: { type: String, required: true },
+        expectedOutput: { type: String, required: true },
       },
     ],
     text: { type: String },
     blanks: [
       {
-        id: { type: String },
-        answer: { type: String },
+        id: { type: String, required: true },
+        answer: { type: String, required: true },
       },
     ],
     items: [
       {
-        id: { type: String },
-        text: { type: String },
+        id: { type: String, required: true },
+        text: { type: String, required: true },
       },
     ],
     correctOrder: [{ type: String }],

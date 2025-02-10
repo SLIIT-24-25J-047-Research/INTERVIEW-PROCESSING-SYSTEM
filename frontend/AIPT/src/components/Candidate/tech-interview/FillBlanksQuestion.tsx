@@ -14,7 +14,7 @@ interface FillBlanksQuestionProps {
 
 export const FillBlanksQuestion: React.FC<FillBlanksQuestionProps> = ({
   text,
-  blanks,
+  // blanks,
   onChange,
   disabled = false,
 }) => {

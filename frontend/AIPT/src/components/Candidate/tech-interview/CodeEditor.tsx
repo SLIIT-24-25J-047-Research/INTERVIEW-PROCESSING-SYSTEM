@@ -53,12 +53,14 @@ interface CodeEditorProps {
   language: string;
   code: string;
   onChange: (value: string) => void;
+  readOnly?: boolean; 
 }
 
 export const CodeEditor: React.FC<CodeEditorProps> = ({
   language,
   code,
   onChange,
+  readOnly = false, // Default to false
 }) => {
   return (
     <div className="h-[500px] border border-gray-200 rounded-lg overflow-hidden">
@@ -73,6 +75,7 @@ export const CodeEditor: React.FC<CodeEditorProps> = ({
           fontSize: 14,
           lineNumbers: 'on',
           automaticLayout: true,
+          readOnly: readOnly,
         }}
       />
     </div>
