@@ -42,7 +42,9 @@ const Techexam: React.FC = () => {
     error,
     fetchQuestions,
     startExam,
-    isExamStarted
+    isExamStarted,
+    setAnswer,
+    submitAllAnswers
   } = useInterviewStore();
   // const currentQuestion = mockQuestions[currentQuestionIndex];
   // const questions = getQuestions();
@@ -51,6 +53,11 @@ const Techexam: React.FC = () => {
   useEffect(() => {
     fetchQuestions();
   }, [fetchQuestions]);
+
+  const handleAnswerChange = (questionId: string, type: string, answer: string | string[] | number | number[] | boolean) => {
+    setAnswer(questionId, type, answer);
+  };
+
 
   if (isLoading) {
     return (
@@ -112,36 +119,20 @@ const Techexam: React.FC = () => {
 
 
 
-
-
-  // const fetchQuestions = async () => {
-  //   try {
-  //     setLoading(true);
-  //     const response = await fetch('http://localhost:5000/api/techQuestions/');
-  //     if (!response.ok) {
-  //       throw new Error('Failed to fetch questions');
-  //     }
-  //     const data = await response.json();
-  //     setQuestions(data);
-  //     console.log('Fetched questions:', data);
-  //   } catch (error) {
-  //     setError(error instanceof Error ? error.message : 'An error occurred');
-  //     console.error('Error fetching questions:', error);
-  //   } finally {
-  //     setLoading(false);
-  //   }
-  // };
-
-  // useEffect(() => {
-  //   fetchQuestions();
-  // }, []);
-
-  const handleTimeUp = () => {
+  const handleTimeUp = async () => {
     if (currentQuestionIndex < questions.length - 1) {
       setCurrentQuestion(currentQuestionIndex + 1);
+    } else {
+      // If this was the last question, submit all answers
+      try {
+        await submitAllAnswers();
+        // Handle successful submission (e.g., show completion screen)
+      } catch (error) {
+        // Handle submission error
+        console.error('Failed to submit answers:', error);
+      }
     }
   };
-
 
   const renderQuestion = (question: Question) => {
     const isLocked = isQuestionLocked(question._id);
@@ -161,24 +152,25 @@ const Techexam: React.FC = () => {
           <CodeEditor
             language={question.content.language || 'javascript'}
             code={question.content.initialCode || ''}
-            onChange={(value) => console.log(value)}
+            onChange={(value) => handleAnswerChange(question._id, 'code', value)}
             readOnly={isLocked}
           />
         );
       case 'fillBlanks':
         return (
           <FillBlanksQuestion
-            text={question.content.text || ''}
-            blanks={question.content.blanks}
-            onChange={(answers) => console.log(answers)}
-            disabled={isLocked}
-          />
+          text={question.content.text || ''}
+          blanks={question.content.blanks}
+          onChange={(answers) => handleAnswerChange(question._id, 'fillBlanks', Object.values(answers))}
+          disabled={isLocked}
+        />
+        
         );
       case 'dragDrop':
         return (
           <DragDropQuestion
             items={question.content.items}
-            onChange={(order) => console.log(order)}
+            onChange={(order) => handleAnswerChange(question._id, 'dragDrop', order)}
             disabled={isLocked}
           />
         );
@@ -186,7 +178,7 @@ const Techexam: React.FC = () => {
         return (
           <MultipleChoiceQuestion
             options={question.content.options}
-            onChange={(answer) => console.log(answer)}
+            onChange={(answer) => handleAnswerChange(question._id, 'multipleChoice', answer)}
             disabled={isLocked}
           />
         );
@@ -194,7 +186,6 @@ const Techexam: React.FC = () => {
         return null;
     }
   };
-
 
 
   // useEffect(() => {
