@@ -98,13 +98,13 @@ interface InterviewState {
 
 
 
-// Load timer state from localStorage
+
 const loadTimerState = (): TimerState => {
   const saved = localStorage.getItem('examTimerState');
   return saved ? JSON.parse(saved) : {};
 };
 
-// Load locked questions from localStorage
+
 const loadLockedQuestions = (): Set<string> => {
   const saved = localStorage.getItem('lockedQuestions');
   return saved ? new Set(JSON.parse(saved)) : new Set();
@@ -141,7 +141,7 @@ export const useInterviewStore = create<InterviewState>((set, get) => ({
           questionId,
           type,
           response,
-          timeTaken: state.answers[questionId]?.timeTaken || 0, // Preserve timeTaken if it exists
+          timeTaken: state.answers[questionId]?.timeTaken || 0, 
         },
       };
       localStorage.setItem('examAnswers', JSON.stringify(newAnswers));
@@ -163,11 +163,11 @@ export const useInterviewStore = create<InterviewState>((set, get) => ({
       const newAnswers: Record<string, Answer> = {
         ...state.answers,
         [questionId]: {
-          ...existingAnswer, // Preserve existing answer data
+          ...existingAnswer, 
           questionId,
           timeTaken,
-          type: existingAnswer.type || '', // Preserve type if it exists
-          response: existingAnswer.response ?? '', // Ensure response is never null
+          type: existingAnswer.type || '', 
+          response: existingAnswer.response ?? '', 
         },
       };
       localStorage.setItem('examAnswers', JSON.stringify(newAnswers));
@@ -240,7 +240,7 @@ export const useInterviewStore = create<InterviewState>((set, get) => ({
       timeTaken: answer.timeTaken,
     }));
   
-    // Log the data you're submitting
+   
     console.log('Submitting answers:', {
       interviewId: "678f8b2bce0b5bbe13d5515d",
       userId: "6759439c7cf33b13b125340e",
@@ -266,7 +266,7 @@ export const useInterviewStore = create<InterviewState>((set, get) => ({
   
       const responseData = await response.json();
   
-      // Clear local storage after successful submission
+ 
       localStorage.removeItem('examAnswers');
       localStorage.removeItem('examTimerState');
       localStorage.removeItem('lockedQuestions');
@@ -298,7 +298,7 @@ export const useInterviewStore = create<InterviewState>((set, get) => ({
       const questions = await response.json();
       set({ questions, isLoading: false });
     } catch (error) {
-      // Fall back to mock questions if fetch fails
+
       console.warn('Failed to fetch questions, using mock data instead:', error);
       set({ 
         questions: mockQuestions,
