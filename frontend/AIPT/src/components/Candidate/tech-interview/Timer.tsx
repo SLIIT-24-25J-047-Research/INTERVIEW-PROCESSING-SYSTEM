@@ -6,7 +6,7 @@ import { useInterviewStore } from '../../store/InterviewStore';
 interface TimerProps {
   duration: number;
   onTimeUp: () => void;
-  questionId: number;
+  questionId: string; 
 }
 
 export const Timer: React.FC<TimerProps> = ({ duration, onTimeUp, questionId }) => {
