@@ -55,6 +55,13 @@ const mockQuestions: Question[] = [
   }
 ];
 
+interface TimerState {
+  [key: string]: {
+    timeLeft: number;
+    lastUpdated: number;
+  };
+}
+
 interface InterviewState {
   currentQuestionIndex: number;
   questions: Question[];
@@ -63,6 +70,8 @@ interface InterviewState {
   lockedQuestions: Set<string>;
   isLoading: boolean;
   error: string | null;
+  timerState: TimerState;
+  examStarted: boolean;
   setCurrentQuestion: (index: number) => void;
   setAnswer: (questionId: string, answer: string | number | boolean) => void;
   updateScore: (points: number) => void;
@@ -70,16 +79,34 @@ interface InterviewState {
   isQuestionLocked: (questionId: string) => boolean;
   canNavigateToQuestion: (index: number) => boolean;
   fetchQuestions: () => Promise<void>;
+  updateTimer: (questionId: string, timeLeft: number) => void;
+  getTimeLeft: (questionId: string, initialTime: number) => number;
+  startExam: () => void;
+  isExamStarted: () => boolean;
 }
+
+// Load timer state from localStorage
+const loadTimerState = (): TimerState => {
+  const saved = localStorage.getItem('examTimerState');
+  return saved ? JSON.parse(saved) : {};
+};
+
+// Load locked questions from localStorage
+const loadLockedQuestions = (): Set<string> => {
+  const saved = localStorage.getItem('lockedQuestions');
+  return saved ? new Set(JSON.parse(saved)) : new Set();
+};
 
 export const useInterviewStore = create<InterviewState>((set, get) => ({
   currentQuestionIndex: 0,
   questions: [],
   score: 0,
   answers: {},
-  lockedQuestions: new Set(),
+  lockedQuestions: loadLockedQuestions(),
   isLoading: false,
   error: null,
+  timerState: loadTimerState(),
+  examStarted: localStorage.getItem('examStarted') === 'true',
 
   setCurrentQuestion: (index) => set({ currentQuestionIndex: index }),
   
@@ -109,10 +136,41 @@ export const useInterviewStore = create<InterviewState>((set, get) => ({
     return false;
   },
 
+  updateTimer: (questionId: string, timeLeft: number) => {
+    set((state) => {
+      const newTimerState = {
+        ...state.timerState,
+        [questionId]: {
+          timeLeft,
+          lastUpdated: Date.now(),
+        },
+      };
+      localStorage.setItem('examTimerState', JSON.stringify(newTimerState));
+      return { timerState: newTimerState };
+    });
+  },
+
+  getTimeLeft: (questionId: string, initialTime: number) => {
+    const state = get().timerState[questionId];
+    if (!state) return initialTime;
+    
+    const elapsed = (Date.now() - state.lastUpdated) / 1000;
+    const timeLeft = Math.max(0, state.timeLeft - elapsed);
+    
+    return Math.round(timeLeft);
+  },
+
+  startExam: () => {
+    localStorage.setItem('examStarted', 'true');
+    set({ examStarted: true });
+  },
+
+  isExamStarted: () => get().examStarted,
+
   fetchQuestions: async () => {
     set({ isLoading: true, error: null });
     try {
-      const response = await fetch('http://localhost:5000/api/techQuestios');
+      const response = await fetch('http://localhost:5000/api/techQuestions');
       if (!response.ok) {
         throw new Error('Failed to fetch questions');
       }
