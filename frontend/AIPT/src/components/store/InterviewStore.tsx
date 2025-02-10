@@ -62,20 +62,28 @@ interface TimerState {
   };
 }
 
+
+interface Answer {
+  questionId: string;
+  type: string;
+  response: string | number | boolean | string[] | number[] | boolean[] ;
+  timeTaken: number;
+}
+
 interface InterviewState {
   currentQuestionIndex: number;
   questions: Question[];
   score: number;
-  answers: Record<string, string | number | boolean>;
+  answers: Record<string, Answer>;
   lockedQuestions: Set<string>;
   isLoading: boolean;
   error: string | null;
   timerState: TimerState;
   examStarted: boolean;
   setCurrentQuestion: (index: number) => void;
-  setAnswer: (questionId: string, answer: string | number | boolean) => void;
+  setAnswer: (questionId: string, type: string, response: string | number | boolean | string[] | number[] | boolean[]) => void;
   updateScore: (points: number) => void;
-  lockQuestion: (questionId: string) => void;
+  lockQuestion: (questionId: string, timeTaken: number) => void;
   isQuestionLocked: (questionId: string) => boolean;
   canNavigateToQuestion: (index: number) => boolean;
   fetchQuestions: () => Promise<void>;
@@ -83,7 +91,12 @@ interface InterviewState {
   getTimeLeft: (questionId: string, initialTime: number) => number;
   startExam: () => void;
   isExamStarted: () => boolean;
+  isSubmitting: boolean;
+  hasSubmitted: boolean;
+  submitAllAnswers: () => Promise<void>;
 }
+
+
 
 // Load timer state from localStorage
 const loadTimerState = (): TimerState => {
@@ -97,31 +110,75 @@ const loadLockedQuestions = (): Set<string> => {
   return saved ? new Set(JSON.parse(saved)) : new Set();
 };
 
+const loadAnswers = (): Record<string, Answer> => {
+  const saved = localStorage.getItem('examAnswers');
+  return saved ? JSON.parse(saved) : {};
+};
+
+
+
 export const useInterviewStore = create<InterviewState>((set, get) => ({
   currentQuestionIndex: 0,
   questions: [],
   score: 0,
-  answers: {},
+  answers: loadAnswers(),
   lockedQuestions: loadLockedQuestions(),
   isLoading: false,
   error: null,
   timerState: loadTimerState(),
   examStarted: localStorage.getItem('examStarted') === 'true',
+  isSubmitting: false,
+  hasSubmitted: localStorage.getItem('hasSubmitted') === 'true',
 
   setCurrentQuestion: (index) => set({ currentQuestionIndex: index }),
   
-  setAnswer: (questionId, answer) =>
-    set((state) => ({
-      answers: { ...state.answers, [questionId]: answer },
-    })),
+  setAnswer: (questionId, type, response) => {
+    set((state) => {
+      const newAnswers = {
+        ...state.answers,
+        [questionId]: {
+          ...state.answers[questionId],
+          questionId,
+          type,
+          response,
+          timeTaken: state.answers[questionId]?.timeTaken || 0, // Preserve timeTaken if it exists
+        },
+      };
+      localStorage.setItem('examAnswers', JSON.stringify(newAnswers));
+      return { answers: newAnswers };
+    });
+  },
+  
   
   updateScore: (points) =>
     set((state) => ({ score: state.score + points })),
+
   
-  lockQuestion: (questionId) => 
-    set((state) => ({
-      lockedQuestions: new Set([...state.lockedQuestions, questionId])
-    })),
+  lockQuestion: (questionId, timeTaken) => {
+    set((state) => {
+      const newLockedQuestions = new Set([...state.lockedQuestions, questionId]);
+      localStorage.setItem('lockedQuestions', JSON.stringify([...newLockedQuestions]));
+  
+      const existingAnswer = state.answers[questionId] || {};
+      const newAnswers: Record<string, Answer> = {
+        ...state.answers,
+        [questionId]: {
+          ...existingAnswer, // Preserve existing answer data
+          questionId,
+          timeTaken,
+          type: existingAnswer.type || '', // Preserve type if it exists
+          response: existingAnswer.response ?? '', // Ensure response is never null
+        },
+      };
+      localStorage.setItem('examAnswers', JSON.stringify(newAnswers));
+  
+      return { 
+        lockedQuestions: newLockedQuestions,
+        answers: newAnswers
+      };
+    });
+  },
+  
   
   isQuestionLocked: (questionId) => 
     get().lockedQuestions.has(questionId),
@@ -167,6 +224,70 @@ export const useInterviewStore = create<InterviewState>((set, get) => ({
 
   isExamStarted: () => get().examStarted,
 
+  submitAllAnswers: async () => {
+    const state = get();
+    if (state.isSubmitting || state.hasSubmitted) {
+      console.log('Submission already in progress or completed');
+      return;
+    }
+
+    set({ isSubmitting: true });
+
+    const answersArray = Object.values(state.answers).map(answer => ({
+      questionId: answer.questionId,
+      type: answer.type,
+      response: answer.response,
+      timeTaken: answer.timeTaken,
+    }));
+  
+    // Log the data you're submitting
+    console.log('Submitting answers:', {
+      interviewId: "678f8b2bce0b5bbe13d5515d",
+      userId: "6759439c7cf33b13b125340e",
+      answers: answersArray,
+    });
+  
+    try {
+      const response = await fetch('http://localhost:5000/api/techAnswers/submit', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({
+          interviewId: "678f8b2bce0b5bbe13d5515d",
+          userId: "6759439c7cf33b13b125340e",
+          answers: answersArray,
+        }),
+      });
+  
+      if (!response.ok) {
+        throw new Error('Failed to submit answers');
+      }
+  
+      const responseData = await response.json();
+  
+      // Clear local storage after successful submission
+      localStorage.removeItem('examAnswers');
+      localStorage.removeItem('examTimerState');
+      localStorage.removeItem('lockedQuestions');
+      localStorage.removeItem('examStarted');
+
+      set({ 
+        hasSubmitted: true,
+        isSubmitting: false,
+      });
+
+  
+      return responseData;
+    } catch (error) {
+      set({ isSubmitting: false });
+      console.error('Error submitting answers:', error);
+      throw error;
+    }
+  },
+  
+  
+  
   fetchQuestions: async () => {
     set({ isLoading: true, error: null });
     try {
