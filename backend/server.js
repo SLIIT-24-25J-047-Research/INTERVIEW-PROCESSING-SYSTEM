@@ -21,6 +21,7 @@ app.use('/api/notifications', require('./routes/candidate/NotificationRoutes'));
 app.use('/api/savejobs', require('./routes/candidate/SavedJobRoutes'));
 app.use('/api/CVfiles', require('./routes/candidate/CVRoutes'));
 app.use('/api/techQuestions', require('./routes/employer/TechnicalQuestionRoutes'));
+app.use('/api/techAnswers', require('./routes/employer/TechnicalAnswersRoutes'));
 
 // voice confidence routes
 app.use('/api', require('./routes/voiceConfidenceRoutes'));
