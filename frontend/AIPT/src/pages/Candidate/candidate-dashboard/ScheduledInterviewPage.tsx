@@ -132,8 +132,8 @@ const ScheduledInterviewPage: React.FC = () => {
       meridian === "PM" && hours !== 12
         ? hours + 12
         : meridian === "AM" && hours === 12
-        ? 0
-        : hours;
+          ? 0
+          : hours;
 
     startTime.setHours(adjustedHours, minutes, 0, 0);
 
@@ -153,11 +153,19 @@ const ScheduledInterviewPage: React.FC = () => {
       meridian === "PM" && hours !== 12
         ? hours + 12
         : meridian === "AM" && hours === 12
-        ? 0
-        : hours;
+          ? 0
+          : hours;
 
     startTime.setHours(adjustedHours, minutes, 0, 0);
-    return now >= startTime;
+
+    // Add a 30-minute buffer before and after the interview time
+    const bufferStart = new Date(startTime);
+    bufferStart.setMinutes(startTime.getMinutes() - 30);
+
+    const bufferEnd = new Date(startTime);
+    bufferEnd.setMinutes(startTime.getMinutes() + 30);
+
+    return now >= bufferStart && now <= bufferEnd;
   };
 
   const handleStartTest = (interview: TechnicalSchedule) => {
@@ -250,8 +258,8 @@ const ScheduledInterviewPage: React.FC = () => {
       meridian === "PM" && hours !== 12
         ? hours + 12
         : meridian === "AM" && hours === 12
-        ? 0
-        : hours;
+          ? 0
+          : hours;
     startTime.setHours(adjustedHours, minutes, 0, 0);
 
     if (now > startTime) {
@@ -263,8 +271,31 @@ const ScheduledInterviewPage: React.FC = () => {
 
   const getProgressSegments = (application: JobApplication) => {
     const techStatus = application.technicalInterview?.status.toLowerCase();
-    const nonTechStatus =
-      application.nonTechnicalInterview?.status.toLowerCase();
+    const nonTechStatus = application.nonTechnicalInterview?.status.toLowerCase();
+    const getTechProgress = () => {
+      switch (techStatus) {
+        case "completed":
+          return "100%";
+        case "in-progress":
+          return "75%";
+        case "scheduled":
+          return "50%";
+        default:
+          return "0%";
+      }
+    };
+
+    const getNonTechProgress = () => {
+      switch (nonTechStatus) {
+        case "done":
+          return "100%";
+        case "scheduled":
+        case "updated":
+          return techStatus === "completed" ? "50%" : "0%";
+        default:
+          return "0%";
+      }
+    };
 
     return [
       {
@@ -273,15 +304,16 @@ const ScheduledInterviewPage: React.FC = () => {
         completed: techStatus === "completed",
         active: techStatus === "scheduled" || techStatus === "in-progress",
         width: "50%",
+        progress: getTechProgress(),
       },
       {
         label: "HR Interview",
         status: getStageStatus("nonTechnical", nonTechStatus),
         completed: nonTechStatus === "done",
-        active:
-          techStatus === "completed" &&
+        active: techStatus === "completed" &&
           (nonTechStatus === "scheduled" || nonTechStatus === "updated"),
         width: "50%",
+        progress: getNonTechProgress(),
       },
     ];
   };
@@ -309,64 +341,41 @@ const ScheduledInterviewPage: React.FC = () => {
                   <div className="mb-8">
                     <div className="relative pt-1">
                       <div className="flex mb-4">
-                        {getProgressSegments(application).map(
-                          (segment, index) => (
-                            <div
-                              key={index}
-                              className="relative"
-                              style={{ width: segment.width }}
-                            >
-                              <div className="flex flex-col">
-                                <div className="text-xs font-medium mb-1">
-                                  {segment.label}
-                                </div>
-                                <div className="relative h-2 w-full rounded overflow-hidden bg-gray-200">
-                                  <div
-                                    className={`absolute top-0 left-0 h-full transition-all duration-300 ${
-                                      segment.completed
-                                        ? "bg-green-500"
-                                        : segment.active
+                        {getProgressSegments(application).map((segment, index) => (
+                          <div
+                            key={index}
+                            className="relative"
+                            style={{ width: segment.width }}
+                          >
+                            <div className="flex flex-col">
+                              <div className="text-xs font-medium mb-1">
+                                {segment.label}
+                              </div>
+                              <div className="relative h-2 w-full rounded overflow-hidden bg-gray-200">
+                                <div
+                                  className={`absolute top-0 left-0 h-full transition-all duration-300 ${segment.completed
+                                      ? "bg-green-500"
+                                      : segment.active
                                         ? "bg-blue-500"
                                         : "bg-gray-300"
                                     }`}
-                                    style={{
-                                      width: segment.completed
-                                        ? "100%"
-                                        : segment.active
-                                        ? "50%"
-                                        : "0%",
-                                    }}
-                                  />
-                                  {/* Moving Dot */}
-                                  <div
-                                    className="absolute top-1/2 transform -translate-y-1/2 w-4 h-4 rounded-full border-2 border-white z-10"
-                                    style={{
-                                      left: segment.completed
-                                        ? "100%"
-                                        : segment.active
-                                        ? "50%"
-                                        : "0%",
-                                      backgroundColor: segment.completed
-                                        ? "#16a34a" // green
-                                        : segment.active
-                                        ? "#2563eb" // blue
-                                        : "#d1d5db", // gray
-                                    }}
-                                  />
-                                </div>
-                                <div className="text-xs mt-1 text-gray-600">
-                                  {segment.status}
-                                </div>
+                                  style={{
+                                    width: segment.progress,
+                                  }}
+                                />
+                              </div>
+                              <div className="text-xs mt-1 text-gray-600">
+                                {segment.status}
                               </div>
                             </div>
-                          )
-                        )}
+                          </div>
+                        ))}
                       </div>
                     </div>
                   </div>
 
                   <div className="grid md:grid-cols-2 gap-6">
-                    
+
                     {/* Technical Interview Card */}
                     <div className="space-y-4">
                       <h3 className="font-medium text-gray-900">
@@ -418,27 +427,27 @@ const ScheduledInterviewPage: React.FC = () => {
                                 </span>
                                 {application.technicalInterview.status.toLowerCase() !==
                                   "completed" && (
-                                  <Button
-                                    onClick={() =>
-                                      handleStartTest(
-                                        application.technicalInterview!
-                                      )
-                                    }
-                                    size="sm"
-                                    className="bg-blue-600 hover:bg-blue-700"
-                                    disabled={
-                                      !isTestDayAndTime(
-                                        application.technicalInterview!
-                                          .testDate,
-                                        application.technicalInterview!
-                                          .testTime,
-                                        application.technicalInterview!.duration
-                                      )
-                                    }
-                                  >
-                                    Start Test
-                                  </Button>
-                                )}
+                                    <Button
+                                      onClick={() =>
+                                        handleStartTest(
+                                          application.technicalInterview!
+                                        )
+                                      }
+                                      size="sm"
+                                      className="bg-blue-600 hover:bg-blue-700"
+                                      disabled={
+                                        !isTestDayAndTime(
+                                          application.technicalInterview!
+                                            .testDate,
+                                          application.technicalInterview!
+                                            .testTime,
+                                          application.technicalInterview!.duration
+                                        )
+                                      }
+                                    >
+                                      Start Test
+                                    </Button>
+                                  )}
                               </div>
                             </div>
                           </CardContent>
@@ -460,7 +469,7 @@ const ScheduledInterviewPage: React.FC = () => {
                       <div
                         className={
                           application.technicalInterview?.status.toLowerCase() !==
-                          "completed"
+                            "completed"
                             ? "opacity-50"
                             : ""
                         }
@@ -510,27 +519,31 @@ const ScheduledInterviewPage: React.FC = () => {
                                   >
                                     {application.nonTechnicalInterview.status}
                                   </span>
-                                  {application.technicalInterview?.status.toLowerCase() ===
-                                    "completed" && 
-                                    application.nonTechnicalInterview.status.toLowerCase() !==
-                                    "done" && (
-                                    <Button
-                                      onClick={() =>
-                                        navigate("/non-tech-interview")
-                                      }
-                                      size="sm"
-                                      className="bg-blue-600 hover:bg-blue-700"
-                                      disabled={
-                                        !isInterviewTimeValid(
-                                          application.nonTechnicalInterview.interviewDate,
-                                          application.nonTechnicalInterview.interviewTime
-                                        )
-                                      }
-                                    >
-                                      Join Interview
-                                    </Button>
-                                  )}
-                                </div>
+                                  {application.nonTechnicalInterview.status.toLowerCase() !== "done" &&
+                                    application.nonTechnicalInterview.status.toLowerCase() !== "canceled" && (
+                                      <div className="space-y-2">
+                                        {/* {application.technicalInterview?.status.toLowerCase() !== "completed" && (
+                                          <p className="text-xs text-amber-600">
+                                            Interview will be available after technical assessment is completed
+                                          </p>
+                                        )} */}
+                                        <Button
+                                          onClick={() => navigate("/non-tech-interview")}
+                                          size="sm"
+                                          className="bg-blue-600 hover:bg-blue-700"
+                                          disabled={
+                                            !isInterviewTimeValid(
+                                              application.nonTechnicalInterview.interviewDate,
+                                              application.nonTechnicalInterview.interviewTime
+                                            ) ||
+                                            application.technicalInterview?.status.toLowerCase() !== "completed"
+                                          }
+                                        >
+                                        Join Interview
+                                        </Button>
+                                      </div>
+                                    )}
+                              </div>
                               </div>
                             </CardContent>
                           </Card>
@@ -554,5 +567,6 @@ const ScheduledInterviewPage: React.FC = () => {
     </div>
   );
 };
+
 
 export default ScheduledInterviewPage;
