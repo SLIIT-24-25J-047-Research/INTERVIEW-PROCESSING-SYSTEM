@@ -12,8 +12,7 @@ const NonTechInterviewPage: React.FC = () => {
                 <Header title="Assignments" />
                 <div className="content">
                     <h2>Your Assignments</h2>
-                    <p>This is where you can view your assignments and their progress.</p>
-                    {/* Add your assignments content here */}
+               
 
                     <NonTechInterview />
                 </div>
