@@ -20,6 +20,7 @@ import AddJob from "./pages/Interviewer/AddJob";
 import NotificationsPage from "./pages/Candidate/candidate-home/Notifications";
 import ScheduledInterviewPage from "./pages/Candidate/candidate-dashboard/ScheduledInterviewPage";
 import Techexam from "./pages/Candidate/candidate-dashboard/TechInterviewPage";
+import { AnswersDashboard } from "./components/Interviewer/answers/AnswersDashboaard";
 
 const App: React.FC = () => {
   return (
@@ -176,6 +177,15 @@ const App: React.FC = () => {
         element={
           <PrivateRoute allowedRoles={["candidate"]}>
             <Techexam />
+          </PrivateRoute>
+        }
+      />
+
+<Route
+        path="/answers"
+        element={
+          <PrivateRoute allowedRoles={["candidate"]}>
+            <AnswersDashboard />
           </PrivateRoute>
         }
       />
