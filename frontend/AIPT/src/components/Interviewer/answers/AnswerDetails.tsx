@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { ArrowLeft, Clock, CheckCircle, XCircle, AlertCircle } from 'lucide-react';
+import { ArrowLeft, Clock, CheckCircle, XCircle, AlertCircle,Loader2 } from 'lucide-react';
 import { Answer, Question } from '../../types/admin';
 import { CodeEditor } from '../../Candidate/tech-interview/CodeEditor';
 
@@ -12,7 +12,14 @@ interface AnswerValidation {
   isCorrect: boolean;
   feedback: string;
   points: number;
+  testResults?: {
+    passed: boolean;
+    input: string;
+    expectedOutput: string;
+    actualOutput: string;
+  }[];
 }
+
 
 export const AnswerDetails: React.FC<AnswerDetailsProps> = ({ submissionId, onBack }) => {
   const [answers, setAnswers] = useState<Answer[]>([]);
@@ -22,6 +29,7 @@ export const AnswerDetails: React.FC<AnswerDetailsProps> = ({ submissionId, onBa
   const [error, setError] = useState<string | null>(null);
   const [totalScore, setTotalScore] = useState(0);
   const [maxPossibleScore, setMaxPossibleScore] = useState(0);
+  const [executingCode, setExecutingCode] = useState<Record<string, boolean>>({});
 
   useEffect(() => {
     const fetchData = async () => {
@@ -58,14 +66,22 @@ export const AnswerDetails: React.FC<AnswerDetailsProps> = ({ submissionId, onBa
             setQuestions(prev => ({ ...prev, [question._id]: question }));
             maxPoints += question.points;
 
-            const validation = validateAnswer(answer, question);
-            questionValidations[answer.questionId] = validation;
-            totalPoints += validation.points;
+            if (question.type === 'code') {
+              setExecutingCode(prev => ({ ...prev, [answer.questionId]: true }));
+              const validation = await validateCodeAnswer(answer, question);
+              questionValidations[answer.questionId] = validation;
+              totalPoints += validation.points;
+              setExecutingCode(prev => ({ ...prev, [answer.questionId]: false }));
+            } else {
+              const validation = validateAnswer(answer, question);
+              questionValidations[answer.questionId] = validation;
+              totalPoints += validation.points;
+            }
           } catch (err) {
             console.error(`Error fetching question ${answer.questionId}:`, err);
+            setExecutingCode(prev => ({ ...prev, [answer.questionId]: false }));
           }
         }
-
         setValidations(questionValidations);
         setTotalScore(totalPoints);
         setMaxPossibleScore(maxPoints);
@@ -79,16 +95,68 @@ export const AnswerDetails: React.FC<AnswerDetailsProps> = ({ submissionId, onBa
     fetchData();
   }, [submissionId]);
 
+  const validateCodeAnswer = async (answer: Answer, question: Question): Promise<AnswerValidation> => {
+    try {
+      const response = await fetch('http://localhost:5000/api/techCodeExecution/execute', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({
+          question: {
+            content: {
+              language: question.content.language,
+              testCases: question.content.testCases,
+            },
+            _id: question._id,
+            type: 'code',
+            points: question.points,
+          },
+          answer: {
+            answers: [{
+              answers: [{
+                questionId: answer.questionId,
+                response: answer.response,
+                _id: answer._id,
+              }]
+            }]
+          }
+        }),
+      });
+  
+      if (!response.ok) {
+        throw new Error('Code execution failed');
+      }
+  
+      const result = await response.json();
+      
+      // Access the nested testResults
+      const testResults = result.results.testResults;
+      const allTestsPassed = testResults.every((test: { passed: boolean }) => test.passed);
+  
+      return {
+        isCorrect: allTestsPassed,
+        feedback: allTestsPassed ? 'All test cases passed!' : 'Some test cases failed',
+        points: allTestsPassed ? question.points : 0,
+        testResults: testResults.map((test: any) => ({
+          passed: test.passed,
+          input: JSON.stringify(test.output), // Using output as input since input isn't in response
+          expectedOutput: JSON.stringify(test.expectedOutput),
+          actualOutput: JSON.stringify(test.output)
+        }))
+      };
+    } catch (error) {
+      console.error('Code execution error:', error);
+      return {
+        isCorrect: false,
+        feedback: 'Failed to execute code',
+        points: 0,
+      };
+    }
+  };
+
   const validateAnswer = (answer: Answer, question: Question): AnswerValidation => {
     switch (question.type) {
-      case 'code':
-        // For code questions, we can only show the test cases and code
-        return {
-          isCorrect: false, // We can't actually run the code in the browser
-          feedback: 'Code validation requires server-side execution',
-          points: 0
-        };
-
       case 'dragDrop': {
         const dragDropCorrect = JSON.stringify(answer.response) === JSON.stringify(question.content.correctOrder);
         return {
@@ -99,7 +167,6 @@ export const AnswerDetails: React.FC<AnswerDetailsProps> = ({ submissionId, onBa
       }
 
       case 'multipleChoice': {
-        // Using the correctAnswer index from the question content
         const isCorrect = (answer.response as number) === question.content.correctAnswer;
         const selectedOption = question.content.options[answer.response as number];
         const correctOption = question.content.options[question.content.correctAnswer];
@@ -126,24 +193,86 @@ export const AnswerDetails: React.FC<AnswerDetailsProps> = ({ submissionId, onBa
       case 'code':
         return (
           <div className="space-y-4">
-            <div className="mb-4">
-              <h3 className="text-sm font-medium text-gray-700 mb-2">Test Cases:</h3>
-              <div className="space-y-2">
-                {question.content.testCases.map((testCase, index) => (
-                  <div key={index} className="bg-gray-50 p-3 rounded-lg text-sm">
-                    <div>Input: {testCase.input}</div>
-                    <div>Expected Output: {testCase.expectedOutput}</div>
+      {executingCode[answer.questionId] ? (
+        <div className="flex items-center justify-center py-8">
+          <Loader2 className="w-8 h-8 animate-spin text-blue-500" />
+          <span className="ml-3 text-gray-600">Executing code...</span>
+        </div>
+      ) : (
+        <>
+          <CodeEditor
+            language={question.content.language || 'javascript'}
+            code={answer.response as string}
+            onChange={() => {}}
+            readOnly={true}
+          />
+          {validation.testResults && (
+            <div className="mt-4">
+              <div className="flex items-center justify-between mb-4">
+                <h3 className="text-sm font-medium text-gray-700">Test Results:</h3>
+                <div className="flex items-center space-x-4">
+                  <span className="text-sm text-gray-600">
+                    Passed: {validation.testResults.filter(r => r.passed).length}/{validation.testResults.length}
+                  </span>
+                </div>
+              </div>
+              <div className="space-y-4">
+                {validation.testResults.map((result, index) => (
+                  <div
+                    key={index}
+                    className={`p-4 rounded-lg border ${
+                      result.passed
+                        ? 'border-green-200 bg-green-50'
+                        : 'border-red-200 bg-red-50'
+                    }`}
+                  >
+                    <div className="flex items-center justify-between mb-3">
+                      <div className="flex items-center">
+                        {result.passed ? (
+                          <CheckCircle className="w-5 h-5 text-green-500 mr-2" />
+                        ) : (
+                          <XCircle className="w-5 h-5 text-red-500 mr-2" />
+                        )}
+                        <span className={`font-medium ${
+                          result.passed ? 'text-green-700' : 'text-red-700'
+                        }`}>
+                          Test Case {index + 1}
+                        </span>
+                      </div>
+                      {/* {result.executionTime && (
+                        <span className="text-sm text-gray-500">
+                          Time: {(result.executionTime * 1000).toFixed(2)}ms
+                        </span>
+                      )} */}
+                    </div>
+                    <div className="grid grid-cols-2 gap-4 text-sm">
+                      <div className="col-span-2">
+                        <p className="font-medium text-gray-700">Expected Output:</p>
+                        <pre className="mt-1 p-2 bg-white rounded border border-gray-200 overflow-x-auto">
+                          {typeof result.expectedOutput === 'object' 
+                            ? JSON.stringify(result.expectedOutput, null, 2)
+                            : result.expectedOutput}
+                        </pre>
+                      </div>
+                      <div className="col-span-2">
+                        <p className="font-medium text-gray-700">Your Output:</p>
+                        <pre className={`mt-1 p-2 bg-white rounded border ${
+                          result.passed ? 'border-green-200' : 'border-red-200'
+                        } overflow-x-auto`}>
+                          {typeof result.actualOutput === 'object'
+                            ? JSON.stringify(result.actualOutput, null, 2)
+                            : result.actualOutput}
+                        </pre>
+                      </div>
+                    </div>
                   </div>
                 ))}
               </div>
             </div>
-            <CodeEditor
-              language={question.content.language || 'javascript'}
-              code={answer.response as string}
-              onChange={() => {}}
-              readOnly={true}
-            />
-          </div>
+          )}
+        </>
+      )}
+    </div>
         );
 
       case 'dragDrop':
