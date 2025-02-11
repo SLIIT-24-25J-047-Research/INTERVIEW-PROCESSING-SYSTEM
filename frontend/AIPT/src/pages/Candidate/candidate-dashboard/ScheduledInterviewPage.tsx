@@ -354,10 +354,10 @@ const ScheduledInterviewPage: React.FC = () => {
                               <div className="relative h-2 w-full rounded overflow-hidden bg-gray-200">
                                 <div
                                   className={`absolute top-0 left-0 h-full transition-all duration-300 ${segment.completed
-                                      ? "bg-green-500"
-                                      : segment.active
-                                        ? "bg-blue-500"
-                                        : "bg-gray-300"
+                                    ? "bg-green-500"
+                                    : segment.active
+                                      ? "bg-blue-500"
+                                      : "bg-gray-300"
                                     }`}
                                   style={{
                                     width: segment.progress,
@@ -528,7 +528,7 @@ const ScheduledInterviewPage: React.FC = () => {
                                           </p>
                                         )} */}
                                         <Button
-                                          onClick={() => navigate("/non-tech-interview")}
+                                          onClick={() => navigate(`/non-tech-interview?id=${application.nonTechnicalInterview?._id}`)}
                                           size="sm"
                                           className="bg-blue-600 hover:bg-blue-700"
                                           disabled={
@@ -539,11 +539,12 @@ const ScheduledInterviewPage: React.FC = () => {
                                             application.technicalInterview?.status.toLowerCase() !== "completed"
                                           }
                                         >
-                                        Join Interview
+                                          Join Interview
                                         </Button>
+
                                       </div>
                                     )}
-                              </div>
+                                </div>
                               </div>
                             </CardContent>
                           </Card>
