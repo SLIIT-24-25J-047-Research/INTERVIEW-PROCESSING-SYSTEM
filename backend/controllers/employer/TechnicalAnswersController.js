@@ -97,3 +97,21 @@ exports.getUserAnswers = async (req, res) => {
     res.status(500).json({ message: 'Error fetching answers', error });
   }
 };
+
+
+exports.getAllAnswersGroupedByInterview = async (req, res) => {
+  try {
+    const groupedAnswers = await InterviewAnswer.aggregate([
+      {
+        $group: {
+          _id: "$interviewId",
+          answers: { $push: "$$ROOT" }
+        }
+      }
+    ]);
+
+    res.status(200).json(groupedAnswers);
+  } catch (error) {
+    res.status(500).json({ message: 'Error fetching grouped answers', error });
+  }
+};
