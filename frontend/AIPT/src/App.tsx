@@ -63,6 +63,14 @@ const App: React.FC = () => {
           </PrivateRoute>
         }
       />
+      <Route
+        path="/interviewer-answers"
+        element={
+          <PrivateRoute allowedRoles={["interviewer"]}>
+            <AnswersDashboard />
+          </PrivateRoute>
+        }
+      />
 
 
 
@@ -182,7 +190,7 @@ const App: React.FC = () => {
       />
 
 <Route
-        path="/answers"
+        path="/test"
         element={
           <PrivateRoute allowedRoles={["candidate"]}>
             <AnswersDashboard />
