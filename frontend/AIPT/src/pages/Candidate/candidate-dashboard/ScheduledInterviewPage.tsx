@@ -142,6 +142,24 @@ const ScheduledInterviewPage: React.FC = () => {
     return now >= startTime && now <= endTime;
   };
 
+
+  const isInterviewTimeValid = (interviewDate: string, interviewTime: string) => {
+    const now = new Date();
+    const startTime = new Date(interviewDate);
+    const [time, meridian] = interviewTime.split(" ");
+    const [hours, minutes] = time.split(":").map(Number);
+
+    const adjustedHours =
+      meridian === "PM" && hours !== 12
+        ? hours + 12
+        : meridian === "AM" && hours === 12
+        ? 0
+        : hours;
+
+    startTime.setHours(adjustedHours, minutes, 0, 0);
+    return now >= startTime;
+  };
+
   const handleStartTest = (interview: TechnicalSchedule) => {
     if (
       !isTestDayAndTime(
@@ -475,6 +493,15 @@ const ScheduledInterviewPage: React.FC = () => {
                                     {application.nonTechnicalInterview.media}
                                   </span>
                                 </div>
+                                <div className="flex items-center space-x-2">
+                                  <Timer className="h-4 w-4 text-gray-500" />
+                                  <span className="text-sm text-gray-600">
+                                    {getTimeRemaining(
+                                      application.nonTechnicalInterview.interviewDate,
+                                      application.nonTechnicalInterview.interviewTime
+                                    )}
+                                  </span>
+                                </div>
                                 <div className="flex items-center justify-between">
                                   <span
                                     className={`px-2 py-1 rounded-full text-xs font-medium ${getStatusColor(
@@ -484,13 +511,21 @@ const ScheduledInterviewPage: React.FC = () => {
                                     {application.nonTechnicalInterview.status}
                                   </span>
                                   {application.technicalInterview?.status.toLowerCase() ===
-                                    "completed" && (
+                                    "completed" && 
+                                    application.nonTechnicalInterview.status.toLowerCase() !==
+                                    "done" && (
                                     <Button
                                       onClick={() =>
-                                        navigate("/join-interview")
+                                        navigate("/non-tech-interview")
                                       }
                                       size="sm"
                                       className="bg-blue-600 hover:bg-blue-700"
+                                      disabled={
+                                        !isInterviewTimeValid(
+                                          application.nonTechnicalInterview.interviewDate,
+                                          application.nonTechnicalInterview.interviewTime
+                                        )
+                                      }
                                     >
                                       Join Interview
                                     </Button>
