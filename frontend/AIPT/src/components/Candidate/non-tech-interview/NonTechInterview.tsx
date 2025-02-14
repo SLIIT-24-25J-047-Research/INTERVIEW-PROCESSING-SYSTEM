@@ -300,10 +300,10 @@ function App() {
           )}
         </div>
 
-        <footer className="mt-16 text-center text-gray-500 text-sm">
+        <div className="mt-16 text-center text-gray-500 text-sm">
           <p>Speak clearly and take your time to answer each question thoroughly</p>
           <p className="mt-2">You have {QUESTION_TIMEOUT} seconds per question</p>
-        </footer>
+        </div>
       </div>
     </div>
   );
