@@ -138,7 +138,7 @@ export const AnswerDetails: React.FC<AnswerDetailsProps> = ({ submissionId, onBa
         isCorrect: allTestsPassed,
         feedback: allTestsPassed ? 'All test cases passed!' : 'Some test cases failed',
         points: allTestsPassed ? question.points : 0,
-        testResults: testResults.map((test: any) => ({
+        testResults: testResults.map((test: { passed: boolean; output: string | object; expectedOutput: string | object }) => ({
           passed: test.passed,
           input: JSON.stringify(test.output), // Using output as input since input isn't in response
           expectedOutput: JSON.stringify(test.expectedOutput),
