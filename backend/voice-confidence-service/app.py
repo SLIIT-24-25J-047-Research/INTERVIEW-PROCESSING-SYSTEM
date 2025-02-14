@@ -218,7 +218,7 @@ def compare_answers(candidate_answer, actual_answers):
     for actual_answer in processed_actuals:
         for candidate_version in all_candidate_versions:
             # Get semantic similarity
-            similarity = get_semantic_similarity(candidate_version, actual_answer)
+            similarity = float(get_semantic_similarity(candidate_version, actual_answer))
             
             # Extract and compare key information
             candidate_info = extract_key_information(candidate_version)
@@ -230,23 +230,23 @@ def compare_answers(candidate_answer, actual_answers):
             verb_overlap = len(set(candidate_info['main_verbs']) & set(actual_info['main_verbs']))
             
             # Calculate weighted information score
-            info_score = (
-                entity_overlap * 0.4 +
+            info_score = float(
+                (entity_overlap * 0.4 +
                 noun_overlap * 0.3 +
                 verb_overlap * 0.3
             ) / (
                 max(len(candidate_info['entities'] + actual_info['entities']), 1)
-            )
+            ))
             
             # Combine semantic similarity with information score
-            combined_score = (similarity * 0.7 + info_score * 0.3)
+            combined_score = float(similarity * 0.7 + info_score * 0.3)
             
             if combined_score > max_similarity:
                 max_similarity = combined_score
                 best_match_info = {
-                    'semantic_similarity': similarity,
-                    'info_score': info_score,
-                    'combined_score': combined_score,
+                    'semantic_similarity': float(similarity),
+                    'info_score': float(info_score),
+                    'combined_score': float(combined_score),
                     'key_matches': {
                         'entities': list(set(candidate_info['entities']) & set(actual_info['entities'])),
                         'noun_phrases': list(set(candidate_info['noun_phrases']) & set(actual_info['noun_phrases'])),
