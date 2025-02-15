@@ -12,9 +12,7 @@ router.post('/register', register);
 // @desc    Login a user
 // @access  Public
 router.get('/profile/:id', getUserProfile);
-
-router.put('/profile',  updateProfile);
-
+router.put('/profile/:id', updateProfile);
 
 router.put('/password', updatePassword);
 router.post('/login', login);
