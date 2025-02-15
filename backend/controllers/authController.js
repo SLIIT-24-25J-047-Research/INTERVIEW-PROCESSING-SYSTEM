@@ -264,53 +264,48 @@ const getUserProfile = async (req, res) => {
 };
 
 
-const updateProfile =  async (req, res) => {
+const updateProfile = async (req, res) => {
   try {
-    const {
-      fullName,
-      email,
-      location,
-      currentRole,
-      bio,
-      profilePicture,
-      experience,
-      education,
-      skills
-    } = req.body;
+    const allowedFields = [
+      "fullName",
+      "location",
+      "currentRole",
+      "bio",
+      "profilePicture",
+      "experience",
+      "education",
+      "skills"
+    ];
 
-    const updateFields = {
-      fullName,
-      email,
-      location,
-      currentRole,
-      bio,
-      profilePicture,
-      experience,
-      education,
-      skills
-    };
+    // Extract only the provided fields from req.body
+    const updateFields = {};
+    allowedFields.forEach(field => {
+      if (req.body[field] !== undefined) {
+        updateFields[field] = req.body[field];
+      }
+    });
 
-    // Remove undefined fields
-    Object.keys(updateFields).forEach(key => 
-      updateFields[key] === undefined && delete updateFields[key]
-    );
+    if (Object.keys(updateFields).length === 0) {
+      return res.status(400).json({ message: "No valid fields provided for update" });
+    }
 
     const user = await User.findByIdAndUpdate(
-      req.user.id,
+      req.params.id, // Get user by ID from URL
       { $set: updateFields },
       { new: true, runValidators: true }
     ).select('-password');
 
     if (!user) {
-      return res.status(404).json({ message: 'User not found' });
+      return res.status(404).json({ message: "User not found" });
     }
 
     res.json(user);
   } catch (error) {
-    console.error('Error in updateProfile:', error);
-    res.status(500).json({ message: 'Server error' });
+    console.error("Error in updateProfile:", error);
+    res.status(500).json({ message: "Server error" });
   }
 };
+
 
 // Update password
 const updatePassword = async (req, res) => {
