@@ -237,6 +237,110 @@ const googleSignup = async (req, res) => {
 };
 
 
+const getUserProfile = async (req, res) => {
+  try {
+    const user = await User.findById(req.params.id).select('-password');
+    
+    if (!user) {
+      return res.status(404).json({ message: 'User not found' });
+    }
+
+    // Ensure all fields exist, returning empty values for missing ones
+    const userProfile = {
+      id: user._id,
+      email: user.email || '',
+      name: user.name || '',
+      phone: user.phone || '',
+      address: user.address || '',
+      bio: user.bio || '',
+      skills: user.skills || [],
+    };
+
+    res.json(userProfile);
+  } catch (error) {
+    console.error('Error in getUserProfile:', error);
+    res.status(500).json({ message: 'Server error' });
+  }
+};
 
 
-module.exports = { login, register, getUserData, googleLogin, googleSignup };
+const updateProfile =  async (req, res) => {
+  try {
+    const {
+      fullName,
+      email,
+      location,
+      currentRole,
+      bio,
+      profilePicture,
+      experience,
+      education,
+      skills
+    } = req.body;
+
+    const updateFields = {
+      fullName,
+      email,
+      location,
+      currentRole,
+      bio,
+      profilePicture,
+      experience,
+      education,
+      skills
+    };
+
+    // Remove undefined fields
+    Object.keys(updateFields).forEach(key => 
+      updateFields[key] === undefined && delete updateFields[key]
+    );
+
+    const user = await User.findByIdAndUpdate(
+      req.user.id,
+      { $set: updateFields },
+      { new: true, runValidators: true }
+    ).select('-password');
+
+    if (!user) {
+      return res.status(404).json({ message: 'User not found' });
+    }
+
+    res.json(user);
+  } catch (error) {
+    console.error('Error in updateProfile:', error);
+    res.status(500).json({ message: 'Server error' });
+  }
+};
+
+// Update password
+const updatePassword = async (req, res) => {
+  try {
+    const { currentPassword, newPassword } = req.body;
+
+    // Get user with password
+    const user = await User.findById(req.user.id).select('+password');
+    if (!user) {
+      return res.status(404).json({ message: 'User not found' });
+    }
+
+    // Check current password
+    const isMatch = await user.comparePassword(currentPassword);
+    if (!isMatch) {
+      return res.status(400).json({ message: 'Current password is incorrect' });
+    }
+
+    // Update password
+    user.password = newPassword;
+    await user.save();
+
+    res.json({ message: 'Password updated successfully' });
+  } catch (error) {
+    console.error('Error in updatePassword:', error);
+    res.status(500).json({ message: 'Server error' });
+  }
+}
+
+
+
+
+module.exports = { login, register, getUserData, googleLogin, googleSignup, getUserProfile, updateProfile, updatePassword };
