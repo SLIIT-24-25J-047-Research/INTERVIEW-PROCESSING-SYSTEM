@@ -13,8 +13,8 @@ router.post('/register', register);
 // @access  Public
 router.get('/profile/:id', getUserProfile);
 router.put('/profile/:id', updateProfile);
+router.put('/profile/:id/password', updatePassword);
 
-router.put('/password', updatePassword);
 router.post('/login', login);
 router.get('/login', getUserData);
 
