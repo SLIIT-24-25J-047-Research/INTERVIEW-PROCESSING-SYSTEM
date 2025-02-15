@@ -159,9 +159,9 @@ function App() {
 
       try {
         await Promise.all([
-          axios.post("http://localhost:5000/api/predict", confidenceFormData, {
-            headers: { "Content-Type": "multipart/form-data" },
-          }),
+          // axios.post("http://localhost:5000/api/predict", confidenceFormData, {
+          //   headers: { "Content-Type": "multipart/form-data" },
+          // }),
           axios.post("http://localhost:5000/api/audio/audio", transcribeFormData, {
             headers: { "Content-Type": "multipart/form-data" },
           })
