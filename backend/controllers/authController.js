@@ -307,24 +307,49 @@ const updateProfile = async (req, res) => {
 };
 
 
-// Update password
+
 const updatePassword = async (req, res) => {
   try {
     const { currentPassword, newPassword } = req.body;
 
-    // Get user with password
-    const user = await User.findById(req.user.id).select('+password');
+    // Ensure password is provided
+    if (!currentPassword || typeof currentPassword !== 'string') {
+      return res.status(400).json({ message: 'Current password is required' });
+    }
+
+    // Find user and include password
+    const user = await User.findById(req.params.id).select('+password');
+
     if (!user) {
       return res.status(404).json({ message: 'User not found' });
     }
 
-    // Check current password
-    const isMatch = await user.comparePassword(currentPassword);
+    // Check if password exists (for OAuth users)
+    if (!user.password) {
+      return res.status(400).json({ message: 'No password set for this user' });
+    }
+
+    // Debugging - Check retrieved password
+    console.log("Entered Password:", currentPassword);
+    console.log("Hashed Password from DB:", user.password);
+
+    // Compare entered password with stored hash
+    const isMatch = await bcrypt.compare(currentPassword, user.password);
+    console.log("Password Match:", isMatch); // Debugging
+
     if (!isMatch) {
       return res.status(400).json({ message: 'Current password is incorrect' });
     }
 
-    // Update password
+    // Validate new password strength
+    const passwordRegex = /^(?=.*[A-Z])(?=.*\d).{8,}$/;
+    if (!passwordRegex.test(newPassword)) {
+      return res.status(400).json({
+        message: 'Password must be at least 8 characters long, include an uppercase letter, and a number.'
+      });
+    }
+
+    // Assign new password (will be hashed in pre-save middleware)
     user.password = newPassword;
     await user.save();
 
@@ -333,7 +358,7 @@ const updatePassword = async (req, res) => {
     console.error('Error in updatePassword:', error);
     res.status(500).json({ message: 'Server error' });
   }
-}
+};
 
 
 
