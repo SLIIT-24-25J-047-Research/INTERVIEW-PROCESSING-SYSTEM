@@ -1,7 +1,9 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
+import axios from 'axios';
 import { Mail, MapPin, Briefcase, GraduationCap, Edit2, Save, X } from 'lucide-react';
 import CandidateHeader from '../../../components/Candidate/CandidateHeader';
 import Sidebar from "../../../components/Candidate/CandidateSidebar";
+import { toast } from 'react-hot-toast';
 
 interface ProfileData {
   fullName: string;
@@ -22,46 +24,54 @@ interface ProfileData {
   skills: string[];
 }
 
-function App() {
-  const [isEditing, setIsEditing] = useState(false);
-  const [profile, setProfile] = useState<ProfileData>({
-    fullName: "Alex Johnson",
-    email: "alex.johnson@example.com",
-    location: "San Francisco, CA",
-    currentRole: "Senior Software Engineer",
-    bio: "Passionate software engineer with expertise in full-stack development. I love building scalable solutions and working with cross-functional teams.",
-    profilePicture: "https://images.unsplash.com/photo-1472099645785-5658abf4ff4e?w=400&h=400&fit=crop&crop=faces&q=80",
-    experience: [
-      {
-        role: "Senior Software Engineer",
-        company: "Tech Solutions Inc.",
-        duration: "2020 - Present"
-      },
-      {
-        role: "Software Engineer",
-        company: "Innovation Labs",
-        duration: "2018 - 2020"
-      }
-    ],
-    education: [
-      {
-        degree: "Master of Science in Computer Science",
-        institution: "Stanford University"
-      }
-    ],
-    skills: ["JavaScript", "React", "Node.js", "AWS", "Python", "Docker"]
-  });
+interface PasswordUpdate {
+  currentPassword: string;
+  newPassword: string;
+  confirmPassword: string;
+}
 
-  const [editedProfile, setEditedProfile] = useState<ProfileData>(profile);
+function App() {
+  const userId = '675a8a8b1f81aa2955e37c2d';
+  const [isEditing, setIsEditing] = useState(false);
+  const [isLoading, setIsLoading] = useState(true);
+  const [profile, setProfile] = useState<ProfileData | null>(null);
+  const [editedProfile, setEditedProfile] = useState<ProfileData | null>(null);
+  const [error, setError] = useState<string | null>(null);
+
+  const fetchProfile = async () => {
+    try {
+      setIsLoading(true);
+      const response = await axios.get(`http://localhost:5000/api/auth/profile/${userId}`);
+      setProfile(response.data);
+      setError(null);
+    } catch (err) {
+      setError('Failed to load profile data');
+      toast.error('Failed to load profile data');
+    } finally {
+      setIsLoading(false);
+    }
+  };
+
+  useEffect(() => {
+    fetchProfile();
+  }, []);
 
   const handleEdit = () => {
     setIsEditing(true);
     setEditedProfile(profile);
   };
 
-  const handleSave = () => {
-    setProfile(editedProfile);
-    setIsEditing(false);
+  const handleSave = async () => {
+    if (!editedProfile) return;
+
+    try {
+      await axios.put(`http://localhost:5000/api/auth/profile/${userId}`, editedProfile);
+      setProfile(editedProfile);
+      setIsEditing(false);
+      toast.success('Profile updated successfully');
+    } catch (err) {
+      toast.error('Failed to update profile');
+    }
   };
 
   const handleCancel = () => {
@@ -70,11 +80,34 @@ function App() {
   };
 
   const handleChange = (field: keyof ProfileData, value: string | string[] | { role: string; company: string; duration: string }[] | { degree: string; institution: string }[]) => {
-    setEditedProfile(prev => ({
-      ...prev,
-      [field]: value
-    }));
+    if (!editedProfile) return;
+    
+    setEditedProfile(prev => {
+      if (!prev) return prev;
+      return {
+        ...prev,
+        [field]: value
+      };
+    });
   };
+
+  const updatePassword = async (passwordData: PasswordUpdate) => {
+    try {
+      await axios.put(`http://localhost:5000/api/auth/profile/${userId}/password`, passwordData);
+      toast.success('Password updated successfully');
+    } catch (err) {
+      toast.error('Failed to update password');
+    }
+  };
+
+  if (isLoading) {
+    return <div className="flex justify-center items-center h-screen">Loading...</div>;
+  }
+
+  if (error || !profile) {
+    return <div className="flex justify-center items-center h-screen">Error: {error}</div>;
+  }
+
 
   return (
     <div className="flex h-screen">
@@ -86,9 +119,9 @@ function App() {
           {/* Header Section */}
           <div className="relative h-48 bg-gradient-to-r from-blue-500 to-blue-600">
             <div className="absolute -bottom-20 left-8 flex items-end space-x-6">
-              <div className="relative">
+            <div className="relative">
                 <img
-                  src={profile.profilePicture}
+                  src={profile.profilePicture || '/default-avatar.png'}
                   alt={profile.fullName}
                   className="w-32 h-32 rounded-full border-4 border-white object-cover"
                 />
@@ -102,7 +135,7 @@ function App() {
                 {isEditing ? (
                   <input
                     type="text"
-                    value={editedProfile.fullName}
+                    value={editedProfile?.fullName || ''}
                     onChange={(e) => handleChange('fullName', e.target.value)}
                     className="text-2xl font-bold bg-transparent border-b border-gray-300 text-white focus:border-blue-400 outline-none"
                   />
@@ -112,7 +145,7 @@ function App() {
                 {isEditing ? (
                   <input
                     type="text"
-                    value={editedProfile.currentRole}
+                    value={editedProfile?.currentRole || ''}
                     onChange={(e) => handleChange('currentRole', e.target.value)}
                     className="text-white/90 bg-transparent border-b border-gray-300 focus:border-blue-400 outline-none"
                   />
@@ -160,20 +193,21 @@ function App() {
                 {isEditing ? (
                   <input
                     type="email"
-                    value={editedProfile.email}
+                    value={editedProfile?.email}
                     onChange={(e) => handleChange('email', e.target.value)}
                     className="border-b border-gray-300 focus:border-blue-500 outline-none"
                   />
                 ) : (
                   profile.email
                 )}
+
               </div>
               <div className="flex items-center gap-2">
                 <MapPin size={18} />
                 {isEditing ? (
                   <input
                     type="text"
-                    value={editedProfile.location}
+                    value={editedProfile?.location || ''}
                     onChange={(e) => handleChange('location', e.target.value)}
                     className="border-b border-gray-300 focus:border-blue-500 outline-none"
                   />
@@ -188,7 +222,7 @@ function App() {
               <h2 className="text-lg font-semibold mb-2">About</h2>
               {isEditing ? (
                 <textarea
-                  value={editedProfile.bio}
+                  value={editedProfile?.bio || ''}
                   onChange={(e) => handleChange('bio', e.target.value)}
                   className="w-full p-2 border rounded-lg focus:border-blue-500 outline-none"
                   rows={3}
@@ -205,7 +239,7 @@ function App() {
                 Experience
               </h2>
               <div className="space-y-4">
-                {(isEditing ? editedProfile : profile).experience.map((exp, index) => (
+                {(isEditing ? editedProfile?.experience : profile?.experience)?.map((exp, index) => (
                   <div key={index} className="flex flex-col">
                     {isEditing ? (
                       <div className="space-y-2">
@@ -213,7 +247,7 @@ function App() {
                           type="text"
                           value={exp.role}
                           onChange={(e) => {
-                            const newExp = [...editedProfile.experience];
+                            const newExp = [...(editedProfile?.experience || [])];
                             newExp[index] = { ...exp, role: e.target.value };
                             handleChange('experience', newExp);
                           }}
@@ -224,7 +258,7 @@ function App() {
                           type="text"
                           value={exp.company}
                           onChange={(e) => {
-                            const newExp = [...editedProfile.experience];
+                            const newExp = [...(editedProfile?.experience || [])];
                             newExp[index] = { ...exp, company: e.target.value };
                             handleChange('experience', newExp);
                           }}
@@ -235,7 +269,7 @@ function App() {
                           type="text"
                           value={exp.duration}
                           onChange={(e) => {
-                            const newExp = [...editedProfile.experience];
+                            const newExp = [...(editedProfile?.experience || [])];
                             newExp[index] = { ...exp, duration: e.target.value };
                             handleChange('experience', newExp);
                           }}
@@ -262,7 +296,7 @@ function App() {
                 Education
               </h2>
               <div className="space-y-4">
-                {(isEditing ? editedProfile : profile).education.map((edu, index) => (
+                {(isEditing ? editedProfile?.education : profile?.education)?.map((edu, index) => (
                   <div key={index}>
                     {isEditing ? (
                       <div className="space-y-2">
@@ -270,7 +304,7 @@ function App() {
                           type="text"
                           value={edu.degree}
                           onChange={(e) => {
-                            const newEdu = [...editedProfile.education];
+                            const newEdu = [...(editedProfile?.education || [])];
                             newEdu[index] = { ...edu, degree: e.target.value };
                             handleChange('education', newEdu);
                           }}
@@ -281,9 +315,11 @@ function App() {
                           type="text"
                           value={edu.institution}
                           onChange={(e) => {
-                            const newEdu = [...editedProfile.education];
-                            newEdu[index] = { ...edu, institution: e.target.value };
-                            handleChange('education', newEdu);
+                            if (editedProfile) {
+                              const newEdu = [...editedProfile.education];
+                              newEdu[index] = { ...edu, institution: e.target.value };
+                              handleChange('education', newEdu);
+                            }
                           }}
                           className="text-gray-600 block w-full border-b border-gray-300 focus:border-blue-500 outline-none"
                           placeholder="Institution"
@@ -304,7 +340,7 @@ function App() {
             <div>
               <h2 className="text-lg font-semibold mb-4">Skills</h2>
               <div className="flex flex-wrap gap-2">
-                {(isEditing ? editedProfile : profile).skills.map((skill, index) => (
+                {(isEditing ? editedProfile?.skills : profile?.skills)?.map((skill, index) => (
                   <span
                     key={index}
                     className="bg-blue-50 text-blue-700 px-4 py-1.5 rounded-full text-sm font-medium"
