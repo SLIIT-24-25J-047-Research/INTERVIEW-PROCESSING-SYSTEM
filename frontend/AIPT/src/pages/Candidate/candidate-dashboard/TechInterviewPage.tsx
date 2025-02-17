@@ -12,12 +12,9 @@ import {
   Loader2
 } from "lucide-react";
 import { useInterviewStore } from "../../../components/store/InterviewStore";
-import { Timer } from "../../../components/Candidate/tech-interview/Timer";
+
 import { CodeEditor } from "../../../components/Candidate/tech-interview/CodeEditor";
 import { Question } from "../../../components/types";
-import { DragDropQuestion } from "../../../components/Candidate/tech-interview/DragDropQuestion";
-import { FillBlanksQuestion } from "../../../components/Candidate/tech-interview/FillBlanksQuestion";
-import { MultipleChoiceQuestion } from "../../../components/Candidate/tech-interview/MultipleChoiceQuestion";
 
 interface LocationState {
   interviewId: string;
@@ -135,76 +132,22 @@ const Techexam: React.FC = () => {
   };
 
   const renderQuestion = (question: Question) => {
-    const isLocked = isQuestionLocked(question._id);
 
-    if (isLocked) {
-      return (
-        <div className="flex flex-col items-center justify-center p-12 space-y-4 bg-gray-50 rounded-lg">
-          <Lock className="w-12 h-12 text-gray-400" />
-          <p className="text-lg text-gray-600 font-medium">Time's up! This question has been submitted.</p>
-        </div>
-      );
-    }
-
-    switch (question.type) {
-      case 'code':
         return (
           <CodeEditor
             language={question.content.language || 'javascript'}
             code={question.content.initialCode || ''}
             onChange={(value) => handleAnswerChange(question._id, 'code', value)}
-            readOnly={isLocked}
-          />
-        );
-      case 'fillBlanks':
-        return (
-          <FillBlanksQuestion
-          text={question.content.text || ''}
-          blanks={question.content.blanks}
-          onChange={(answers) => handleAnswerChange(question._id, 'fillBlanks', Object.values(answers))}
-          disabled={isLocked}
-        />
         
-        );
-      case 'dragDrop':
-        return (
-          <DragDropQuestion
-            items={question.content.items}
-            onChange={(order) => handleAnswerChange(question._id, 'dragDrop', order)}
-            disabled={isLocked}
           />
         );
-      case 'multipleChoice':
-        return (
-          <MultipleChoiceQuestion
-            options={question.content.options}
-            onChange={(answer) => handleAnswerChange(question._id, 'multipleChoice', answer)}
-            disabled={isLocked}
-          />
-        );
-      default:
+    
         return null;
-    }
+    
   };
 
 
-  // useEffect(() => {
-  //   console.log("Interview ID:", interviewId);
-  //   console.log("Test Link:", testLink);
-  //   console.log("Duration:", duration);
-  // }, [interviewId, testLink, duration]);
-
-  // if (loading) {
-  //   return <div className="flex justify-center items-center h-screen">Loading questions...</div>;
-  // }
-
-  // if (error) {
-  //   return <div className="flex justify-center items-center h-screen text-red-600">Error: {error}</div>;
-  // }
-
-  // if (!questions.length) {
-  //   return <div className="flex justify-center items-center h-screen">No questions available</div>;
-  // }
+ 
 
 
   return (
@@ -224,11 +167,7 @@ const Techexam: React.FC = () => {
                     <Trophy className="w-6 h-6 text-yellow-500" />
                     <span className="font-semibold">Score: 0</span>
                   </div>
-                  <Timer 
-                duration={currentQuestion.timeLimit} 
-                onTimeUp={handleTimeUp}
-                questionId={currentQuestion._id}
-              />
+                  
                 </div>
               </div>
             </div>
@@ -260,10 +199,7 @@ const Techexam: React.FC = () => {
                         <div className="flex items-center justify-between">
                           <span>Question {index + 1}</span>
                           <div className="flex items-center space-x-2">
-                          {isQuestionLocked(q._id) && <Lock className="w-4 h-4 text-gray-400" />}
-                          {q.difficulty === 'easy' && <Star className="w-4 h-4 text-green-500" />}
-                          {q.difficulty === 'medium' && <Star className="w-4 h-4 text-yellow-500" />}
-                          {q.difficulty === 'hard' && <Star className="w-4 h-4 text-red-500" />}
+                          
                           <Flag className="w-4 h-4 text-gray-400" />
                         </div>
                         </div>
@@ -288,12 +224,8 @@ const Techexam: React.FC = () => {
                           {currentQuestion.points} points
                         </span>
                         <span className="flex items-center">
-                        <Timer 
-                          duration={currentQuestion.timeLimit} 
-                          onTimeUp={handleTimeUp}
-                          questionId={currentQuestion._id}
-                        />
-                        {Math.floor(currentQuestion.timeLimit / 60)} minutes
+                       
+                       
                         </span>
                       </div>
                     </div>
@@ -302,7 +234,7 @@ const Techexam: React.FC = () => {
                     currentQuestion.difficulty === 'medium' ? 'bg-yellow-100 text-yellow-800' :
                     'bg-red-100 text-red-800'
                   }`}>
-                    {currentQuestion.difficulty}
+                 
                   </span>
                   </div>
                   <p className="mt-2 text-gray-600">
@@ -312,25 +244,25 @@ const Techexam: React.FC = () => {
                 <div className="p-6">  {renderQuestion(currentQuestion)}</div>
                 <div className="p-6 border-t bg-gray-50 flex justify-between">
                 <button
-                  onClick={() => setCurrentQuestion(Math.max(0, currentQuestionIndex - 1))}
+                  onClick={() => setCurrentQuestion(Math.min(0, currentQuestionIndex ))}
                   className={`flex items-center px-4 py-2 text-sm font-medium rounded-md ${
                     canNavigateToQuestion(currentQuestionIndex - 1)
                       ? 'text-gray-700 bg-white border border-gray-300 hover:bg-gray-50'
                       : 'text-gray-400 bg-gray-100 cursor-not-allowed'
                   }`}
-                  disabled={!canNavigateToQuestion(currentQuestionIndex - 1)}
+                 
                 >
                     <ChevronLeft className="w-4 h-4 mr-2" />
                     Previous
                   </button>
                   <button
-                  onClick={() => setCurrentQuestion(Math.min(questions.length - 1, currentQuestionIndex + 1))}
+                  onClick={() => setCurrentQuestion(Math.min( currentQuestionIndex))}
                   className={`flex items-center px-4 py-2 text-sm font-medium rounded-md ${
                     canNavigateToQuestion(currentQuestionIndex + 1)
                       ? 'text-white bg-blue-600 hover:bg-blue-700'
                       : 'text-gray-400 bg-gray-100 cursor-not-allowed'
                   }`}
-                  disabled={!canNavigateToQuestion(currentQuestionIndex + 1)}
+                 
                 >
                     Next
                     <ChevronRight className="w-4 h-4 ml-2" />

@@ -117,6 +117,35 @@ const editInterview = async (req, res) => {
   }
 };
 
+const updateInterviewStatus = async (req, res) => {
+  try {
+      const { id } = req.params;
+      const { status } = req.body;
+
+      // Check if the provided status is valid
+      const validStatuses = ['scheduled', 'updated', 'done', 'not attended', 'canceled'];
+      if (!validStatuses.includes(status)) {
+          return res.status(400).json({ message: 'Invalid status value' });
+      }
+
+      const interview = await InterviewSchedule.findByIdAndUpdate(
+          id,
+          { status },
+          { new: true }
+      );
+
+      if (!interview) {
+          return res.status(404).json({ message: 'Interview not found' });
+      }
+
+      res.status(200).json({ message: 'Interview status updated successfully', interview });
+  } catch (error) {
+      res.status(500).json({ message: 'Server error', error: error.message });
+  }
+};
+
+
+
 
 
 
@@ -193,4 +222,4 @@ const getSchedulesByUserId = async (req, res) => {
 };
 
 
-module.exports = { scheduleInterview, editInterview, cancelInterview, getAllSchedules, getScheduleById, getSchedulesByUserId };
+module.exports = { scheduleInterview, editInterview, cancelInterview, getAllSchedules, getScheduleById, getSchedulesByUserId, updateInterviewStatus };
