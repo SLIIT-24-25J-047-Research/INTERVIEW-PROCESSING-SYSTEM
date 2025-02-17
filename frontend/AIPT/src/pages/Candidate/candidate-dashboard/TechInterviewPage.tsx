@@ -224,11 +224,7 @@ const Techexam: React.FC = () => {
                           {currentQuestion.points} points
                         </span>
                         <span className="flex items-center">
-                        <Timer 
-                          duration={currentQuestion.timeLimit} 
-                          onTimeUp={handleTimeUp}
-                          questionId={currentQuestion._id}
-                        />
+                       
                         {Math.floor(currentQuestion.timeLimit / 60)} minutes
                         </span>
                       </div>
