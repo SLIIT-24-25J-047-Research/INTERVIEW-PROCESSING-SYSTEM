@@ -22,11 +22,21 @@ import nltk
 from nltk.corpus import stopwords
 from nltk.tokenize import word_tokenize
 from nltk.stem import WordNetLemmatizer
+from typing import List, Dict, Union, Optional
+import logging
 
 # Download required NLTK data
 nltk.download('punkt')
 nltk.download('stopwords')
 nltk.download('wordnet')
+
+logging.basicConfig(
+    level=logging.INFO,
+    format='%(asctime)s - %(name)s - %(levelname)s - %(message)s'
+)
+logger = logging.getLogger(__name__)
+
+
 
 app = Flask(__name__)
 
@@ -197,85 +207,110 @@ def transcribe_audio(file_path):
 
 
 
-def compare_answers(candidate_answer, actual_answers):
+
+def compare_answers(candidate_answer: str, actual_answers: Union[str, List[str]]) -> Dict:
     """
-    Enhanced answer comparison using multiple techniques
+    Enhanced answer comparison with proper error handling and input validation
     """
-    # Preprocess answers
-    processed_candidate = preprocess_text(candidate_answer)
-    processed_actuals = [preprocess_text(answer) for answer in actual_answers]
-    
-    # Generate paraphrases for candidate answer
-    candidate_paraphrases = generate_paraphrases(candidate_answer)
-    
-    # Calculate similarities for original and paraphrased answers
-    max_similarity = 0
-    best_match_info = None
-    
-    # Compare with original and paraphrased versions
-    all_candidate_versions = [processed_candidate] + candidate_paraphrases
-    
-    for actual_answer in processed_actuals:
-        for candidate_version in all_candidate_versions:
-            # Get semantic similarity
-            similarity = get_semantic_similarity(candidate_version, actual_answer)
+    try:
+        # Input validation
+        if not candidate_answer or not isinstance(candidate_answer, str):
+            raise ValueError("Invalid candidate answer provided")
             
-            # Extract and compare key information
-            candidate_info = extract_key_information(candidate_version)
-            actual_info = extract_key_information(actual_answer)
+        # Handle both string and list inputs for actual_answers
+        if isinstance(actual_answers, str):
+            actual_answers = [actual_answers]
+        elif not isinstance(actual_answers, list) or not all(isinstance(x, str) for x in actual_answers):
+            raise ValueError("actual_answers must be a string or list of strings")
             
-            # Calculate information overlap
-            entity_overlap = len(set(candidate_info['entities']) & set(actual_info['entities']))
-            noun_overlap = len(set(candidate_info['noun_phrases']) & set(actual_info['noun_phrases']))
-            verb_overlap = len(set(candidate_info['main_verbs']) & set(actual_info['main_verbs']))
-            
-            # Calculate weighted information score
-            info_score = (
-                entity_overlap * 0.4 +
-                noun_overlap * 0.3 +
-                verb_overlap * 0.3
-            ) / (
-                max(len(candidate_info['entities'] + actual_info['entities']), 1)
-            )
-            
-            # Combine semantic similarity with information score
-            combined_score = (similarity * 0.7 + info_score * 0.3)
-            
-            if combined_score > max_similarity:
-                max_similarity = combined_score
-                best_match_info = {
-                    'semantic_similarity': similarity,
-                    'info_score': info_score,
-                    'combined_score': combined_score,
-                    'key_matches': {
-                        'entities': list(set(candidate_info['entities']) & set(actual_info['entities'])),
-                        'noun_phrases': list(set(candidate_info['noun_phrases']) & set(actual_info['noun_phrases'])),
-                        'main_verbs': list(set(candidate_info['main_verbs']) & set(actual_info['main_verbs']))
+        # Ensure non-empty answers
+        if not candidate_answer.strip() or not any(ans.strip() for ans in actual_answers):
+            raise ValueError("Empty answers provided")
+
+        # Log the comparison attempt
+        logger.info(f"Comparing answers - Candidate length: {len(candidate_answer)}, Number of actual answers: {len(actual_answers)}")
+
+        # Preprocess answers
+        processed_candidate = preprocess_text(candidate_answer)
+        processed_actuals = [preprocess_text(answer) for answer in actual_answers]
+        
+        # Generate paraphrases for candidate answer
+        candidate_paraphrases = generate_paraphrases(candidate_answer)
+        
+        # Calculate similarities
+        max_similarity = 0
+        best_match_info = None
+        
+        # Compare with original and paraphrased versions
+        all_candidate_versions = [processed_candidate] + candidate_paraphrases
+        
+        for actual_answer in processed_actuals:
+            for candidate_version in all_candidate_versions:
+                # Get semantic similarity
+                similarity = get_semantic_similarity(candidate_version, actual_answer)
+                
+                # Extract and compare key information
+                candidate_info = extract_key_information(candidate_version)
+                actual_info = extract_key_information(actual_answer)
+                
+                # Calculate information overlap
+                entity_overlap = len(set(candidate_info['entities']) & set(actual_info['entities']))
+                noun_overlap = len(set(candidate_info['noun_phrases']) & set(actual_info['noun_phrases']))
+                verb_overlap = len(set(candidate_info['main_verbs']) & set(actual_info['main_verbs']))
+                
+                # Calculate weighted information score
+                total_elements = max(len(candidate_info['entities'] + actual_info['entities']), 1)
+                info_score = float(
+                    (entity_overlap * 0.4 +
+                    noun_overlap * 0.3 +
+                    verb_overlap * 0.3) / total_elements
+                )
+                
+                # Combine semantic similarity with information score
+                combined_score = float(similarity * 0.7 + info_score * 0.3)
+                
+                if combined_score > max_similarity:
+                    max_similarity = combined_score
+                    best_match_info = {
+                        'semantic_similarity': float(similarity),
+                        'info_score': float(info_score),
+                        'combined_score': float(combined_score),
+                        'key_matches': {
+                            'entities': list(set(candidate_info['entities']) & set(actual_info['entities'])),
+                            'noun_phrases': list(set(candidate_info['noun_phrases']) & set(actual_info['noun_phrases'])),
+                            'main_verbs': list(set(candidate_info['main_verbs']) & set(actual_info['main_verbs']))
+                        }
                     }
-                }
-    
-    # Define thresholds for different confidence levels
-    high_threshold = 0.85
-    medium_threshold = 0.70
-    
-    # Determine confidence level and correctness
-    if max_similarity >= high_threshold:
-        confidence = "high"
-        is_correct = True
-    elif max_similarity >= medium_threshold:
-        confidence = "medium"
-        is_correct = True
-    else:
-        confidence = "low"
-        is_correct = False
-    
-    return {
-        'is_correct': is_correct,
-        'confidence': confidence,
-        'similarity_score': float(max_similarity),
-        'match_details': best_match_info,
-        'feedback': generate_feedback(best_match_info) if best_match_info else "Unable to analyze answer"
-    }
+        
+        # Define thresholds
+        high_threshold = 0.85
+        medium_threshold = 0.70
+        
+        # Determine confidence level
+        if max_similarity >= high_threshold:
+            confidence = "high"
+            is_correct = True
+        elif max_similarity >= medium_threshold:
+            confidence = "medium"
+            is_correct = True
+        else:
+            confidence = "low"
+            is_correct = False
+        
+        result = {
+            'is_correct': is_correct,
+            'confidence': confidence,
+            'similarity_score': float(max_similarity),
+            'match_details': best_match_info,
+            'feedback': generate_feedback(best_match_info) if best_match_info else "Unable to analyze answer"
+        }
+        
+        logger.info(f"Comparison completed successfully. Confidence: {confidence}, Score: {max_similarity}")
+        return result
+
+    except Exception as e:
+        logger.error(f"Error in compare_answers: {str(e)}")
+        raise
 
 def generate_feedback(match_info):
     """
@@ -326,16 +361,30 @@ def transcribe():
 def compare():
     try:
         data = request.json
+        if not data:
+            return jsonify({'error': 'No JSON data provided'}), 400
+        
         candidate_answer = data.get('candidate_answer')
         actual_answers = data.get('actual_answer')
         
-        if not candidate_answer or not actual_answers:
-            return jsonify({'error': 'Missing required fields'}), 400
+        if not candidate_answer:
+            return jsonify({'error': 'Missing candidate_answer'}), 400
+        if not actual_answers:
+            return jsonify({'error': 'Missing actual_answer'}), 400
+        
+        logger.info(f"Received comparison request - Candidate Answer Length: {len(str(candidate_answer))}")
         
         result = compare_answers(candidate_answer, actual_answers)
+        
+        logger.info("Comparison completed successfully")
         return jsonify(result)
+    
+    except ValueError as ve:
+        logger.error(f"Validation error: {str(ve)}")
+        return jsonify({'error': str(ve)}), 400
         
     except Exception as e:
+        logger.error(f"Unexpected error in compare endpoint: {str(e)}")
         return jsonify({'error': str(e)}), 500
 
 

@@ -237,6 +237,130 @@ const googleSignup = async (req, res) => {
 };
 
 
+const getUserProfile = async (req, res) => {
+  try {
+    const user = await User.findById(req.params.id).select('-password');
+    
+    if (!user) {
+      return res.status(404).json({ message: 'User not found' });
+    }
+
+    // Ensure all fields exist, returning empty values for missing ones
+    const userProfile = {
+      id: user._id,
+      email: user.email || '',
+      name: user.name || '',
+      phone: user.phone || '',
+      address: user.address || '',
+      bio: user.bio || '',
+      skills: user.skills || [],
+    };
+
+    res.json(userProfile);
+  } catch (error) {
+    console.error('Error in getUserProfile:', error);
+    res.status(500).json({ message: 'Server error' });
+  }
+};
 
 
-module.exports = { login, register, getUserData, googleLogin, googleSignup };
+const updateProfile = async (req, res) => {
+  try {
+    const allowedFields = [
+      "fullName",
+      "location",
+      "currentRole",
+      "bio",
+      "profilePicture",
+      "experience",
+      "education",
+      "skills"
+    ];
+
+    // Extract only the provided fields from req.body
+    const updateFields = {};
+    allowedFields.forEach(field => {
+      if (req.body[field] !== undefined) {
+        updateFields[field] = req.body[field];
+      }
+    });
+
+    if (Object.keys(updateFields).length === 0) {
+      return res.status(400).json({ message: "No valid fields provided for update" });
+    }
+
+    const user = await User.findByIdAndUpdate(
+      req.params.id, // Get user by ID from URL
+      { $set: updateFields },
+      { new: true, runValidators: true }
+    ).select('-password');
+
+    if (!user) {
+      return res.status(404).json({ message: "User not found" });
+    }
+
+    res.json(user);
+  } catch (error) {
+    console.error("Error in updateProfile:", error);
+    res.status(500).json({ message: "Server error" });
+  }
+};
+
+
+
+const updatePassword = async (req, res) => {
+  try {
+    const { currentPassword, newPassword } = req.body;
+
+    // Ensure password is provided
+    if (!currentPassword || typeof currentPassword !== 'string') {
+      return res.status(400).json({ message: 'Current password is required' });
+    }
+
+    // Find user and include password
+    const user = await User.findById(req.params.id).select('+password');
+
+    if (!user) {
+      return res.status(404).json({ message: 'User not found' });
+    }
+
+    // Check if password exists (for OAuth users)
+    if (!user.password) {
+      return res.status(400).json({ message: 'No password set for this user' });
+    }
+
+    // Debugging - Check retrieved password
+    console.log("Entered Password:", currentPassword);
+    console.log("Hashed Password from DB:", user.password);
+
+    // Compare entered password with stored hash
+    const isMatch = await bcrypt.compare(currentPassword, user.password);
+    console.log("Password Match:", isMatch); // Debugging
+
+    if (!isMatch) {
+      return res.status(400).json({ message: 'Current password is incorrect' });
+    }
+
+    // Validate new password strength
+    const passwordRegex = /^(?=.*[A-Z])(?=.*\d).{8,}$/;
+    if (!passwordRegex.test(newPassword)) {
+      return res.status(400).json({
+        message: 'Password must be at least 8 characters long, include an uppercase letter, and a number.'
+      });
+    }
+
+    // Assign new password (will be hashed in pre-save middleware)
+    user.password = newPassword;
+    await user.save();
+
+    res.json({ message: 'Password updated successfully' });
+  } catch (error) {
+    console.error('Error in updatePassword:', error);
+    res.status(500).json({ message: 'Server error' });
+  }
+};
+
+
+
+
+module.exports = { login, register, getUserData, googleLogin, googleSignup, getUserProfile, updateProfile, updatePassword };

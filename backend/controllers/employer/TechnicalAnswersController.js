@@ -86,11 +86,32 @@ exports.submitAnswers = async (req, res) => {
 // Get submitted answers by user
 exports.getUserAnswers = async (req, res) => {
   try {
-    const { userId } = req.params;
-    const submissions = await InterviewAnswer.find({ userId }).populate('userId');
+    const { userId, interviewId } = req.params;
+    
+    const submissions = await InterviewAnswer.find({ userId, interviewId })
+      .populate('userId')
+      .populate('interviewId');
 
     res.status(200).json(submissions);
   } catch (error) {
     res.status(500).json({ message: 'Error fetching answers', error });
+  }
+};
+
+
+exports.getAllAnswersGroupedByInterview = async (req, res) => {
+  try {
+    const groupedAnswers = await InterviewAnswer.aggregate([
+      {
+        $group: {
+          _id: "$interviewId",
+          answers: { $push: "$$ROOT" }
+        }
+      }
+    ]);
+
+    res.status(200).json(groupedAnswers);
+  } catch (error) {
+    res.status(500).json({ message: 'Error fetching grouped answers', error });
   }
 };
