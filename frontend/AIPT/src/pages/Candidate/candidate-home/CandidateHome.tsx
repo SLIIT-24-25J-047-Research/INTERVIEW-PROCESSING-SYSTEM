@@ -235,7 +235,7 @@ const CandidateHome: React.FC = () => {
                                                 </Button>
                                                 <Button
                                                     className="bg-blue-500 text-white hover:bg-blue-600 ml-2"
-                                                    onClick={() => navigate(`/candidate-home/job/${job.jobID}/apply`)}
+                                                    onClick={() => navigate(`/candidate-home/job/${job._id}/apply`)}
                                                 >
                                                     Apply Now
                                                 </Button>
