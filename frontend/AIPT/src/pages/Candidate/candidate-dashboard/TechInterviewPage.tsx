@@ -12,7 +12,7 @@ import {
   Loader2
 } from "lucide-react";
 import { useInterviewStore } from "../../../components/store/InterviewStore";
-import { Timer } from "../../../components/Candidate/tech-interview/Timer";
+
 import { CodeEditor } from "../../../components/Candidate/tech-interview/CodeEditor";
 import { Question } from "../../../components/types";
 
@@ -132,31 +132,18 @@ const Techexam: React.FC = () => {
   };
 
   const renderQuestion = (question: Question) => {
-    const isLocked = isQuestionLocked(question._id);
 
-    if (isLocked) {
-      return (
-        <div className="flex flex-col items-center justify-center p-12 space-y-4 bg-gray-50 rounded-lg">
-          <Lock className="w-12 h-12 text-gray-400" />
-          <p className="text-lg text-gray-600 font-medium">Time's up! This question has been submitted.</p>
-        </div>
-      );
-    }
-
-    switch (question.type) {
-      case 'code':
         return (
           <CodeEditor
             language={question.content.language || 'javascript'}
             code={question.content.initialCode || ''}
             onChange={(value) => handleAnswerChange(question._id, 'code', value)}
-            readOnly={isLocked}
+        
           />
         );
     
-      default:
         return null;
-    }
+    
   };
 
 
@@ -180,11 +167,7 @@ const Techexam: React.FC = () => {
                     <Trophy className="w-6 h-6 text-yellow-500" />
                     <span className="font-semibold">Score: 0</span>
                   </div>
-                  <Timer 
-                duration={currentQuestion.timeLimit} 
-                onTimeUp={handleTimeUp}
-                questionId={currentQuestion._id}
-              />
+                  
                 </div>
               </div>
             </div>
