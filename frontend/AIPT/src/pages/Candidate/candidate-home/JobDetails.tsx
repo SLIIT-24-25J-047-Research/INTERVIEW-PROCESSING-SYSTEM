@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from "react";
-import { useParams } from "react-router-dom";
+import { useParams, useNavigate } from "react-router-dom";
 import { Button } from "../../../components/ui/button";
 import { FileUploadArea } from "./FileUploadArea";
 import { Input } from "../../../components/ui/input";
@@ -22,6 +22,7 @@ const getUserIdFromToken = (token: string): string => {
 
 const CandidateCVPage = () => {
   const { jobId } = useParams<{ jobId: string }>(); // Ensure jobId is correctly typed
+  const navigate = useNavigate();  // Hook to navigate to another page
 
   const [fullName, setFullName] = useState("");
   const [email, setEmail] = useState("");
@@ -72,11 +73,17 @@ const CandidateCVPage = () => {
 
       if (response.status === 200) {
         setMessage("CV Submitted Successfully!");
+        const fileId = response.data.fileId;  // Assuming the response includes the fileId
         setFullName("");
         setEmail("");
         setCv(null);
         setUploadProgress(undefined);
         setError("");
+
+        // Redirect to the ViewCVPage after 2 seconds
+        setTimeout(() => {
+          navigate(`/view-cv/${fileId}`);  // Redirect to the ViewCVPage with the fileId
+        }, 2000);
       }
     } catch (error: any) {
       console.error("Error uploading CV:", error);
@@ -84,7 +91,6 @@ const CandidateCVPage = () => {
       setUploadProgress(undefined);
     }
   };
-
 
   return (
     <div className="min-h-screen bg-gray-50">
