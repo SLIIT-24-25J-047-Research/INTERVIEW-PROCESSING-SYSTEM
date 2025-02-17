@@ -1,4 +1,5 @@
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
+import { useParams } from "react-router-dom";
 import { Button } from "../../../components/ui/button";
 import { FileUploadArea } from "./FileUploadArea";
 import { Input } from "../../../components/ui/input";
@@ -7,27 +8,48 @@ import Header from '../../../components/Candidate/CandidateHeader';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "../../../components/ui/card";
 import axios from "axios";
 
+const getUserIdFromToken = (token: string): string => {
+  try {
+    const payload = token.split('.')[1];
+    const decodedPayload = atob(payload);
+    const payloadData = JSON.parse(decodedPayload);
+    return payloadData.id;
+  } catch (error) {
+    console.error('Error decoding token:', error);
+    return '';
+  }
+};
+
 const CandidateCVPage = () => {
+  const { jobId } = useParams<{ jobId: string }>(); // Ensure jobId is correctly typed
+
   const [fullName, setFullName] = useState("");
   const [email, setEmail] = useState("");
   const [cv, setCv] = useState<File | null>(null);
   const [uploadProgress, setUploadProgress] = useState<number | undefined>();
   const [message, setMessage] = useState("");
   const [error, setError] = useState("");
+  const [userId, setUserId] = useState<string>("");
 
-  // Dummy userId and jobId for demonstration purposes (replace with actual values)
-  const userId = "6738ccc6339fff5ad4245b8d"; 
-  const jobId = "675aa492ea75fb1d58881893";
+  // Get the email and userId from the token
+  useEffect(() => {
+    const token = localStorage.getItem("token");
+    if (token) {
+      const id = getUserIdFromToken(token);
+      if (id) {
+        setUserId(id);
+      }
+    }
+  }, []);
 
   const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
 
-    if (!cv || !fullName || !email) {
+    if (!cv || !fullName || !email || !jobId) {
       setError("Please fill in all required fields and upload a CV.");
       return;
     }
 
-    // Create FormData to send file and form inputs
     const formData = new FormData();
     formData.append("fullName", fullName);
     formData.append("email", email);
@@ -38,7 +60,6 @@ const CandidateCVPage = () => {
     try {
       setUploadProgress(0);
 
-      // Axios POST request to upload CV
       const response = await axios.post("http://localhost:5000/api/CVfiles/upload", formData, {
         headers: {
           "Content-Type": "multipart/form-data",
@@ -63,6 +84,7 @@ const CandidateCVPage = () => {
       setUploadProgress(undefined);
     }
   };
+
 
   return (
     <div className="min-h-screen bg-gray-50">
