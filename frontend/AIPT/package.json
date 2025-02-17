@@ -11,6 +11,7 @@
   },
   "dependencies": {
     "@emotion/styled": "^11.14.0",
+    "@hello-pangea/dnd": "^17.0.0",
     "@heroicons/react": "^2.2.0",
     "@material-tailwind/react": "^2.1.10",
     "@monaco-editor/react": "^4.6.0",
@@ -35,6 +36,7 @@
     "jwt-decode": "^4.0.0",
     "lucide-react": "^0.460.0",
     "react": "^18.3.1",
+    "react-beautiful-dnd": "^13.1.1",
     "react-chartjs-2": "^5.2.0",
     "react-dom": "^18.3.1",
     "react-hot-toast": "^2.5.1",
@@ -47,13 +49,15 @@
     "recharts": "^2.15.0",
     "sweetalert2": "^11.14.5",
     "tailwind-merge": "^2.6.0",
-    "tailwindcss-animate": "^1.0.7"
+    "tailwindcss-animate": "^1.0.7",
+    "zustand": "^5.0.3"
   },
   "devDependencies": {
     "@eslint/js": "^9.9.0",
     "@types/history": "^4.7.11",
-    "@types/node": "^22.10.7",
+    "@types/node": "^22.13.1",
     "@types/react": "^18.3.18",
+    "@types/react-beautiful-dnd": "^13.1.8",
     "@types/react-dom": "^18.3.0",
     "@types/react-webcam": "^1.1.0",
     "@types/recharts": "^1.8.29",

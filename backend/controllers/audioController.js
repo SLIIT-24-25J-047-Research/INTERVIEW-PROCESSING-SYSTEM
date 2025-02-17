@@ -8,6 +8,9 @@ const Question = require('../models/employer/Question');
 
 exports.processAudio = async (req, res) => {
     try {
+
+        console.log('Request headers:', req.headers);
+        console.log('Request body:', req.body);
         // Check if audio file is provided
         if (!req.file) {
             console.error('No audio file provided.');
@@ -116,6 +119,8 @@ exports.processAudio = async (req, res) => {
                         candidate_answer: transcription,
                         actual_answer: question.answers, 
                     });
+                    console.log('candidate_answer:', transcription);
+                    console.log('actual_answer:', actualAnswers);
  
                    
                      const { similarity_scores, is_correct } = comparisonResponse.data;

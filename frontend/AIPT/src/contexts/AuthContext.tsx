@@ -6,14 +6,14 @@ interface User {
     id: string;
     email: string;
     role: string;
-    name: string; // Name should be included here
+    name: string; 
 }
 
 interface DecodedToken {
     id: string;
     email: string;
     role: string;
-    name: string; // Make sure 'name' is part of the decoded token
+    name: string; 
     exp: number;
     iat: number;
 }
@@ -60,7 +60,7 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
                     id: decoded.id,
                     email: decoded.email,
                     role: decoded.role,
-                    name: decoded.name, // Ensure 'name' is extracted from the token
+                    name: decoded.name, 
                 });
             } else {
                 localStorage.clear();

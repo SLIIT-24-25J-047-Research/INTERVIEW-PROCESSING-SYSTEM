@@ -1,6 +1,6 @@
 import React from "react";
 
-const Instructions: React.FC = ({}) => {
+const Instructions: React.FC = () => {
   return (
     <>
       <style>

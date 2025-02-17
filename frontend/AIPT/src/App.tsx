@@ -1,5 +1,5 @@
 import React from "react";
-import { Routes, Route, Navigate } from "react-router-dom";
+import { Routes, Route } from "react-router-dom";
 import Login from "./components/Login";
 import Register from "./components/Register";
 import InterviewerHome from "./pages/Interviewer/InterviewerHome";
@@ -18,6 +18,9 @@ import JobApplicationForm from "./pages/Candidate/candidate-home/JobDetails";
 import CandidateTest from "./pages/Candidate/candidate-dashboard/CandidateTest";
 import AddJob from "./pages/Interviewer/AddJob";
 import NotificationsPage from "./pages/Candidate/candidate-home/Notifications";
+import ScheduledInterviewPage from "./pages/Candidate/candidate-dashboard/ScheduledInterviewPage";
+import Techexam from "./pages/Candidate/candidate-dashboard/TechInterviewPage";
+import { AnswersDashboard } from "./components/Interviewer/answers/AnswersDashboaard";
 
 const App: React.FC = () => {
   return (
@@ -52,11 +55,19 @@ const App: React.FC = () => {
           </PrivateRoute>
         }
       />
-            <Route
+      <Route
         path="/interviewer-Vacancies"
         element={
           <PrivateRoute allowedRoles={["interviewer"]}>
             <AddJob />
+          </PrivateRoute>
+        }
+      />
+      <Route
+        path="/interviewer-answers"
+        element={
+          <PrivateRoute allowedRoles={["interviewer"]}>
+            <AnswersDashboard />
           </PrivateRoute>
         }
       />
@@ -80,6 +91,15 @@ const App: React.FC = () => {
         element={
           <PrivateRoute allowedRoles={["candidate"]}>
             <CandidateDashboard />
+          </PrivateRoute>
+        }
+      />
+
+      <Route
+        path="/interview"
+        element={
+          <PrivateRoute allowedRoles={["candidate"]}>
+            <ScheduledInterviewPage />
           </PrivateRoute>
         }
       />
@@ -152,7 +172,7 @@ const App: React.FC = () => {
         }
       />
 
-<Route
+      <Route
         path="/notifications"
         element={
           <PrivateRoute allowedRoles={["candidate"]}>
@@ -160,6 +180,27 @@ const App: React.FC = () => {
           </PrivateRoute>
         }
       />
+      <Route
+        path="/tech"
+        element={
+          <PrivateRoute allowedRoles={["candidate"]}>
+            <Techexam />
+          </PrivateRoute>
+        }
+      />
+
+<Route
+        path="/test"
+        element={
+          <PrivateRoute allowedRoles={["candidate"]}>
+            <AnswersDashboard />
+          </PrivateRoute>
+        }
+      />
+
+
+
+
     </Routes>
   );
 };
