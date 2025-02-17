@@ -15,9 +15,6 @@ import { useInterviewStore } from "../../../components/store/InterviewStore";
 import { Timer } from "../../../components/Candidate/tech-interview/Timer";
 import { CodeEditor } from "../../../components/Candidate/tech-interview/CodeEditor";
 import { Question } from "../../../components/types";
-import { DragDropQuestion } from "../../../components/Candidate/tech-interview/DragDropQuestion";
-import { FillBlanksQuestion } from "../../../components/Candidate/tech-interview/FillBlanksQuestion";
-import { MultipleChoiceQuestion } from "../../../components/Candidate/tech-interview/MultipleChoiceQuestion";
 
 interface LocationState {
   interviewId: string;
@@ -156,55 +153,14 @@ const Techexam: React.FC = () => {
             readOnly={isLocked}
           />
         );
-      case 'fillBlanks':
-        return (
-          <FillBlanksQuestion
-          text={question.content.text || ''}
-          blanks={question.content.blanks}
-          onChange={(answers) => handleAnswerChange(question._id, 'fillBlanks', Object.values(answers))}
-          disabled={isLocked}
-        />
-        
-        );
-      case 'dragDrop':
-        return (
-          <DragDropQuestion
-            items={question.content.items}
-            onChange={(order) => handleAnswerChange(question._id, 'dragDrop', order)}
-            disabled={isLocked}
-          />
-        );
-      case 'multipleChoice':
-        return (
-          <MultipleChoiceQuestion
-            options={question.content.options}
-            onChange={(answer) => handleAnswerChange(question._id, 'multipleChoice', answer)}
-            disabled={isLocked}
-          />
-        );
+    
       default:
         return null;
     }
   };
 
 
-  // useEffect(() => {
-  //   console.log("Interview ID:", interviewId);
-  //   console.log("Test Link:", testLink);
-  //   console.log("Duration:", duration);
-  // }, [interviewId, testLink, duration]);
-
-  // if (loading) {
-  //   return <div className="flex justify-center items-center h-screen">Loading questions...</div>;
-  // }
-
-  // if (error) {
-  //   return <div className="flex justify-center items-center h-screen text-red-600">Error: {error}</div>;
-  // }
-
-  // if (!questions.length) {
-  //   return <div className="flex justify-center items-center h-screen">No questions available</div>;
-  // }
+ 
 
 
   return (
@@ -260,10 +216,7 @@ const Techexam: React.FC = () => {
                         <div className="flex items-center justify-between">
                           <span>Question {index + 1}</span>
                           <div className="flex items-center space-x-2">
-                          {isQuestionLocked(q._id) && <Lock className="w-4 h-4 text-gray-400" />}
-                          {q.difficulty === 'easy' && <Star className="w-4 h-4 text-green-500" />}
-                          {q.difficulty === 'medium' && <Star className="w-4 h-4 text-yellow-500" />}
-                          {q.difficulty === 'hard' && <Star className="w-4 h-4 text-red-500" />}
+                          
                           <Flag className="w-4 h-4 text-gray-400" />
                         </div>
                         </div>
