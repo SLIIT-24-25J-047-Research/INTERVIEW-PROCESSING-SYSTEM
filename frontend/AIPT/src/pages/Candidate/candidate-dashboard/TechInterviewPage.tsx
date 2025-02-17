@@ -225,7 +225,7 @@ const Techexam: React.FC = () => {
                         </span>
                         <span className="flex items-center">
                        
-                        {Math.floor(currentQuestion.timeLimit / 60)} minutes
+                       
                         </span>
                       </div>
                     </div>
@@ -234,7 +234,7 @@ const Techexam: React.FC = () => {
                     currentQuestion.difficulty === 'medium' ? 'bg-yellow-100 text-yellow-800' :
                     'bg-red-100 text-red-800'
                   }`}>
-                    {currentQuestion.difficulty}
+                 
                   </span>
                   </div>
                   <p className="mt-2 text-gray-600">
@@ -244,25 +244,25 @@ const Techexam: React.FC = () => {
                 <div className="p-6">  {renderQuestion(currentQuestion)}</div>
                 <div className="p-6 border-t bg-gray-50 flex justify-between">
                 <button
-                  onClick={() => setCurrentQuestion(Math.max(0, currentQuestionIndex - 1))}
+                  onClick={() => setCurrentQuestion(Math.min(0, currentQuestionIndex ))}
                   className={`flex items-center px-4 py-2 text-sm font-medium rounded-md ${
                     canNavigateToQuestion(currentQuestionIndex - 1)
                       ? 'text-gray-700 bg-white border border-gray-300 hover:bg-gray-50'
                       : 'text-gray-400 bg-gray-100 cursor-not-allowed'
                   }`}
-                  disabled={!canNavigateToQuestion(currentQuestionIndex - 1)}
+                 
                 >
                     <ChevronLeft className="w-4 h-4 mr-2" />
                     Previous
                   </button>
                   <button
-                  onClick={() => setCurrentQuestion(Math.min(questions.length - 1, currentQuestionIndex + 1))}
+                  onClick={() => setCurrentQuestion(Math.min( currentQuestionIndex))}
                   className={`flex items-center px-4 py-2 text-sm font-medium rounded-md ${
                     canNavigateToQuestion(currentQuestionIndex + 1)
                       ? 'text-white bg-blue-600 hover:bg-blue-700'
                       : 'text-gray-400 bg-gray-100 cursor-not-allowed'
                   }`}
-                  disabled={!canNavigateToQuestion(currentQuestionIndex + 1)}
+                 
                 >
                     Next
                     <ChevronRight className="w-4 h-4 ml-2" />
