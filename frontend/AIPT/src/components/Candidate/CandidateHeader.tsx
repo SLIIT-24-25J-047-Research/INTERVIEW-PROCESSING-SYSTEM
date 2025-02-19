@@ -33,7 +33,7 @@ const CandidateHeader: React.FC<HeaderProps> = ({ title }) => {
   const [isScrolled, setIsScrolled] = useState(false);
   const { user } = useAuth(); 
 
-  // console.log(user);
+  console.log(user);
 
   const location = useLocation();
 
