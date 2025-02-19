@@ -21,6 +21,7 @@ import NotificationsPage from "./pages/Candidate/candidate-home/Notifications";
 import ScheduledInterviewPage from "./pages/Candidate/candidate-dashboard/ScheduledInterviewPage";
 import Techexam from "./pages/Candidate/candidate-dashboard/TechInterviewPage";
 import { AnswersDashboard } from "./components/Interviewer/answers/AnswersDashboaard";
+import ViewCVPage from "./pages/Candidate/candidate-home/ViewCVPage";
 
 const App: React.FC = () => {
   return (
@@ -117,6 +118,14 @@ const App: React.FC = () => {
         element={
           <PrivateRoute allowedRoles={["candidate"]}>
             <CandidateHome />
+          </PrivateRoute>
+        }
+      />
+      <Route
+        path="/view-cv/:fileId"
+        element={
+          <PrivateRoute allowedRoles={["candidate"]}>
+            <ViewCVPage />
           </PrivateRoute>
         }
       />
