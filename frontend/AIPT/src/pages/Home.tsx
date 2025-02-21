@@ -17,7 +17,7 @@ import {
 } from 'lucide-react';
 import Footer from '../components/Candidate/Footer';
 import { TypewriterEffectSmooth } from "../components/ui/typewriter-effect"
-import {BackgroundGradientAnimation} from "../components/ui/background-gradient-animation"
+import { BackgroundGradientAnimation } from "../components/ui/background-gradient-animation"
 import { Modal, ModalBody, ModalContent, ModalFooter, ModalTrigger } from "../components/ui/animated-modal"
 
 
@@ -163,46 +163,46 @@ const JobPortalLanding = () => {
 
       {/* Hero Section */}
       <BackgroundGradientAnimation>
-      <div className="absolute z-10 inset-0 flex items-center  px-4 justify-center   text-white overflow-hidden h-screen pointer-events-none ">
-        <div className="absolute inset-0 bg-grid-white/[0.05] bg-[size:16px_16px] pointer-events-none" />
-        <div className="relative container mx-auto px-6 flex items-center justify-center h-full">
-          <div className="text-center max-w-5xl">
-            <div className="mb-6 w-full flex justify-center text-white">
-              <TypewriterEffectSmooth words={words} />
-            </div>
+        <div className="absolute z-10 inset-0 flex items-center  px-4 justify-center   text-white overflow-hidden h-screen pointer-events-none ">
+          <div className="absolute inset-0 bg-grid-white/[0.05] bg-[size:16px_16px] pointer-events-none" />
+          <div className="relative container mx-auto px-6 flex items-center justify-center h-full">
+            <div className="text-center max-w-5xl">
+              <div className="mb-6 w-full flex justify-center text-white">
+                <TypewriterEffectSmooth words={words} />
+              </div>
 
-            <p className="bg-clip-text  text-xl md:text-2xl bg-gradient-to-b from-white/80 to-white/20 text-blue-100 mb-10">
-              Transform your career journey with our AI-powered recruitment platform. Access exclusive opportunities and
-              expert guidance.
-            </p>
-            <div className="flex flex-col md:flex-row gap-4 mb-12 justify-center">
-              <div className="flex-1 bg-white/10 backdrop-blur-md rounded-lg p-2 shadow-md max-w-md mx-auto">
-                <div className="flex items-center bg-white rounded-md p-2 shadow-sm">
-                  <Search className="h-5 w-5 text-gray-400 mx-2" />
-                  <input
-                    type="text"
-                    placeholder="Job title, skills, or company"
-                    className="flex-1 bg-transparent outline-none text-gray-800 placeholder-gray-400"
-                  />
-                  <Button className="ml-2 bg-blue-600 text-white px-4 py-2 rounded-lg hover:bg-blue-700 transition">
-                    Search Jobs
-                  </Button>
+              <p className="bg-clip-text  text-xl md:text-2xl bg-gradient-to-b from-white/80 to-white/20 text-blue-100 mb-10">
+                Transform your career journey with our AI-powered recruitment platform. Access exclusive opportunities and
+                expert guidance.
+              </p>
+              <div className="flex flex-col md:flex-row gap-4 mb-12 justify-center">
+                <div className="flex-1 bg-white/10 backdrop-blur-md rounded-lg p-2 shadow-md max-w-md mx-auto">
+                  <div className="flex items-center bg-white rounded-md p-2 shadow-sm">
+                    <Search className="h-5 w-5 text-gray-400 mx-2" />
+                    <input
+                      type="text"
+                      placeholder="Job title, skills, or company"
+                      className="flex-1 bg-transparent outline-none text-gray-800 placeholder-gray-400"
+                    />
+                    <Button className="ml-2 bg-blue-600 text-white px-4 py-2 rounded-lg hover:bg-blue-700 transition">
+                      Search Jobs
+                    </Button>
+                  </div>
                 </div>
               </div>
-            </div>
 
-            {/* Stats */}
-            <div className="flex justify-center gap-12 md:gap-16">
-              {stats.map((stat, index) => (
-                <div key={index} className="text-center animate-fade-in delay-100">
-                  <div className="text-4xl md:text-5xl font-bold mb-1">{stat.value}</div>
-                  <div className="text-blue-100 text-sm md:text-base">{stat.label}</div>
-                </div>
-              ))}
+              {/* Stats */}
+              <div className="flex justify-center gap-12 md:gap-16">
+                {stats.map((stat, index) => (
+                  <div key={index} className="text-center animate-fade-in delay-100">
+                    <div className="text-4xl md:text-5xl font-bold mb-1">{stat.value}</div>
+                    <div className="text-blue-100 text-sm md:text-base">{stat.label}</div>
+                  </div>
+                ))}
+              </div>
             </div>
           </div>
         </div>
-      </div>
       </BackgroundGradientAnimation>
 
 
@@ -227,110 +227,121 @@ const JobPortalLanding = () => {
 
         {/* Jobs Grid */}
         <div className="grid gap-8 sm:grid-cols-1 md:grid-cols-2 lg:grid-cols-3">
-        {jobs.map((job) => (
-          <Modal key={job.id}>
-            <ModalTrigger>
-              <Card className="group hover:shadow-lg hover:-translate-y-1 transition-transform duration-300 cursor-pointer">
-                {/* Card Header */}
-                <CardHeader className="flex flex-row items-center gap-4 p-4">
-                  <img
-                    src={job.logo || "/placeholder.svg"}
-                    alt={job.company}
-                    className="w-14 h-14 rounded-lg shadow-md object-cover"
-                  />
-                  <div>
-                    <CardTitle className="text-xl font-bold group-hover:text-blue-600 transition-colors">
-                      {job.title}
-                    </CardTitle>
-                    <CardDescription className="text-gray-500">{job.company}</CardDescription>
-                  </div>
-                </CardHeader>
+          {jobs.map((job) => (
+            <Modal key={job.id}>
+              <ModalTrigger>
+                <Card className="group hover:shadow-lg hover:-translate-y-1 transition-transform duration-300 cursor-pointer">
+                  {/* Card Header */}
+                  <CardHeader className="flex flex-row items-center gap-4 p-4">
+                    <img
+                      src={job.logo || "/placeholder.svg"}
+                      alt={job.company}
+                      className="w-14 h-14 rounded-lg shadow-md object-cover"
+                    />
+                    <div>
+                      <CardTitle className="text-xl font-bold group-hover:text-blue-600 transition-colors">
+                        {job.title}
+                      </CardTitle>
+                      <CardDescription className="text-gray-500">{job.company}</CardDescription>
+                    </div>
+                  </CardHeader>
 
-                {/* Card Content */}
-                <CardContent className="px-4 py-4">
-                  <div className="space-y-3 text-gray-600">
-                    <div className="flex items-center gap-2">
-                      <MapPin className="h-5 w-5 text-blue-500" />
-                      <span>{job.location}</span>
+                  {/* Card Content */}
+                  <CardContent className="px-4 py-4">
+                    <div className="space-y-3 text-gray-600">
+                      <div className="flex items-center gap-2">
+                        <MapPin className="h-5 w-5 text-blue-500" />
+                        <span>{job.location}</span>
+                      </div>
+                      <div className="flex items-center gap-2">
+                        <DollarSign className="h-5 w-5 text-blue-500" />
+                        <span>{job.salary}</span>
+                      </div>
+                      <div className="flex items-center gap-2">
+                        <Briefcase className="h-5 w-5 text-blue-500" />
+                        <span>{job.type}</span>
+                      </div>
+                      <p className="text-sm text-gray-500 mt-3">{job.description}</p>
                     </div>
-                    <div className="flex items-center gap-2">
-                      <DollarSign className="h-5 w-5 text-blue-500" />
-                      <span>{job.salary}</span>
-                    </div>
-                    <div className="flex items-center gap-2">
-                      <Briefcase className="h-5 w-5 text-blue-500" />
-                      <span>{job.type}</span>
-                    </div>
-                    <p className="text-sm text-gray-500 mt-3">{job.description}</p>
-                  </div>
-                </CardContent>
+                  </CardContent>
 
-                {/* Card Footer */}
-                <CardFooter className="p-4">
-                  <Button className="w-full bg-blue-600 text-white py-2 rounded-lg hover:bg-blue-700 transition-colors">
-                    View Details
-                  </Button>
-                </CardFooter>
-              </Card>
-            </ModalTrigger>
-            <ModalBody>
-              <ModalContent>
-                <div className="flex items-center gap-4 mb-6">
-                  <img
-                    src={job.logo || "/placeholder.svg"}
-                    alt={job.company}
-                    className="w-16 h-16 rounded-lg shadow-md object-cover"
-                  />
-                  <div>
-                    <h2 className="text-2xl font-bold">{job.title}</h2>
-                    <p className="text-gray-600">{job.company}</p>
+                  {/* Card Footer */}
+                  <CardFooter className="p-4">
+                    <Button className="w-full bg-blue-600 text-white py-2 rounded-lg hover:bg-blue-700 transition-colors">
+                      View Details
+                    </Button>
+                  </CardFooter>
+                </Card>
+              </ModalTrigger>
+              <ModalBody>
+                <ModalContent className="flex flex-col h-[90vh]">
+                  <div className="flex-none">
+                    <div className="flex items-center gap-4 mb-4">
+                      <img
+                        src={job.logo || "/placeholder.svg"}
+                        alt={job.company}
+                        className="w-16 h-16 rounded-lg shadow-md object-cover"
+                      />
+                      <div>
+                        <h2 className="text-2xl font-bold">{job.title}</h2>
+                        <p className="text-gray-600">{job.company}</p>
+                      </div>
+                    </div>
+                    <div className="grid grid-cols-2 gap-3 mb-4">
+                      <div className="flex items-center gap-2">
+                        <MapPin className="h-5 w-5 text-blue-500" />
+                        <span>{job.location}</span>
+                      </div>
+                      <div className="flex items-center gap-2">
+                        <DollarSign className="h-5 w-5 text-blue-500" />
+                        <span>{job.salary}</span>
+                      </div>
+                      <div className="flex items-center gap-2">
+                        <Briefcase className="h-5 w-5 text-blue-500" />
+                        <span>{job.type}</span>
+                      </div>
+                      <div className="flex items-center gap-2">
+                        <Calendar className="h-5 w-5 text-blue-500" />
+                        <span>Posted on {job.postedDate}</span>
+                      </div>
+                      <div className="flex items-center gap-2">
+                        <Users className="h-5 w-5 text-blue-500" />
+                        <span>{job.applicants} applicants</span>
+                      </div>
+                    </div>
                   </div>
-                </div>
-                <div className="space-y-4">
-                  <div className="flex items-center gap-2">
-                    <MapPin className="h-5 w-5 text-blue-500" />
-                    <span>{job.location}</span>
+
+                  <div className="flex-1 min-h-0">
+                    <div className="h-full">
+                      <div className="mb-4">
+                        <h3 className="text-lg font-semibold mb-2">Job Description</h3>
+                        <p className="text-gray-600">{job.description}</p>
+                      </div>
+                      <div>
+                        <h3 className="text-lg font-semibold mb-2">Requirements</h3>
+                        <ul className="list-disc pl-5 space-y-2">
+                          {job.requirements.map((req, index) => (
+                            <li key={index} className="text-gray-600">
+                              {req}
+                            </li>
+                          ))}
+                        </ul>
+                      </div>
+                    </div>
                   </div>
-                  <div className="flex items-center gap-2">
-                    <DollarSign className="h-5 w-5 text-blue-500" />
-                    <span>{job.salary}</span>
+
+                  <div className="flex-none pt-4">
+                    <Button
+                      className="w-full bg-blue-600 text-white py-2 rounded-lg hover:bg-blue-700 transition-colors"
+                      onClick={() => navigate('/login')}
+                    >
+                      Apply Now
+                    </Button>
                   </div>
-                  <div className="flex items-center gap-2">
-                    <Briefcase className="h-5 w-5 text-blue-500" />
-                    <span>{job.type}</span>
-                  </div>
-                  <div className="flex items-center gap-2">
-                    <Calendar className="h-5 w-5 text-blue-500" />
-                    <span>Posted on {job.postedDate}</span>
-                  </div>
-                  <div className="flex items-center gap-2">
-                    <Users className="h-5 w-5 text-blue-500" />
-                    <span>{job.applicants} applicants</span>
-                  </div>
-                </div>
-                <div className="mt-6">
-                  <h3 className="text-lg font-semibold mb-2">Job Description</h3>
-                  <p className="text-gray-600">{job.description}</p>
-                </div>
-                <div className="mt-6">
-                  <h3 className="text-lg font-semibold mb-2">Requirements</h3>
-                  <ul className="list-disc pl-5 space-y-2">
-                    {job.requirements.map((req, index) => (
-                      <li key={index} className="text-gray-600">
-                        {req}
-                      </li>
-                    ))}
-                  </ul>
-                </div>
-              </ModalContent>
-              <ModalFooter>
-                <Button className="w-full bg-blue-600 text-white py-2 rounded-lg hover:bg-blue-700 transition-colors" onClick={() => navigate('/login')}>
-                  Apply Now
-                </Button>
-              </ModalFooter>
-            </ModalBody>
-          </Modal>
-        ))}
+                </ModalContent>
+              </ModalBody>
+            </Modal>
+          ))}
         </div>
       </div>
 
