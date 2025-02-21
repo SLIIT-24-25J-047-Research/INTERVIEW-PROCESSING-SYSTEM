@@ -12,11 +12,14 @@ import {
   Search,
   ArrowRight,
   CheckCircle2,
-  Globe
+  Globe,
+  Calendar
 } from 'lucide-react';
 import Footer from '../components/Candidate/Footer';
 import { TypewriterEffectSmooth } from "../components/ui/typewriter-effect"
 import {BackgroundGradientAnimation} from "../components/ui/background-gradient-animation"
+import { Modal, ModalBody, ModalContent, ModalFooter, ModalTrigger } from "../components/ui/animated-modal"
+
 
 const JobPortalLanding = () => {
   const navigate = useNavigate();
@@ -24,34 +27,58 @@ const JobPortalLanding = () => {
   const jobs = [
     {
       id: 1,
-      title: "Senior Software Engineer",
-      company: "Tech Solutions Inc",
+      title: "Frontend Developer",
+      company: "Tech Co.",
+      logo: "https://images.unsplash.com/photo-1560179707-f14e90ef3623?w=300&h=300&fit=crop&q=60&ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxzZWFyY2h8Mnx8Y29tcGFueSUyMGxvZ298ZW58MHx8MHx8fDA%3D",
       location: "San Francisco, CA",
-      salary: "$120,000 - $160,000",
+      salary: "$80,000 - $120,000",
       type: "Full-time",
-      description: "We are seeking an experienced software engineer to join our growing team...",
-      logo: "/api/placeholder/64/64"
+      description: "We're looking for an experienced frontend developer to join our team...",
+      postedDate: "2023-05-15",
+      applicants: 45,
+      requirements: [
+        "3+ years of experience with React",
+        "Strong understanding of JavaScript and TypeScript",
+        "Experience with responsive design and CSS frameworks",
+        "Familiarity with RESTful APIs and state management libraries",
+      ],
     },
     {
       id: 2,
-      title: "Product Manager",
-      company: "Innovation Labs",
+      title: "UX Designer",
+      company: "Design Studio",
+      logo: "https://images.unsplash.com/photo-1560179707-f14e90ef3623?w=300&h=300&fit=crop&q=60&ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxzZWFyY2h8Mnx8Y29tcGFueSUyMGxvZ298ZW58MHx8MHx8fDA%3D",
       location: "New York, NY",
-      salary: "$110,000 - $140,000",
+      salary: "$70,000 - $110,000",
       type: "Full-time",
-      description: "Looking for a strategic product manager to lead our product initiatives...",
-      logo: "/api/placeholder/64/64"
+      description: "We are seeking a talented UX Designer to create amazing user experiences...",
+      postedDate: "2023-05-20",
+      applicants: 32,
+      requirements: [
+        "Bachelor's degree in Design, HCI, or related field",
+        "3+ years of UX design experience",
+        "Proficiency in design tools like Figma or Sketch",
+        "Strong portfolio demonstrating UX process and outcomes",
+      ],
     },
     {
       id: 3,
-      title: "UX Designer",
-      company: "Creative Digital",
+      title: "Data Scientist",
+      company: "AI Solutions Inc.",
+      logo: "https://images.unsplash.com/photo-1560179707-f14e90ef3623?w=300&h=300&fit=crop&q=60&ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxzZWFyY2h8Mnx8Y29tcGFueSUyMGxvZ298ZW58MHx8MHx8fDA%3D",
       location: "Remote",
-      salary: "$90,000 - $120,000",
+      salary: "$100,000 - $150,000",
       type: "Full-time",
-      description: "Join our design team to create beautiful and intuitive user experiences...",
-      logo: "/api/placeholder/64/64"
-    }
+      description: "Join our team of data scientists to work on cutting-edge AI projects...",
+      postedDate: "2023-05-25",
+      applicants: 28,
+      requirements: [
+        "PhD or Master's degree in Computer Science, Statistics, or related field",
+        "Strong programming skills in Python and R",
+        "Experience with machine learning frameworks like TensorFlow or PyTorch",
+        "Knowledge of big data technologies such as Hadoop and Spark",
+      ],
+    },
   ];
 
   const stats = [
@@ -200,29 +227,66 @@ const JobPortalLanding = () => {
 
         {/* Jobs Grid */}
         <div className="grid gap-8 sm:grid-cols-1 md:grid-cols-2 lg:grid-cols-3">
-          {jobs.map((job) => (
-            <Card
-              key={job.id}
-              className="group hover:shadow-lg hover:-translate-y-1 transition-transform duration-300"
-            >
-              {/* Card Header */}
-              <CardHeader className="flex flex-row items-center gap-4 p-4">
-                <img
-                  src={job.logo}
-                  alt={job.company}
-                  className="w-14 h-14 rounded-lg shadow-md object-cover"
-                />
-                <div>
-                  <CardTitle className="text-xl font-bold group-hover:text-blue-600 transition-colors">
-                    {job.title}
-                  </CardTitle>
-                  <CardDescription className="text-gray-500">{job.company}</CardDescription>
-                </div>
-              </CardHeader>
+        {jobs.map((job) => (
+          <Modal key={job.id}>
+            <ModalTrigger>
+              <Card className="group hover:shadow-lg hover:-translate-y-1 transition-transform duration-300 cursor-pointer">
+                {/* Card Header */}
+                <CardHeader className="flex flex-row items-center gap-4 p-4">
+                  <img
+                    src={job.logo || "/placeholder.svg"}
+                    alt={job.company}
+                    className="w-14 h-14 rounded-lg shadow-md object-cover"
+                  />
+                  <div>
+                    <CardTitle className="text-xl font-bold group-hover:text-blue-600 transition-colors">
+                      {job.title}
+                    </CardTitle>
+                    <CardDescription className="text-gray-500">{job.company}</CardDescription>
+                  </div>
+                </CardHeader>
 
-              {/* Card Content */}
-              <CardContent className="px-4 py-4">
-                <div className="space-y-3 text-gray-600">
+                {/* Card Content */}
+                <CardContent className="px-4 py-4">
+                  <div className="space-y-3 text-gray-600">
+                    <div className="flex items-center gap-2">
+                      <MapPin className="h-5 w-5 text-blue-500" />
+                      <span>{job.location}</span>
+                    </div>
+                    <div className="flex items-center gap-2">
+                      <DollarSign className="h-5 w-5 text-blue-500" />
+                      <span>{job.salary}</span>
+                    </div>
+                    <div className="flex items-center gap-2">
+                      <Briefcase className="h-5 w-5 text-blue-500" />
+                      <span>{job.type}</span>
+                    </div>
+                    <p className="text-sm text-gray-500 mt-3">{job.description}</p>
+                  </div>
+                </CardContent>
+
+                {/* Card Footer */}
+                <CardFooter className="p-4">
+                  <Button className="w-full bg-blue-600 text-white py-2 rounded-lg hover:bg-blue-700 transition-colors">
+                    View Details
+                  </Button>
+                </CardFooter>
+              </Card>
+            </ModalTrigger>
+            <ModalBody>
+              <ModalContent>
+                <div className="flex items-center gap-4 mb-6">
+                  <img
+                    src={job.logo || "/placeholder.svg"}
+                    alt={job.company}
+                    className="w-16 h-16 rounded-lg shadow-md object-cover"
+                  />
+                  <div>
+                    <h2 className="text-2xl font-bold">{job.title}</h2>
+                    <p className="text-gray-600">{job.company}</p>
+                  </div>
+                </div>
+                <div className="space-y-4">
                   <div className="flex items-center gap-2">
                     <MapPin className="h-5 w-5 text-blue-500" />
                     <span>{job.location}</span>
@@ -235,21 +299,38 @@ const JobPortalLanding = () => {
                     <Briefcase className="h-5 w-5 text-blue-500" />
                     <span>{job.type}</span>
                   </div>
-                  <p className="text-sm text-gray-500 mt-3">{job.description}</p>
+                  <div className="flex items-center gap-2">
+                    <Calendar className="h-5 w-5 text-blue-500" />
+                    <span>Posted on {job.postedDate}</span>
+                  </div>
+                  <div className="flex items-center gap-2">
+                    <Users className="h-5 w-5 text-blue-500" />
+                    <span>{job.applicants} applicants</span>
+                  </div>
                 </div>
-              </CardContent>
-
-              {/* Card Footer */}
-              <CardFooter className="p-4">
-                <Button
-                  className="w-full bg-blue-600 text-white py-2 rounded-lg hover:bg-blue-700 transition-colors"
-                  onClick={() => navigate('/login')}
-                >
+                <div className="mt-6">
+                  <h3 className="text-lg font-semibold mb-2">Job Description</h3>
+                  <p className="text-gray-600">{job.description}</p>
+                </div>
+                <div className="mt-6">
+                  <h3 className="text-lg font-semibold mb-2">Requirements</h3>
+                  <ul className="list-disc pl-5 space-y-2">
+                    {job.requirements.map((req, index) => (
+                      <li key={index} className="text-gray-600">
+                        {req}
+                      </li>
+                    ))}
+                  </ul>
+                </div>
+              </ModalContent>
+              <ModalFooter>
+                <Button className="w-full bg-blue-600 text-white py-2 rounded-lg hover:bg-blue-700 transition-colors" onClick={() => navigate('/login')}>
                   Apply Now
                 </Button>
-              </CardFooter>
-            </Card>
-          ))}
+              </ModalFooter>
+            </ModalBody>
+          </Modal>
+        ))}
         </div>
       </div>
 
