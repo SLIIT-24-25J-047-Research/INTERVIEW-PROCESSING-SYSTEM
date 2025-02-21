@@ -15,6 +15,8 @@ import {
   Globe
 } from 'lucide-react';
 import Footer from '../components/Candidate/Footer';
+import { TypewriterEffectSmooth } from "../components/ui/typewriter-effect"
+import {BackgroundGradientAnimation} from "../components/ui/background-gradient-animation"
 
 const JobPortalLanding = () => {
   const navigate = useNavigate();
@@ -53,11 +55,22 @@ const JobPortalLanding = () => {
   ];
 
   const stats = [
-    { icon: Building2, value: "500+", label: "Partner Companies" },
-    { icon: Users, value: "1M+", label: "Active Job Seekers" },
-    { icon: Trophy, value: "20k+", label: "Success Stories" },
-    { icon: Globe, value: "50+", label: "Countries" }
-  ];
+    { value: "200+", label: "Job Openings" },
+    { value: "50k+", label: "Candidates" },
+    { value: "98%", label: "Success Rate" },
+  ]
+
+  const words = [
+    { text: "Connecting", className: "text-white dark:text-blue-500" },
+    { text: "Top", className: "text-white dark:text-blue-500" },
+    { text: "Talent", className: "text-white dark:text-blue-500" },
+    { text: "with", className: "text-white dark:text-blue-500" },
+    { text: "Leading", className: "text-[#d9f99d] dark:text-blue-500" },
+    { text: "Companies", className: "text-[#d9f99d] dark:text-pink-500" },
+  ]
+
+
+
 
   const features = [
     {
@@ -76,6 +89,9 @@ const JobPortalLanding = () => {
       icon: Users
     }
   ];
+
+
+
 
   return (
     <div className="min-h-screen bg-gradient-to-b from-gray-50 to-white">
@@ -119,17 +135,18 @@ const JobPortalLanding = () => {
 
 
       {/* Hero Section */}
-
-      <div className="relative bg-gradient-to-r from-[#2563eb] to-[#f472b6] text-white overflow-hidden h-screen">
+      <BackgroundGradientAnimation>
+      <div className="absolute z-10 inset-0 flex items-center  px-4 justify-center   text-white overflow-hidden h-screen pointer-events-none ">
         <div className="absolute inset-0 bg-grid-white/[0.05] bg-[size:16px_16px] pointer-events-none" />
         <div className="relative container mx-auto px-6 flex items-center justify-center h-full">
-          <div className="text-center max-w-4xl">
-            <h1 className="text-4xl md:text-6xl font-extrabold mb-6 leading-tight text-[#fdf4ff]">
-              Connecting Top Talent with Leading Companies
-            </h1>
-            <p className="text-xl md:text-2xl text-blue-100 mb-10">
-              Transform your career journey with our AI-powered recruitment platform.
-              Access exclusive opportunities and expert guidance.
+          <div className="text-center max-w-5xl">
+            <div className="mb-6 w-full flex justify-center text-white">
+              <TypewriterEffectSmooth words={words} />
+            </div>
+
+            <p className="bg-clip-text  text-xl md:text-2xl bg-gradient-to-b from-white/80 to-white/20 text-blue-100 mb-10">
+              Transform your career journey with our AI-powered recruitment platform. Access exclusive opportunities and
+              expert guidance.
             </p>
             <div className="flex flex-col md:flex-row gap-4 mb-12 justify-center">
               <div className="flex-1 bg-white/10 backdrop-blur-md rounded-lg p-2 shadow-md max-w-md mx-auto">
@@ -147,26 +164,19 @@ const JobPortalLanding = () => {
               </div>
             </div>
 
-            {/* Stats  */}
+            {/* Stats */}
             <div className="flex justify-center gap-12 md:gap-16">
               {stats.map((stat, index) => (
-                <div
-                  key={index}
-                  className="text-center animate-fade-in delay-100"
-                >
-                  <div className="text-4xl md:text-5xl font-bold mb-1">
-                    {stat.value}
-                  </div>
-                  <div className="text-blue-100 text-sm md:text-base">
-                    {stat.label}
-                  </div>
+                <div key={index} className="text-center animate-fade-in delay-100">
+                  <div className="text-4xl md:text-5xl font-bold mb-1">{stat.value}</div>
+                  <div className="text-blue-100 text-sm md:text-base">{stat.label}</div>
                 </div>
               ))}
             </div>
           </div>
         </div>
       </div>
-
+      </BackgroundGradientAnimation>
 
 
       {/* Featured Jobs */}
