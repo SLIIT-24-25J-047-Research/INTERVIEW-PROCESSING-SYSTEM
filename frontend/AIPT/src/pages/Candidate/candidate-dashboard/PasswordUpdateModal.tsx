@@ -61,8 +61,8 @@ const PasswordUpdateModal: React.FC<PasswordUpdateModalProps> = ({ hasPassword, 
             // Create payload matching exactly what works in Postman
             const passwordPayload = {
                 currentPassword: formData.currentPassword,
-                newPassword: formData.newPassword
-                // Remove confirmPassword from payload
+                newPassword: formData.newPassword,
+                confirmPassword: formData.confirmPassword
             };
     
             await onUpdatePassword(passwordPayload);
