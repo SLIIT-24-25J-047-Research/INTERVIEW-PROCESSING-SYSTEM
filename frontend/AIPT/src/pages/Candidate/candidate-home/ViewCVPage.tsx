@@ -7,7 +7,6 @@ import Header from "../../../components/Candidate/CandidateHeader";
 import { Document, Page } from 'react-pdf'; // Importing react-pdf to render PDFs
 import FileViewer from "../../../components/Candidate/FileViewer";
 import FileSkillExtractor from "../../../components/Candidate/FileSkillExtractor";
-// import FileSkillExtractor from "../../../components/Candidate/FileSkillExtractor";
 
 const ViewCVPage = () => {
   const { fileId } = useParams<{ fileId: string }>(); // Get the fileId from the URL
@@ -64,15 +63,6 @@ const ViewCVPage = () => {
             {/* Render CV Preview */}
             <div className="flex justify-center">
             <FileViewer filePath={cvUrl} />
-              {/* If the CV is a PDF, render it using react-pdf
-              {cvUrl && cvUrl.endsWith('.pdf') ? (
-                <Document file={cvUrl} onLoadSuccess={onDocumentLoadSuccess}>
-                  <Page pageNumber={pageNumber} />
-                </Document>
-              ) : (
-                // If not PDF, display image (or other media types)
-                <img src={cvUrl} alt="CV Preview" className="max-w-full max-h-[80vh] object-contain" />
-              )} */}
             </div>
             <FileSkillExtractor filePath={cvUrl} />
 
