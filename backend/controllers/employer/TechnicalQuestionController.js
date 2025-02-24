@@ -7,21 +7,21 @@ exports.getQuestions = async (req, res) => {
 
     // Map the fetched questions to the desired response format
     const formattedQuestions = questions.map(question => ({
-      _id: question._id.toString(), // Convert ObjectId to string for consistency
+      _id: question._id.toString(), 
       type: question.type,
       title: question.title,
       description: question.description,
       timeLimit: question.timeLimit,
       points: question.points,
       difficulty: question.difficulty,
-      __v: question.__v, // Include __v if needed
+      __v: question.__v, 
       content: {
         initialCode: question.content.initialCode,
         language: question.content.language,
         testCases: question.content.testCases.map(testCase => ({
           input: testCase.input,
           expectedOutput: testCase.expectedOutput,
-          _id: testCase._id.toString(), // Convert ObjectId to string
+          _id: testCase._id.toString(), 
         })),
         text: question.content.text,
         blanks: question.content.blanks,
@@ -30,7 +30,7 @@ exports.getQuestions = async (req, res) => {
         options: question.content.options,
         correctAnswer: question.content.correctAnswer,
         
-        // New fields for additional question types
+        // New fields
         dataset: question.content.dataset
           ? {
               data: question.content.dataset.data,
@@ -55,7 +55,7 @@ exports.getQuestions = async (req, res) => {
       },
     }));
 
-    // Send the formatted response
+   
     res.json(formattedQuestions);
   } catch (err) {
     res.status(500).json({ error: err.message });

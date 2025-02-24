@@ -20,7 +20,7 @@ const submissionSchema = new mongoose.Schema({
 
   language: {
     type: String,
-    default: "JavaScript" // Default language
+    default: "JavaScript" 
   },
 
   submittedAt: {
@@ -30,14 +30,14 @@ const submissionSchema = new mongoose.Schema({
 
   status: {
     type: String,
-    enum: ['Pending', 'Reviewed', 'Needs Improvement'], // Allowed values
+    enum: ['Pending', 'Reviewed', 'Needs Improvement'], 
     default: 'Pending'
   },
   evaluationResult: {
-      type: Object,  // Store evaluation result as an object
+      type: Object,  
       default: {}
   }
 });
 
-// Export the model
+
 module.exports = mongoose.model('Submission', submissionSchema);

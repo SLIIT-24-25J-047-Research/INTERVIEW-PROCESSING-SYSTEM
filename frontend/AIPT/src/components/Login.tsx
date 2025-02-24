@@ -35,7 +35,7 @@ const Login: React.FC = () => {
         }
     };
 
-    const handleGoogleSuccess = async (response: any) => {
+    const handleGoogleSuccess = async (response: { credential: string }) => {
         try {
             const token = response.credential;
             const backendResponse = await axios.post<LoginResponse>(

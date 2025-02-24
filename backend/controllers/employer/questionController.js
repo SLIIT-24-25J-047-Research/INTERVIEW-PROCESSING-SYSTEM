@@ -55,15 +55,14 @@ exports.getAllQuestions = async (req, res) => {
           return res.status(404).json({ error: 'Skill Group not found' });
         }
   
-        // Update only the skillGroupId in the question
+      
         question.skillGroupId = skillGroupId;
       }
   
-      // Update other fields (text, answers)
+     
       question.text = text || question.text;
       question.answers = answers || question.answers;
-  
-      // Save the updated question
+ 
       const updatedQuestion = await question.save();
       res.status(200).json(updatedQuestion);
   
