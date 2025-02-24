@@ -118,8 +118,7 @@ export const AnswerDetails: React.FC<AnswerDetailsProps> = ({ submissionId, onBa
     try {
       const code = answer.response as string;
       const worldConfig = JSON.parse(question.content.mechanics?.worldConfig || '{}');
-  
-      // More comprehensive code analysis patterns
+
       const physicsPatterns: PatternGroup = {
         gravity: {
           patterns: [
