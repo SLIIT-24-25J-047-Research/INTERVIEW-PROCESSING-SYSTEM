@@ -12,9 +12,14 @@ import {
   Search,
   ArrowRight,
   CheckCircle2,
-  Globe
+  Globe,
+  Calendar
 } from 'lucide-react';
 import Footer from '../components/Candidate/Footer';
+import { TypewriterEffectSmooth } from "../components/ui/typewriter-effect"
+import { BackgroundGradientAnimation } from "../components/ui/background-gradient-animation"
+import { Modal, ModalBody, ModalContent, ModalFooter, ModalTrigger } from "../components/ui/animated-modal"
+
 
 const JobPortalLanding = () => {
   const navigate = useNavigate();
@@ -22,42 +27,77 @@ const JobPortalLanding = () => {
   const jobs = [
     {
       id: 1,
-      title: "Senior Software Engineer",
-      company: "Tech Solutions Inc",
+      title: "Frontend Developer",
+      company: "Tech Co.",
+      logo: "https://images.unsplash.com/photo-1560179707-f14e90ef3623?w=300&h=300&fit=crop&q=60&ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxzZWFyY2h8Mnx8Y29tcGFueSUyMGxvZ298ZW58MHx8MHx8fDA%3D",
       location: "San Francisco, CA",
-      salary: "$120,000 - $160,000",
+      salary: "$80,000 - $120,000",
       type: "Full-time",
-      description: "We are seeking an experienced software engineer to join our growing team...",
-      logo: "/api/placeholder/64/64"
+      description: "We're looking for an experienced frontend developer to join our team...",
+      postedDate: "2023-05-15",
+      applicants: 45,
+      requirements: [
+        "3+ years of experience with React",
+        "Strong understanding of JavaScript and TypeScript",
+        "Experience with responsive design and CSS frameworks",
+        "Familiarity with RESTful APIs and state management libraries",
+      ],
     },
     {
       id: 2,
-      title: "Product Manager",
-      company: "Innovation Labs",
+      title: "UX Designer",
+      company: "Design Studio",
+      logo: "https://images.unsplash.com/photo-1560179707-f14e90ef3623?w=300&h=300&fit=crop&q=60&ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxzZWFyY2h8Mnx8Y29tcGFueSUyMGxvZ298ZW58MHx8MHx8fDA%3D",
       location: "New York, NY",
-      salary: "$110,000 - $140,000",
+      salary: "$70,000 - $110,000",
       type: "Full-time",
-      description: "Looking for a strategic product manager to lead our product initiatives...",
-      logo: "/api/placeholder/64/64"
+      description: "We are seeking a talented UX Designer to create amazing user experiences...",
+      postedDate: "2023-05-20",
+      applicants: 32,
+      requirements: [
+        "Bachelor's degree in Design, HCI, or related field",
+        "3+ years of UX design experience",
+        "Proficiency in design tools like Figma or Sketch",
+        "Strong portfolio demonstrating UX process and outcomes",
+      ],
     },
     {
       id: 3,
-      title: "UX Designer",
-      company: "Creative Digital",
+      title: "Data Scientist",
+      company: "AI Solutions Inc.",
+      logo: "https://images.unsplash.com/photo-1560179707-f14e90ef3623?w=300&h=300&fit=crop&q=60&ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxzZWFyY2h8Mnx8Y29tcGFueSUyMGxvZ298ZW58MHx8MHx8fDA%3D",
       location: "Remote",
-      salary: "$90,000 - $120,000",
+      salary: "$100,000 - $150,000",
       type: "Full-time",
-      description: "Join our design team to create beautiful and intuitive user experiences...",
-      logo: "/api/placeholder/64/64"
-    }
+      description: "Join our team of data scientists to work on cutting-edge AI projects...",
+      postedDate: "2023-05-25",
+      applicants: 28,
+      requirements: [
+        "PhD or Master's degree in Computer Science, Statistics, or related field",
+        "Strong programming skills in Python and R",
+        "Experience with machine learning frameworks like TensorFlow or PyTorch",
+        "Knowledge of big data technologies such as Hadoop and Spark",
+      ],
+    },
   ];
 
   const stats = [
-    { icon: Building2, value: "500+", label: "Partner Companies" },
-    { icon: Users, value: "1M+", label: "Active Job Seekers" },
-    { icon: Trophy, value: "20k+", label: "Success Stories" },
-    { icon: Globe, value: "50+", label: "Countries" }
-  ];
+    { value: "200+", label: "Job Openings" },
+    { value: "50k+", label: "Candidates" },
+    { value: "98%", label: "Success Rate" },
+  ]
+
+  const words = [
+    { text: "Connecting", className: "text-white dark:text-blue-500" },
+    { text: "Top", className: "text-white dark:text-blue-500" },
+    { text: "Talent", className: "text-white dark:text-blue-500" },
+    { text: "with", className: "text-white dark:text-blue-500" },
+    { text: "Leading", className: "text-[#d9f99d] dark:text-blue-500" },
+    { text: "Companies", className: "text-[#d9f99d] dark:text-pink-500" },
+  ]
+
+
+
 
   const features = [
     {
@@ -76,6 +116,7 @@ const JobPortalLanding = () => {
       icon: Users
     }
   ];
+
 
   return (
     <div className="min-h-screen bg-gradient-to-b from-gray-50 to-white">
@@ -119,54 +160,48 @@ const JobPortalLanding = () => {
 
 
       {/* Hero Section */}
+      <BackgroundGradientAnimation>
+        <div className="absolute z-10 inset-0 flex items-center  px-4 justify-center   text-white overflow-hidden h-screen pointer-events-none ">
+          <div className="absolute inset-0 bg-grid-white/[0.05] bg-[size:16px_16px] pointer-events-none" />
+          <div className="relative container mx-auto px-6 flex items-center justify-center h-full">
+            <div className="text-center max-w-5xl">
+              <div className="mb-6 w-full flex justify-center text-white">
+                <TypewriterEffectSmooth words={words} />
+              </div>
 
-      <div className="relative bg-gradient-to-r from-[#2563eb] to-[#f472b6] text-white overflow-hidden h-screen">
-        <div className="absolute inset-0 bg-grid-white/[0.05] bg-[size:16px_16px] pointer-events-none" />
-        <div className="relative container mx-auto px-6 flex items-center justify-center h-full">
-          <div className="text-center max-w-4xl">
-            <h1 className="text-4xl md:text-6xl font-extrabold mb-6 leading-tight text-[#fdf4ff]">
-              Connecting Top Talent with Leading Companies
-            </h1>
-            <p className="text-xl md:text-2xl text-blue-100 mb-10">
-              Transform your career journey with our AI-powered recruitment platform.
-              Access exclusive opportunities and expert guidance.
-            </p>
-            <div className="flex flex-col md:flex-row gap-4 mb-12 justify-center">
-              <div className="flex-1 bg-white/10 backdrop-blur-md rounded-lg p-2 shadow-md max-w-md mx-auto">
-                <div className="flex items-center bg-white rounded-md p-2 shadow-sm">
-                  <Search className="h-5 w-5 text-gray-400 mx-2" />
-                  <input
-                    type="text"
-                    placeholder="Job title, skills, or company"
-                    className="flex-1 bg-transparent outline-none text-gray-800 placeholder-gray-400"
-                  />
-                  <Button className="ml-2 bg-blue-600 text-white px-4 py-2 rounded-lg hover:bg-blue-700 transition">
-                    Search Jobs
-                  </Button>
+              <p className="bg-clip-text  text-xl md:text-2xl bg-gradient-to-b from-white/80 to-white/20 text-blue-100 mb-10">
+                Transform your career journey with our AI-powered recruitment platform. Access exclusive opportunities and
+                expert guidance.
+              </p>
+              <div className="flex flex-col md:flex-row gap-4 mb-12 justify-center">
+                <div className="flex-1 bg-white/10 backdrop-blur-md rounded-lg p-2 shadow-md max-w-md mx-auto">
+                  <div className="flex items-center bg-white rounded-md p-2 shadow-sm">
+                    <Search className="h-5 w-5 text-gray-400 mx-2" />
+                    <input
+                      type="text"
+                      placeholder="Job title, skills, or company"
+                      className="flex-1 bg-transparent outline-none text-gray-800 placeholder-gray-400"
+                    />
+                    <Button className="ml-2 bg-blue-600 text-white px-4 py-2 rounded-lg hover:bg-blue-700 transition">
+                      Search Jobs
+                    </Button>
+                  </div>
                 </div>
               </div>
-            </div>
 
-            {/* Stats  */}
-            <div className="flex justify-center gap-12 md:gap-16">
-              {stats.map((stat, index) => (
-                <div
-                  key={index}
-                  className="text-center animate-fade-in delay-100"
-                >
-                  <div className="text-4xl md:text-5xl font-bold mb-1">
-                    {stat.value}
+              {/* Stats */}
+              <div className="flex justify-center gap-12 md:gap-16">
+                {stats.map((stat, index) => (
+                  <div key={index} className="text-center animate-fade-in delay-100">
+                    <div className="text-4xl md:text-5xl font-bold mb-1">{stat.value}</div>
+                    <div className="text-blue-100 text-sm md:text-base">{stat.label}</div>
                   </div>
-                  <div className="text-blue-100 text-sm md:text-base">
-                    {stat.label}
-                  </div>
-                </div>
-              ))}
+                ))}
+              </div>
             </div>
           </div>
         </div>
-      </div>
-
+      </BackgroundGradientAnimation>
 
 
       {/* Featured Jobs */}
@@ -191,54 +226,119 @@ const JobPortalLanding = () => {
         {/* Jobs Grid */}
         <div className="grid gap-8 sm:grid-cols-1 md:grid-cols-2 lg:grid-cols-3">
           {jobs.map((job) => (
-            <Card
-              key={job.id}
-              className="group hover:shadow-lg hover:-translate-y-1 transition-transform duration-300"
-            >
-              {/* Card Header */}
-              <CardHeader className="flex flex-row items-center gap-4 p-4">
-                <img
-                  src={job.logo}
-                  alt={job.company}
-                  className="w-14 h-14 rounded-lg shadow-md object-cover"
-                />
-                <div>
-                  <CardTitle className="text-xl font-bold group-hover:text-blue-600 transition-colors">
-                    {job.title}
-                  </CardTitle>
-                  <CardDescription className="text-gray-500">{job.company}</CardDescription>
-                </div>
-              </CardHeader>
+            <Modal key={job.id}>
+              <ModalTrigger>
+                <Card className="group hover:shadow-lg hover:-translate-y-1 transition-transform duration-300 cursor-pointer">
+                  {/* Card Header */}
+                  <CardHeader className="flex flex-row items-center gap-4 p-4">
+                    <img
+                      src={job.logo || "/placeholder.svg"}
+                      alt={job.company}
+                      className="w-14 h-14 rounded-lg shadow-md object-cover"
+                    />
+                    <div>
+                      <CardTitle className="text-xl font-bold group-hover:text-blue-600 transition-colors">
+                        {job.title}
+                      </CardTitle>
+                      <CardDescription className="text-gray-500">{job.company}</CardDescription>
+                    </div>
+                  </CardHeader>
 
-              {/* Card Content */}
-              <CardContent className="px-4 py-4">
-                <div className="space-y-3 text-gray-600">
-                  <div className="flex items-center gap-2">
-                    <MapPin className="h-5 w-5 text-blue-500" />
-                    <span>{job.location}</span>
-                  </div>
-                  <div className="flex items-center gap-2">
-                    <DollarSign className="h-5 w-5 text-blue-500" />
-                    <span>{job.salary}</span>
-                  </div>
-                  <div className="flex items-center gap-2">
-                    <Briefcase className="h-5 w-5 text-blue-500" />
-                    <span>{job.type}</span>
-                  </div>
-                  <p className="text-sm text-gray-500 mt-3">{job.description}</p>
-                </div>
-              </CardContent>
+                  {/* Card Content */}
+                  <CardContent className="px-4 py-4">
+                    <div className="space-y-3 text-gray-600">
+                      <div className="flex items-center gap-2">
+                        <MapPin className="h-5 w-5 text-blue-500" />
+                        <span>{job.location}</span>
+                      </div>
+                      <div className="flex items-center gap-2">
+                        <DollarSign className="h-5 w-5 text-blue-500" />
+                        <span>{job.salary}</span>
+                      </div>
+                      <div className="flex items-center gap-2">
+                        <Briefcase className="h-5 w-5 text-blue-500" />
+                        <span>{job.type}</span>
+                      </div>
+                      <p className="text-sm text-gray-500 mt-3">{job.description}</p>
+                    </div>
+                  </CardContent>
 
-              {/* Card Footer */}
-              <CardFooter className="p-4">
-                <Button
-                  className="w-full bg-blue-600 text-white py-2 rounded-lg hover:bg-blue-700 transition-colors"
-                  onClick={() => navigate('/login')}
-                >
-                  Apply Now
-                </Button>
-              </CardFooter>
-            </Card>
+                  {/* Card Footer */}
+                  <CardFooter className="p-4">
+                    <Button className="w-full bg-blue-600 text-white py-2 rounded-lg hover:bg-blue-700 transition-colors">
+                      View Details
+                    </Button>
+                  </CardFooter>
+                </Card>
+              </ModalTrigger>
+              <ModalBody>
+                <ModalContent className="flex flex-col h-[90vh]">
+                  <div className="flex-none">
+                    <div className="flex items-center gap-4 mb-4">
+                      <img
+                        src={job.logo || "/placeholder.svg"}
+                        alt={job.company}
+                        className="w-16 h-16 rounded-lg shadow-md object-cover"
+                      />
+                      <div>
+                        <h2 className="text-2xl font-bold">{job.title}</h2>
+                        <p className="text-gray-600">{job.company}</p>
+                      </div>
+                    </div>
+                    <div className="grid grid-cols-2 gap-3 mb-4">
+                      <div className="flex items-center gap-2">
+                        <MapPin className="h-5 w-5 text-blue-500" />
+                        <span>{job.location}</span>
+                      </div>
+                      <div className="flex items-center gap-2">
+                        <DollarSign className="h-5 w-5 text-blue-500" />
+                        <span>{job.salary}</span>
+                      </div>
+                      <div className="flex items-center gap-2">
+                        <Briefcase className="h-5 w-5 text-blue-500" />
+                        <span>{job.type}</span>
+                      </div>
+                      <div className="flex items-center gap-2">
+                        <Calendar className="h-5 w-5 text-blue-500" />
+                        <span>Posted on {job.postedDate}</span>
+                      </div>
+                      <div className="flex items-center gap-2">
+                        <Users className="h-5 w-5 text-blue-500" />
+                        <span>{job.applicants} applicants</span>
+                      </div>
+                    </div>
+                  </div>
+
+                  <div className="flex-1 min-h-0">
+                    <div className="h-full">
+                      <div className="mb-4">
+                        <h3 className="text-lg font-semibold mb-2">Job Description</h3>
+                        <p className="text-gray-600">{job.description}</p>
+                      </div>
+                      <div>
+                        <h3 className="text-lg font-semibold mb-2">Requirements</h3>
+                        <ul className="list-disc pl-5 space-y-2">
+                          {job.requirements.map((req, index) => (
+                            <li key={index} className="text-gray-600">
+                              {req}
+                            </li>
+                          ))}
+                        </ul>
+                      </div>
+                    </div>
+                  </div>
+
+                  <div className="flex-none pt-4">
+                    <Button
+                      className="w-full bg-blue-600 text-white py-2 rounded-lg hover:bg-blue-700 transition-colors"
+                      onClick={() => navigate('/login')}
+                    >
+                      Apply Now
+                    </Button>
+                  </div>
+                </ModalContent>
+              </ModalBody>
+            </Modal>
           ))}
         </div>
       </div>

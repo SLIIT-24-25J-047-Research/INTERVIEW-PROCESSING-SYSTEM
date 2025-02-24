@@ -42,7 +42,7 @@ const Login: React.FC = () => {
                 'http://localhost:5000/api/auth/glogin',
                 { token }
             );
-
+            console.log("Backend Response Data:", backendResponse.data);
             handleLoginSuccess(backendResponse.data);
         } catch (error) {
             console.error('Google Login Error:', error);

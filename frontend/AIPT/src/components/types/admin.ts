@@ -34,5 +34,6 @@ export interface Answer {
       correctOrder: string[];
       options: string[];
       correctAnswer: number;
+      mechanics?: { worldConfig: string };
     };
   }
