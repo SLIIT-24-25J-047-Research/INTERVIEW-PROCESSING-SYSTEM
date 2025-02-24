@@ -171,7 +171,7 @@ export const AnswerDetails: React.FC<AnswerDetailsProps> = ({ submissionId, onBa
         }
       };
   
-      // Evaluate each aspect
+     
       const evaluatePatterns = (patterns: PatternGroup): Record<string, boolean> => {
         return Object.entries(patterns).reduce((acc, [key, { patterns: patternList, required }]) => {
           const matchCount = patternList.filter(pattern => pattern.test(code)).length;
