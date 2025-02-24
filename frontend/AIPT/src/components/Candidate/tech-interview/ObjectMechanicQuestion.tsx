@@ -104,7 +104,7 @@ gameLoop();
     canvas.height = 400;
 
     try {
-      // Execute the user's code in a safe context
+      // Execute the code in a safe context hihi
       const gameCode = new Function(code);
       gameCode();
     } catch (error) {
