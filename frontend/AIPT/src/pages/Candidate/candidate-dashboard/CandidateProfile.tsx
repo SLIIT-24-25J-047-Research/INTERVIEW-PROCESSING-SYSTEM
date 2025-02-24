@@ -5,6 +5,8 @@ import CandidateHeader from '../../../components/Candidate/CandidateHeader';
 import Sidebar from "../../../components/Candidate/CandidateSidebar";
 import { toast } from 'react-hot-toast';
 import PasswordUpdateModal from './PasswordUpdateModal';
+import { useAuth } from "../../../contexts/AuthContext";
+
 
 interface ProfileData {
   fullName: string;
@@ -32,12 +34,15 @@ interface PasswordUpdate {
 }
 
 function App() {
-  const userId = '675a8a8b1f81aa2955e37c2d';
+ 
   const [isEditing, setIsEditing] = useState(false);
   const [isLoading, setIsLoading] = useState(true);
   const [profile, setProfile] = useState<ProfileData | null>(null);
   const [editedProfile, setEditedProfile] = useState<ProfileData | null>(null);
   const [error, setError] = useState<string | null>(null);
+  const { user } = useAuth();
+  const userId = user?.id;
+  // console.log(userId);
 
   const fetchProfile = async () => {
     try {
@@ -94,9 +99,16 @@ function App() {
 
   const updatePassword = async (passwordData: PasswordUpdate) => {
     try {
+
+      const transformedData = {
+        currentPassword: passwordData.currentPassword,
+        newPassword: passwordData.newPassword
+      };
+
+
         const response = await axios.put(
             `http://localhost:5000/api/auth/profile/${userId}/password`,
-            passwordData,
+            transformedData,
             {
                 headers: {
                     'Content-Type': 'application/json'
