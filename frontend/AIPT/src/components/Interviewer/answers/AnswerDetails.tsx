@@ -118,8 +118,7 @@ export const AnswerDetails: React.FC<AnswerDetailsProps> = ({ submissionId, onBa
     try {
       const code = answer.response as string;
       const worldConfig = JSON.parse(question.content.mechanics?.worldConfig || '{}');
-  
-      // More comprehensive code analysis patterns
+
       const physicsPatterns: PatternGroup = {
         gravity: {
           patterns: [
@@ -172,7 +171,7 @@ export const AnswerDetails: React.FC<AnswerDetailsProps> = ({ submissionId, onBa
         }
       };
   
-      // Evaluate each aspect
+     
       const evaluatePatterns = (patterns: PatternGroup): Record<string, boolean> => {
         return Object.entries(patterns).reduce((acc, [key, { patterns: patternList, required }]) => {
           const matchCount = patternList.filter(pattern => pattern.test(code)).length;
@@ -183,13 +182,12 @@ export const AnswerDetails: React.FC<AnswerDetailsProps> = ({ submissionId, onBa
   
       const physicsResults = evaluatePatterns(physicsPatterns);
       const behaviorResults = evaluatePatterns(behaviorPatterns);
-  
-      // Calculate detailed validation results
+ 
       const physicsCorrect = physicsResults.gravity && physicsResults.friction;
       const behaviorMatched = behaviorResults.gameLoop && behaviorResults.objectState;
       const collisionsHandled = physicsResults.collision;
   
-      // Calculate weighted score
+
       const weights = {
         physics: 0.4,
         behavior: 0.4,
@@ -205,7 +203,6 @@ export const AnswerDetails: React.FC<AnswerDetailsProps> = ({ submissionId, onBa
       const totalScore = Object.values(scoreComponents).reduce((sum, score) => sum + score, 0);
       const normalizedScore = totalScore;
   
-      // Generate detailed feedback
       const feedback = generateDetailedFeedback(
         physicsResults, 
         behaviorResults,
@@ -247,7 +244,7 @@ export const AnswerDetails: React.FC<AnswerDetailsProps> = ({ submissionId, onBa
   ): string => {
     const feedback = [];
   
-    // Physics feedback
+    // Physics 
     feedback.push('Physics Implementation:');
     physicsAspects.forEach(aspect => {
       const passed = physicsResults[aspect];
@@ -256,7 +253,7 @@ export const AnswerDetails: React.FC<AnswerDetailsProps> = ({ submissionId, onBa
       feedback.push(`${symbol} ${message}`);
     });
   
-    // Behavior feedback
+    // Behavior 
     feedback.push('\nObject Behavior:');
     behaviorAspects.forEach(aspect => {
       const passed = behaviorResults[aspect];

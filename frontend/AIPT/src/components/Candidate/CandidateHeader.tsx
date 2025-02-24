@@ -114,7 +114,7 @@ const CandidateHeader: React.FC<HeaderProps> = ({ title }) => {
         </Link>
         {user && (
           <span className="text-white ml-4">
-            Hello, {user.name}  {/* Or use a different field like email if available */}
+            Hello, {user.name} 
           </span>
         )}
 

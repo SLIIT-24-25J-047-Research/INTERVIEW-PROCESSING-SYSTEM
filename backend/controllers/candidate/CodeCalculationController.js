@@ -1,11 +1,11 @@
 const CodeCalculation = require('../../models/candidate/CodeCalculationModels');
 
-// Create a new Code Calculation
+// Create 
 exports.createCalculation = async (req, res) => {
   try {
     const { userId, questionId, code, cc, wcc, cfc, language } = req.body;
 
-    // Create the new calculation document
+    
     const newCalculation = new CodeCalculation({
       userId,
       questionId,
@@ -16,7 +16,7 @@ exports.createCalculation = async (req, res) => {
       language,
     });
 
-    // Save the document to the database
+  
     const savedCalculation = await newCalculation.save();
 
     res.status(201).json(savedCalculation);
@@ -25,7 +25,7 @@ exports.createCalculation = async (req, res) => {
   }
 };
 
-// Get a specific Code Calculation by ID
+// Get  by ID
 exports.getCalculation = async (req, res) => {
   try {
     const calculation = await CodeCalculation.findById(req.params.id);
@@ -40,7 +40,7 @@ exports.getCalculation = async (req, res) => {
   }
 };
 
-// Update a Code Calculation by ID
+// Update by ID
 exports.updateCalculation = async (req, res) => {
   try {
     const updatedCalculation = await CodeCalculation.findByIdAndUpdate(
@@ -59,7 +59,7 @@ exports.updateCalculation = async (req, res) => {
   }
 };
 
-// Delete a Code Calculation by ID
+// Delete 
 exports.deleteCalculation = async (req, res) => {
   try {
     const deletedCalculation = await CodeCalculation.findByIdAndDelete(req.params.id);
@@ -74,7 +74,7 @@ exports.deleteCalculation = async (req, res) => {
   }
 };
 
-// Get all calculations (Optional: Can add filtering here)
+// Get all 
 exports.getAllCalculations = async (req, res) => {
   try {
     const calculations = await CodeCalculation.find();

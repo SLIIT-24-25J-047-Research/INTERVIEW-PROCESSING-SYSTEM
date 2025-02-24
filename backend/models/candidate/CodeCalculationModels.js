@@ -5,12 +5,12 @@ const codeCalculationSchema = new mongoose.Schema(
   {
     userId: {
       type: mongoose.Schema.Types.ObjectId,
-      ref: 'User', // Assuming 'User' model exists
+      ref: 'User', 
       required: true,
     },
     questionId: {
       type: mongoose.Schema.Types.ObjectId,
-      ref: 'Question', // Assuming 'Question' model exists
+      ref: 'Question', 
       required: true,
     },
     code: {
@@ -31,22 +31,22 @@ const codeCalculationSchema = new mongoose.Schema(
     }, // Cognitive Functional Size
     language: {
       type: String,
-      default: 'JavaScript', // Optional field, default is JavaScript
-    }, // The programming language for the code
+      default: 'JavaScript', 
+    }, 
     status: {
       type: String,
       enum: ['Pending', 'Completed'],
-      default: 'Pending', // Default status is Pending
+      default: 'Pending', 
     },
     calculatedAt: {
       type: Date,
-      default: Date.now, // Sets the time when the record was created
+      default: Date.now, 
     },
   },
   {
-    timestamps: true, // Automatically manage 'createdAt' and 'updatedAt' timestamps
+    timestamps: true, 
   }
 );
 
-// Create and export the model based on the schema
+
 module.exports = mongoose.model('CodeCalculation', codeCalculationSchema);
