@@ -22,7 +22,7 @@ exports.executeCode = async (req, res) => {
       });
     }
 
-    // Find the specific answer for this question
+
     const userAnswer = answer.answers[0].answers.find(
       a => a.questionId === question._id
     );
