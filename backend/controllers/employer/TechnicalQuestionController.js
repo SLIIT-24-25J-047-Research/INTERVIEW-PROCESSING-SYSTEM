@@ -4,40 +4,64 @@ const Question = require("../../models/employer/TechnicalQuestions");
 exports.getQuestions = async (req, res) => {
   try {
     const questions = await Question.find();
-    
+
     // Map the fetched questions to the desired response format
-    const formattedQuestions = questions.map(question => {
-      return {
-        _id: question._id.toString(), // Convert ObjectId to string for consistency
-        type: question.type,
-        title: question.title,
-        description: question.description,
-        timeLimit: question.timeLimit,
-        points: question.points,
-        difficulty: question.difficulty,
-        __v: question.__v, // Include __v if needed
-        content: {
-          initialCode: question.content.initialCode,
-          language: question.content.language,
-          testCases: question.content.testCases.map(testCase => ({
-            input: testCase.input,
-            expectedOutput: testCase.expectedOutput,
-            _id: testCase._id.toString(), // Convert ObjectId to string
-          })),
-          blanks: question.content.blanks,
-          items: question.content.items,
-          correctOrder: question.content.correctOrder,
-          options: question.content.options,
-        }
-      };
-    });
-    
+    const formattedQuestions = questions.map(question => ({
+      _id: question._id.toString(), // Convert ObjectId to string for consistency
+      type: question.type,
+      title: question.title,
+      description: question.description,
+      timeLimit: question.timeLimit,
+      points: question.points,
+      difficulty: question.difficulty,
+      __v: question.__v, // Include __v if needed
+      content: {
+        initialCode: question.content.initialCode,
+        language: question.content.language,
+        testCases: question.content.testCases.map(testCase => ({
+          input: testCase.input,
+          expectedOutput: testCase.expectedOutput,
+          _id: testCase._id.toString(), // Convert ObjectId to string
+        })),
+        text: question.content.text,
+        blanks: question.content.blanks,
+        items: question.content.items,
+        correctOrder: question.content.correctOrder,
+        options: question.content.options,
+        correctAnswer: question.content.correctAnswer,
+        
+        // New fields for additional question types
+        dataset: question.content.dataset
+          ? {
+              data: question.content.dataset.data,
+              expectedVisualization: question.content.dataset.expectedVisualization,
+            }
+          : undefined,
+
+        mechanics: question.content.mechanics
+          ? {
+              worldConfig: question.content.mechanics.worldConfig,
+              expectedBehavior: question.content.mechanics.expectedBehavior,
+            }
+          : undefined,
+
+        puzzle: question.content.puzzle
+          ? {
+              initialState: question.content.puzzle.initialState,
+              goalState: question.content.puzzle.goalState,
+              rules: question.content.puzzle.rules,
+            }
+          : undefined,
+      },
+    }));
+
     // Send the formatted response
     res.json(formattedQuestions);
   } catch (err) {
     res.status(500).json({ error: err.message });
   }
 };
+
 
 // get by ID
 exports.getQuestionById = async (req, res) => {

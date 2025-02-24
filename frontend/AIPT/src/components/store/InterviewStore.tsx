@@ -246,6 +246,10 @@ export const useInterviewStore = create<InterviewState>((set, get) => ({
       userId: "6759439c7cf33b13b125340e",
       answers: answersArray,
     });
+
+
+
+    
   
     try {
       const response = await fetch('http://localhost:5000/api/techAnswers/submit', {
@@ -295,11 +299,27 @@ export const useInterviewStore = create<InterviewState>((set, get) => ({
       if (!response.ok) {
         throw new Error('Failed to fetch questions');
       }
-      const questions = await response.json();
-      set({ questions, isLoading: false });
-    } catch (error) {
+      
+      // Remove the console.log that's consuming the response
+      const questions: Question[] = await response.json();
+      
+      // Validate the response structure matches your Question type
+      const validatedQuestions = questions.map(question => ({
+        ...question,
+        content: {
+          ...question.content,
+          testCases: question.content.testCases || [],
+          blanks: question.content.blanks || [],
+          items: question.content.items || [],
+          correctOrder: question.content.correctOrder || [],
+          options: question.content.options || [],
+        }
+      }));
 
-      console.warn('Failed to fetch questions, using mock data instead:', error);
+      set({ questions: validatedQuestions, isLoading: false });
+      
+    } catch (error) {
+      console.error('Error fetching questions:', error);
       set({ 
         questions: mockQuestions,
         error: error instanceof Error ? error.message : 'An error occurred', 

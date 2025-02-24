@@ -97,8 +97,26 @@ export default function CandidateDashboard() {
   const [savedJobsCount, setSavedJobsCount] = useState(0);
   const [savedJobsList, setSavedJobsList] = useState<(SavedJob & { jobDetails?: JobData })[]>([]);
   const [savedJobsModalOpen, setSavedJobsModalOpen] = useState(false);
-  const [techInterviews, setTechInterviews] = useState<any[]>([]);
-  const [nonTechInterviews, setNonTechInterviews] = useState<any[]>([]);
+  interface Interview {
+    _id: string;
+    jobId: string;
+    status: string;
+    testDate: string;
+    testTime: string;
+    testLink?: string;
+  }
+
+  const [techInterviews, setTechInterviews] = useState<Interview[]>([]);
+  interface NonTechInterview {
+    _id: string;
+    jobId: string | { _id: string; description?: string };
+    status: string;
+    interviewDate: string;
+    interviewTime: string;
+    media?: string;
+  }
+
+  const [nonTechInterviews, setNonTechInterviews] = useState<NonTechInterview[]>([]);
 
   console.log("hello", user);
 
@@ -710,9 +728,7 @@ export default function CandidateDashboard() {
                             </Box>
                           </Box>
                           <Box sx={{ display: "flex", gap: 1, mt: 2 }}>
-                            <Button variant="outline" onClick={handleUpdate}>
-                              Update
-                            </Button>
+
                             <Button
                               variant="outline"
                               color="destructive"
@@ -906,7 +922,7 @@ export default function CandidateDashboard() {
                             <Button
                               variant="outline"
                               size="sm"
-                              onClick={() => window.open(interview.testLink, '_blank')}
+                              onClick={() => window.open("/interview")}
                               style={{ marginTop: '0.25rem' }}
                             >
                               Join Interview
@@ -917,7 +933,7 @@ export default function CandidateDashboard() {
 
                     {/* Non-Technical Interviews */}
                     {selectedCV && nonTechInterviews
-                      .filter(interview => interview.jobId?._id === selectedCV.job.data?._id)
+                      .filter(interview => (typeof interview.jobId === "string" ? interview.jobId : interview.jobId?._id) === selectedCV.job.data?._id)
                       .map((interview) => (
                         <Box key={interview._id} sx={{ mb: 2 }}>
                           <Typography variant="subtitle1" fontWeight="bold">
@@ -946,7 +962,9 @@ export default function CandidateDashboard() {
                       ))}
 
                     {selectedCV && techInterviews.filter(interview => interview.jobId === selectedCV.job.data?._id).length === 0 &&
-                      nonTechInterviews.filter(interview => interview.jobId?._id === selectedCV.job.data?._id).length === 0 && (
+                      nonTechInterviews.filter(interview =>
+                        typeof interview.jobId === "object" && interview.jobId?._id === selectedCV.job.data?._id
+                      ).length === 0 && (
                         <Typography variant="body2" color="text.secondary">
                           No interview schedules for this job.
                         </Typography>

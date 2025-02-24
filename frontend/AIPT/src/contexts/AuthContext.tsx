@@ -34,8 +34,9 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
 
     const decodeAndValidateToken = (token: string): DecodedToken | null => {
         try {
+            console.log('Raw Token:', token);
             const decoded = jwtDecode<DecodedToken>(token);
-            // console.log('Decoded Token:', decoded); 
+            console.log('Decoded Token:', decoded); 
             const currentTime = Date.now() / 1000;
 
             if (decoded.exp < currentTime) {
@@ -94,6 +95,7 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
         localStorage.removeItem('token');
         localStorage.removeItem('role');
         localStorage.removeItem('email');
+        localStorage.removeItem('name');
         localStorage.removeItem('authToken');
         setUser(null);
     };

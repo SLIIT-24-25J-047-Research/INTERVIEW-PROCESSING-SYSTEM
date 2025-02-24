@@ -160,7 +160,8 @@ const googleLogin = async (req, res) => {
           { expiresIn: '1h' }
       );
 
-      return res.json({ token: jwtToken, role: user.role, email: user.email });
+      return res.json({ token: jwtToken, role: user.role, email: user.email, name: user.name });
+
   } catch (error) {
       console.error("Google Login Error:", error);
       return res.status(500).json({ message: "Server error" });
@@ -239,13 +240,15 @@ const googleSignup = async (req, res) => {
 
 const getUserProfile = async (req, res) => {
   try {
-    const user = await User.findById(req.params.id).select('-password');
-    
-    if (!user) {
-      return res.status(404).json({ message: 'User not found' });
-    }
+ 
+   const user = await User.findById(req.params.id).select('+password');
 
-    // Ensure all fields exist, returning empty values for missing ones
+   if (!user) {
+     return res.status(404).json({ message: 'User not found' });
+   }
+
+   const hasPassword = Boolean(user.password);
+
     const userProfile = {
       id: user._id,
       email: user.email || '',
@@ -254,6 +257,8 @@ const getUserProfile = async (req, res) => {
       address: user.address || '',
       bio: user.bio || '',
       skills: user.skills || [],
+      password: hasPassword ? user.password : '',
+      hasPassword 
     };
 
     res.json(userProfile);
@@ -267,7 +272,7 @@ const getUserProfile = async (req, res) => {
 const updateProfile = async (req, res) => {
   try {
     const allowedFields = [
-      "fullName",
+      "name",
       "location",
       "currentRole",
       "bio",
@@ -277,7 +282,6 @@ const updateProfile = async (req, res) => {
       "skills"
     ];
 
-    // Extract only the provided fields from req.body
     const updateFields = {};
     allowedFields.forEach(field => {
       if (req.body[field] !== undefined) {
@@ -290,7 +294,7 @@ const updateProfile = async (req, res) => {
     }
 
     const user = await User.findByIdAndUpdate(
-      req.params.id, // Get user by ID from URL
+      req.params.id, 
       { $set: updateFields },
       { new: true, runValidators: true }
     ).select('-password');
@@ -312,36 +316,31 @@ const updatePassword = async (req, res) => {
   try {
     const { currentPassword, newPassword } = req.body;
 
-    // Ensure password is provided
+  
     if (!currentPassword || typeof currentPassword !== 'string') {
       return res.status(400).json({ message: 'Current password is required' });
     }
 
-    // Find user and include password
     const user = await User.findById(req.params.id).select('+password');
 
     if (!user) {
       return res.status(404).json({ message: 'User not found' });
     }
 
-    // Check if password exists (for OAuth users)
     if (!user.password) {
       return res.status(400).json({ message: 'No password set for this user' });
     }
 
-    // Debugging - Check retrieved password
     console.log("Entered Password:", currentPassword);
     console.log("Hashed Password from DB:", user.password);
 
-    // Compare entered password with stored hash
     const isMatch = await bcrypt.compare(currentPassword, user.password);
-    console.log("Password Match:", isMatch); // Debugging
+    console.log("Password Match:", isMatch); 
 
     if (!isMatch) {
       return res.status(400).json({ message: 'Current password is incorrect' });
     }
 
-    // Validate new password strength
     const passwordRegex = /^(?=.*[A-Z])(?=.*\d).{8,}$/;
     if (!passwordRegex.test(newPassword)) {
       return res.status(400).json({
@@ -349,7 +348,6 @@ const updatePassword = async (req, res) => {
       });
     }
 
-    // Assign new password (will be hashed in pre-save middleware)
     user.password = newPassword;
     await user.save();
 

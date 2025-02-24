@@ -1,9 +1,12 @@
 import React, { useState, useEffect } from 'react';
 import axios from 'axios';
-import { Mail, MapPin, Briefcase, GraduationCap, Edit2, Save, X } from 'lucide-react';
+import { Mail, MapPin, Briefcase, GraduationCap, Edit2, Save, X, KeyRound } from 'lucide-react';
 import CandidateHeader from '../../../components/Candidate/CandidateHeader';
 import Sidebar from "../../../components/Candidate/CandidateSidebar";
 import { toast } from 'react-hot-toast';
+import PasswordUpdateModal from './PasswordUpdateModal';
+import { useAuth } from "../../../contexts/AuthContext";
+
 
 interface ProfileData {
   fullName: string;
@@ -22,21 +25,24 @@ interface ProfileData {
     institution: string;
   }[];
   skills: string[];
+  hasPassword: boolean;
 }
 
 interface PasswordUpdate {
   currentPassword: string;
   newPassword: string;
-  confirmPassword: string;
 }
 
 function App() {
-  const userId = '675a8a8b1f81aa2955e37c2d';
+ 
   const [isEditing, setIsEditing] = useState(false);
   const [isLoading, setIsLoading] = useState(true);
   const [profile, setProfile] = useState<ProfileData | null>(null);
   const [editedProfile, setEditedProfile] = useState<ProfileData | null>(null);
   const [error, setError] = useState<string | null>(null);
+  const { user } = useAuth();
+  const userId = user?.id;
+  // console.log(userId);
 
   const fetchProfile = async () => {
     try {
@@ -81,7 +87,7 @@ function App() {
 
   const handleChange = (field: keyof ProfileData, value: string | string[] | { role: string; company: string; duration: string }[] | { degree: string; institution: string }[]) => {
     if (!editedProfile) return;
-    
+
     setEditedProfile(prev => {
       if (!prev) return prev;
       return {
@@ -93,12 +99,30 @@ function App() {
 
   const updatePassword = async (passwordData: PasswordUpdate) => {
     try {
-      await axios.put(`http://localhost:5000/api/auth/profile/${userId}/password`, passwordData);
-      toast.success('Password updated successfully');
+
+      const transformedData = {
+        currentPassword: passwordData.currentPassword,
+        newPassword: passwordData.newPassword
+      };
+
+
+        const response = await axios.put(
+            `http://localhost:5000/api/auth/profile/${userId}/password`,
+            transformedData,
+            {
+                headers: {
+                    'Content-Type': 'application/json'
+                }
+            }
+        );
+        toast.success('Password updated successfully');
     } catch (err) {
-      toast.error('Failed to update password');
+        console.error('Password update error:', err);
+        toast.error('Failed to update password');
+        throw err;
     }
-  };
+};
+  
 
   if (isLoading) {
     return <div className="flex justify-center items-center h-screen">Loading...</div>;
@@ -113,13 +137,13 @@ function App() {
     <div className="flex h-screen">
       {/* Sidebar */}
       <Sidebar />
-         <div className="flex-1 bg-gray-50 p-24">
-         <CandidateHeader title="Profile" />
+      <div className="flex-1 bg-gray-50 p-24">
+        <CandidateHeader title="Profile" />
         <div className="bg-white rounded-2xl shadow-lg overflow-hidden">
           {/* Header Section */}
           <div className="relative h-48 bg-gradient-to-r from-blue-500 to-blue-600">
             <div className="absolute -bottom-20 left-8 flex items-end space-x-6">
-            <div className="relative">
+              <div className="relative">
                 <img
                   src={profile.profilePicture || '/default-avatar.png'}
                   alt={profile.fullName}
@@ -165,20 +189,20 @@ function App() {
                 </button>
               ) : (
                 <div className="flex gap-2">
-                  <button
-                    onClick={handleSave}
-                    className="bg-green-500 text-white px-4 py-2 rounded-lg flex items-center gap-2 hover:bg-green-600 transition-colors shadow-md"
-                  >
-                    <Save size={16} />
-                    Save
-                  </button>
-                  <button
-                    onClick={handleCancel}
-                    className="bg-white text-gray-600 px-4 py-2 rounded-lg flex items-center gap-2 hover:bg-gray-50 transition-colors shadow-md"
-                  >
-                    <X size={16} />
-                    Cancel
-                  </button>
+                   <button
+        onClick={handleSave}
+        className="bg-green-500 text-white px-4 py-2 rounded-lg flex items-center gap-2 hover:bg-green-600 transition-colors shadow-md"
+      >
+        <Save size={16} />
+        Save
+      </button>
+      <button
+        onClick={handleCancel}
+        className="bg-white text-gray-600 px-4 py-2 rounded-lg flex items-center gap-2 hover:bg-gray-50 transition-colors shadow-md"
+      >
+        <X size={16} />
+        Cancel
+      </button>
                 </div>
               )}
             </div>
@@ -335,6 +359,32 @@ function App() {
                 ))}
               </div>
             </div>
+
+            {/* Security Settings */}
+            <div className="mb-8">
+              <h2 className="text-lg font-semibold mb-4 flex items-center gap-2">
+                <KeyRound className="text-gray-500" size={20} />
+                Security Settings
+              </h2>
+              <div className="space-y-4">
+                <div className="flex items-center justify-between p-4 bg-gray-50 rounded-lg">
+                  <div>
+                    <h3 className="font-medium">Password</h3>
+                    <p className="text-gray-600 text-sm">
+                      {profile.hasPassword
+                        ? "Update your password to keep your account secure"
+                        : "You're signed in with Google"}
+                    </p>
+                  </div>
+                  <PasswordUpdateModal
+                    hasPassword={profile.hasPassword}
+                    onUpdatePassword={updatePassword}
+                  />
+                </div>
+              </div>
+            </div>
+
+
 
             {/* Skills */}
             <div>

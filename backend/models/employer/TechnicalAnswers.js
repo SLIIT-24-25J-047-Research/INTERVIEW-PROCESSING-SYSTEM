@@ -7,7 +7,7 @@ const TecInterviewAnswerSchema = new mongoose.Schema({
     {
       questionId: { type: String, required: true },
       response: { type: mongoose.Schema.Types.Mixed, required: true },
-      timeTaken: { type: Number, required: true }, 
+      timeTaken: { type: Number, required: false }, 
     },
   ],
   submittedAt: { type: Date, default: Date.now },
