@@ -3,7 +3,7 @@ import { KeyRound, Eye, EyeOff, X } from 'lucide-react';
 
 interface PasswordUpdateModalProps {
     hasPassword: boolean;
-    onUpdatePassword: (formData: { currentPassword: string; newPassword: string; confirmPassword: string }) => Promise<void>;
+    onUpdatePassword: (formData: { currentPassword: string; newPassword: string }) => Promise<void>;
 }
 
 const PasswordUpdateModal: React.FC<PasswordUpdateModalProps> = ({ hasPassword, onUpdatePassword }) => {
@@ -61,10 +61,10 @@ const PasswordUpdateModal: React.FC<PasswordUpdateModalProps> = ({ hasPassword, 
             // Create payload matching exactly what works in Postman
             const passwordPayload = {
                 currentPassword: formData.currentPassword,
-                newPassword: formData.newPassword,
-                confirmPassword: formData.confirmPassword
+                newPassword: formData.newPassword
             };
-    
+
+            
             await onUpdatePassword(passwordPayload);
             setIsOpen(false);
             setFormData({
