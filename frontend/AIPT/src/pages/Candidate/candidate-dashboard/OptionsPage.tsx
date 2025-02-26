@@ -1,6 +1,10 @@
 import React, { useState } from 'react';
 import { MessageSquare, HelpCircle, Send, Phone } from 'lucide-react';
 import CandidateLayout from "../../../components/Candidate/CandidateLayout";
+import axios from 'axios';
+import { ToastContainer, toast } from 'react-toastify';
+import 'react-toastify/dist/ReactToastify.css';
+
 
 interface FeedbackForm {
   type: 'feedback' | 'help';
@@ -17,14 +21,29 @@ export default function OptionsPage() {
 
   const [submitted, setSubmitted] = useState(false);
 
-  const handleSubmit = (e: React.FormEvent) => {
+  const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     
-    console.log('Form submitted:', form);
-    setSubmitted(true);
-    setTimeout(() => setSubmitted(false), 3000);
-    setForm({ type: 'feedback', message: '', contact: '' });
+    const token = localStorage.getItem('token');
+    
+    try {
+      const response = await axios.post('http://localhost:5000/api/feedback/send', form, {
+        headers: {
+          Authorization: `Bearer ${token}` 
+        }
+      });
+      console.log('Response:', response.data);
+      toast.success('Feedback sent successfully!');
+      setSubmitted(true);
+      setTimeout(() => setSubmitted(false), 3000);
+      setForm({ type: 'feedback', message: '', contact: '' });
+    } catch (error) {
+      console.error('Error submitting feedback/help request:', error);
+      toast.error('Failed to send feedback. Please try again.');
+    }
   };
+  
+  
 
   return (
 
@@ -143,10 +162,10 @@ export default function OptionsPage() {
         </form>
       </div>
     </div>
-    
-
+  
     </CandidateLayout>
- 
+   
+    <ToastContainer />
     </>
  
   );
