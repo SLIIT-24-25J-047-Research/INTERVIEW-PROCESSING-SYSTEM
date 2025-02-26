@@ -24,6 +24,7 @@ import { AnswersDashboard } from "./components/Interviewer/answers/AnswersDashbo
 import ViewCVPage from "./pages/Candidate/candidate-home/ViewCVPage";
 import NonTechnicalInterviewGuard from "./components/Candidate/non-tech-interview/NonTechInterviewGuard";
 import OptionsPage from "./pages/Candidate/candidate-dashboard/OptionsPage";
+import SendFeedback from "./pages/Interviewer/SendFeedback";
 
 const App: React.FC = () => {
   return (
@@ -71,6 +72,15 @@ const App: React.FC = () => {
         element={
           <PrivateRoute allowedRoles={["interviewer"]}>
             <AnswersDashboard />
+          </PrivateRoute>
+        }
+      />
+
+      <Route
+        path="/interviewer-feedback"
+        element={
+          <PrivateRoute allowedRoles={["interviewer"]}>
+            <SendFeedback />
           </PrivateRoute>
         }
       />
