@@ -22,6 +22,7 @@ import ScheduledInterviewPage from "./pages/Candidate/candidate-dashboard/Schedu
 import Techexam from "./pages/Candidate/candidate-dashboard/TechInterviewPage";
 import { AnswersDashboard } from "./components/Interviewer/answers/AnswersDashboaard";
 import ViewCVPage from "./pages/Candidate/candidate-home/ViewCVPage";
+import NonTechnicalInterviewGuard from "./components/Candidate/non-tech-interview/NonTechInterviewGuard";
 
 const App: React.FC = () => {
   return (
@@ -106,10 +107,13 @@ const App: React.FC = () => {
       />
 
       <Route
-        path="/non-tech-interview"
+        path="/non-tech-interview/:id?"
         element={
           <PrivateRoute allowedRoles={["candidate"]}>
+            <NonTechnicalInterviewGuard>
             <NonTechInterviewPage />
+            </NonTechnicalInterviewGuard>
+           
           </PrivateRoute>
         }
       />
