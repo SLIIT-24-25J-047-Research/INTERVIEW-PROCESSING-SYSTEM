@@ -238,6 +238,8 @@ const googleSignup = async (req, res) => {
 };
 
 
+
+
 const getUserProfile = async (req, res) => {
   try {
     const user = await User.findById(req.params.id).select('+password');
@@ -247,9 +249,9 @@ const getUserProfile = async (req, res) => {
     }
 
     const hasPassword = Boolean(user.password);
-
-   
     const baseUrl = `${req.protocol}://${req.get('host')}`;
+    
+    // Only set profile picture if it exists
     const profilePicture = user.profilePicture 
       ? `${baseUrl}${user.profilePicture}` 
       : '';
@@ -264,6 +266,8 @@ const getUserProfile = async (req, res) => {
       currentRole: user.currentRole || '',
       bio: user.bio || '',
       skills: user.skills || [],
+      experience: user.experience || [],
+      education: user.education || [],
       password: hasPassword ? user.password : '',
       hasPassword 
     };
@@ -274,6 +278,8 @@ const getUserProfile = async (req, res) => {
     res.status(500).json({ message: 'Server error' });
   }
 };
+
+
 
 
 const updateProfile = async (req, res) => {
