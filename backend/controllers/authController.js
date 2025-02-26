@@ -240,21 +240,26 @@ const googleSignup = async (req, res) => {
 
 const getUserProfile = async (req, res) => {
   try {
- 
-   const user = await User.findById(req.params.id).select('+password');
+    const user = await User.findById(req.params.id).select('+password');
 
-   if (!user) {
-     return res.status(404).json({ message: 'User not found' });
-   }
+    if (!user) {
+      return res.status(404).json({ message: 'User not found' });
+    }
 
-   const hasPassword = Boolean(user.password);
+    const hasPassword = Boolean(user.password);
+
+   
+    const baseUrl = `${req.protocol}://${req.get('host')}`;
+    const profilePicture = user.profilePicture 
+      ? `${baseUrl}${user.profilePicture}` 
+      : '';
 
     const userProfile = {
       id: user._id,
       email: user.email || '',
       name: user.name || '',
       phone: user.phone || '',
-      profilePicture: user.profilePicture || '',
+      profilePicture,
       location: user.location || '',
       currentRole: user.currentRole || '',
       bio: user.bio || '',
