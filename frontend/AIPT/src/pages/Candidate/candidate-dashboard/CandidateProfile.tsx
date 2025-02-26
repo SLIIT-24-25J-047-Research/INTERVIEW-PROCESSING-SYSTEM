@@ -48,7 +48,7 @@ function ProfilePage() {
       setIsLoading(true);
       const response = await axios.get(`http://localhost:5000/api/auth/profile/${userId}`);
       setProfile(response.data);
-      console.log('profile',profile);
+      console.log('profile', profile);
       setEditedProfile(response.data); // Initialize edited profile with fetched data
       setError(null);
     } catch (err) {
@@ -176,7 +176,7 @@ function ProfilePage() {
     if (!editedProfile) return;
 
     const updatedExperience = [
-      ...editedProfile.experience,
+      ...(Array.isArray(editedProfile.experience) ? editedProfile.experience : []),
       { role: '', company: '', duration: '' }
     ];
 
@@ -187,7 +187,7 @@ function ProfilePage() {
     if (!editedProfile) return;
 
     const updatedEducation = [
-      ...editedProfile.education,
+      ...(Array.isArray(editedProfile.education) ? editedProfile.education : []),
       { degree: '', institution: '' }
     ];
 
