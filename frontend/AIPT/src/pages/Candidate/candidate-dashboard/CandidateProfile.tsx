@@ -6,6 +6,7 @@ import Sidebar from "../../../components/Candidate/CandidateSidebar";
 import { toast } from 'react-hot-toast';
 import PasswordUpdateModal from './PasswordUpdateModal';
 import { useAuth } from "../../../contexts/AuthContext";
+import defaultAvatar from '../../../images/user.png'
 
 interface ProfileData {
   name: string;
@@ -293,7 +294,7 @@ function ProfilePage() {
               <div className="absolute top-32 left-8 flex justify-between items-end w-full pr-8">
                 <div className="relative">
                   <img
-                    src={editedProfile?.profilePicture || profile.profilePicture || '/default-avatar.png'}
+                    src={editedProfile?.profilePicture || profile.profilePicture || defaultAvatar}
                     alt={profile.name}
                     className="w-32 h-32 rounded-full border-4 border-white object-cover bg-white"
                   />
