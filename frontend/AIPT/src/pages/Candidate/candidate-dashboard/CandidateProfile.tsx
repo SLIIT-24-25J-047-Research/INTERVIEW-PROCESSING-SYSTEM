@@ -49,10 +49,10 @@ function ProfilePage() {
       const response = await axios.get(`http://localhost:5000/api/auth/profile/${userId}`);
       
       setProfile(response.data);
-      setEditedProfile(response.data); // Ensure updated profile is set immediately
+      setEditedProfile(response.data); 
       setError(null);
       
-      console.log('Fetched profile', response.data); // Log the correct profile data
+      console.log('Fetched profile', response.data); 
     } catch (err) {
       setError('Failed to load profile data');
       toast.error('Failed to load profile data');
@@ -61,7 +61,7 @@ function ProfilePage() {
     }
   };
   
-  // Ensure editedProfile updates when profile updates
+
   useEffect(() => {
     setEditedProfile(profile);
   }, [profile]);
@@ -104,12 +104,12 @@ function ProfilePage() {
     if (!editedProfile) return;
 
     try {
-      // Create a FormData object if there's an image to upload
+    
       if (selectedImage) {
         const formData = new FormData();
         formData.append('profilePicture', selectedImage);
 
-        // Upload the image first
+  
         const imageResponse = await axios.post(
           `http://localhost:5000/api/auth/profile/${userId}/image`,
           formData,
@@ -120,13 +120,10 @@ function ProfilePage() {
           }
         );
 
-        // Update the profile picture URL with the one returned from server
         if (imageResponse.data.imageUrl) {
           editedProfile.profilePicture = imageResponse.data.imageUrl;
         }
       }
-
-      // Then update the rest of the profile data
       await axios.put(`http://localhost:5000/api/auth/profile/${userId}`, editedProfile);
       setProfile(editedProfile);
       setIsEditing(false);
@@ -144,6 +141,8 @@ function ProfilePage() {
     setEditedProfile(profile); // Reset to original profile data
   };
 
+
+
   const handleChange = (field: keyof ProfileData, value: string | string[] | { role: string; company: string; duration: string }[] | { degree: string; institution: string }[]) => {
     if (!editedProfile) return;
 
@@ -155,6 +154,8 @@ function ProfilePage() {
       };
     });
   };
+
+
 
   const updateExperienceField = (index: number, field: string, value: string) => {
     if (!editedProfile?.experience) return;
@@ -168,6 +169,8 @@ function ProfilePage() {
     handleChange('experience', updatedExperience);
   };
 
+
+
   const updateEducationField = (index: number, field: string, value: string) => {
     if (!editedProfile?.education) return;
 
@@ -180,6 +183,9 @@ function ProfilePage() {
     handleChange('education', updatedEducation);
   };
 
+
+
+
   const addExperienceItem = () => {
     if (!editedProfile) return;
 
@@ -190,6 +196,9 @@ function ProfilePage() {
 
     handleChange('experience', updatedExperience);
   };
+
+
+
 
   const addEducationItem = () => {
     if (!editedProfile) return;
@@ -202,6 +211,9 @@ function ProfilePage() {
     handleChange('education', updatedEducation);
   };
 
+
+
+
   const removeExperienceItem = (index: number) => {
     if (!editedProfile?.experience) return;
 
@@ -209,12 +221,18 @@ function ProfilePage() {
     handleChange('experience', updatedExperience);
   };
 
+
+
+
   const removeEducationItem = (index: number) => {
     if (!editedProfile?.education) return;
 
     const updatedEducation = editedProfile.education.filter((_, i) => i !== index);
     handleChange('education', updatedEducation);
   };
+
+
+
 
   const updatePassword = async (passwordData: PasswordUpdate) => {
     try {
@@ -263,22 +281,15 @@ function ProfilePage() {
 
   return (
     <div className="flex h-screen bg-gray-50">
-      {/* Sidebar */}
+
       <Sidebar />
 
-      {/* Main Content */}
       <div className="flex-1 overflow-auto">
         <div className="max-w-5xl mx-auto p-6">
           <CandidateHeader title="My Profile" />
-
-          {/* Profile Card */}
           <div className="bg-white rounded-xl shadow-sm overflow-hidden">
-            {/* Banner and Profile Picture */}
             <div className="relative">
-              {/* Banner */}
               <div className="h-48 bg-gradient-to-r from-blue-600 to-indigo-700"></div>
-
-              {/* Profile Picture and Edit Button */}
               <div className="absolute top-32 left-8 flex justify-between items-end w-full pr-8">
                 <div className="relative">
                   <img
@@ -338,9 +349,8 @@ function ProfilePage() {
               </div>
             </div>
 
-            {/* Profile Information */}
+            {/* Profile Info */}
             <div className="mt-20 px-8 py-6">
-              {/* Name and Role */}
               <div className="mb-6">
                 {isEditing ? (
                   <div className="space-y-4">
@@ -373,7 +383,7 @@ function ProfilePage() {
                 )}
               </div>
 
-              {/* Contact Info */}
+              {/* Contact  */}
               <div className="flex flex-wrap gap-6 mb-8 text-gray-600">
                 <div className="flex items-center gap-2">
                   <Mail size={18} className="text-blue-500" />
@@ -403,7 +413,7 @@ function ProfilePage() {
                 </div>
               </div>
 
-              {/* About/Bio */}
+              {/* About */}
               <div className="mb-8">
                 <h2 className="text-lg font-semibold mb-3">About</h2>
                 {isEditing ? (
@@ -419,9 +429,9 @@ function ProfilePage() {
                 )}
               </div>
 
-              {/* Professional Info Sections */}
+  
               <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
-                {/* Experience Section */}
+                {/* Experience  */}
                 <div>
                   <div className="flex justify-between items-center mb-4">
                     <h2 className="text-lg font-semibold flex items-center gap-2">
@@ -500,7 +510,7 @@ function ProfilePage() {
                   </div>
                 </div>
 
-                {/* Education Section */}
+                {/* Education  */}
                 <div>
                   <div className="flex justify-between items-center mb-4">
                     <h2 className="text-lg font-semibold flex items-center gap-2">
@@ -569,7 +579,7 @@ function ProfilePage() {
                 </div>
               </div>
 
-              {/* Skills Section */}
+              {/* Skills  */}
               <div className="mt-8">
                 <h2 className="text-lg font-semibold mb-3">Skills</h2>
                 {isEditing ? (
@@ -601,7 +611,7 @@ function ProfilePage() {
                 )}
               </div>
 
-              {/* Security Settings */}
+              {/* Security  */}
               <div className="mt-8">
                 <h2 className="text-lg font-semibold mb-3 flex items-center gap-2">
                   <KeyRound className="text-blue-500" size={20} />
