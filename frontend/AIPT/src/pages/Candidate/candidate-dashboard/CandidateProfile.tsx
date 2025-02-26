@@ -47,10 +47,12 @@ function ProfilePage() {
     try {
       setIsLoading(true);
       const response = await axios.get(`http://localhost:5000/api/auth/profile/${userId}`);
+      
       setProfile(response.data);
-      console.log('profile', profile);
-      setEditedProfile(response.data); // Initialize edited profile with fetched data
+      setEditedProfile(response.data); // Ensure updated profile is set immediately
       setError(null);
+      
+      console.log('Fetched profile', response.data); // Log the correct profile data
     } catch (err) {
       setError('Failed to load profile data');
       toast.error('Failed to load profile data');
@@ -58,6 +60,11 @@ function ProfilePage() {
       setIsLoading(false);
     }
   };
+  
+  // Ensure editedProfile updates when profile updates
+  useEffect(() => {
+    setEditedProfile(profile);
+  }, [profile]);
 
   useEffect(() => {
     if (userId) {
@@ -125,6 +132,7 @@ function ProfilePage() {
       setIsEditing(false);
       setSelectedImage(null);
       toast.success('Profile updated successfully');
+      fetchProfile(); 
     } catch (err) {
       toast.error('Failed to update profile');
       console.error(err);
