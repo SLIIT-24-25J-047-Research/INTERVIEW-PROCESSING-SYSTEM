@@ -28,22 +28,26 @@ export default function SendFeedback() {
   const fetchFeedbacks = async () => {
     try {
       setLoading(true);
-      const response = await fetch('/api/user/feedback', {
+      
+      // Get the token from local storage
+      const token = localStorage.getItem('token');
+  
+      const response = await fetch('http://localhost:5000/api/feedback/get', {
         method: 'GET',
         headers: {
           'Content-Type': 'application/json',
-          // Add any authentication headers if needed
-          // 'Authorization': `Bearer ${localStorage.getItem('token')}`
+          // Include the authorization header with the token
+          'Authorization': `Bearer ${token}`
         },
       });
-
+  
       if (!response.ok) {
         const errorData = await response.json();
         throw new Error(errorData.message || 'Failed to fetch feedbacks');
       }
-
+  
       const data = await response.json();
-      
+  
       // Map the API data to match our FeedbackItem interface if needed
       const mappedFeedbacks = data.map((item: FeedbackItem) => ({
         id: item.id,
@@ -52,9 +56,9 @@ export default function SendFeedback() {
         contact: item.contact,
         status: item.status,
         createdAt: item.createdAt,
-        response: item.response
+        response: item.response // Add this line if your API returns a response field
       }));
-
+  
       setFeedbacks(mappedFeedbacks);
       setError(null);
     } catch (err) {
@@ -64,6 +68,7 @@ export default function SendFeedback() {
       setLoading(false);
     }
   };
+  
 
   const handleSendResponse = async (feedbackId: string) => {
     try {
