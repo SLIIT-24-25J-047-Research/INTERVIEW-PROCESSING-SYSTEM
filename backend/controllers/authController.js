@@ -289,7 +289,6 @@ const updateProfile = async (req, res) => {
       "location",
       "currentRole",
       "bio",
-      "profilePicture",
       "experience",
       "education",
       "skills"
