@@ -3,7 +3,7 @@ import { useParams, useNavigate, Navigate } from 'react-router-dom';
 import axios from 'axios';
 import { Loader2 } from 'lucide-react';
 
-// This component serves as a wrapper/guard for the NonTechnicalInterview component
+
 const NonTechnicalInterviewGuard = ({ children }: { children: React.ReactNode }) => {
   const [loading, setLoading] = useState(true);
   const [authorized, setAuthorized] = useState(false);
@@ -13,17 +13,17 @@ const NonTechnicalInterviewGuard = ({ children }: { children: React.ReactNode })
     status: string;
     interviewDate: string;
     interviewTime: string;
-    // Add other properties as needed
+    // other properties 
   }
 
   const [interview, setInterview] = useState<Interview | null>(null);
   const { id } = useParams<{ id: string }>();
   const navigate = useNavigate();
   
-  // User ID would typically come from your auth context or state
+  //auth context eka use karanna passe
   const userId = "675932b49c1a60d97c147419";
 
-// In NonTechnicalInterviewGuard.tsx
+
 useEffect(() => {
     const validateInterviewAccess = async () => {
       const startTime = Date.now();
@@ -42,11 +42,10 @@ useEffect(() => {
         console.log('schedules', schedules);
         
         if (schedules.length > 0) {
-          // Find an active interview that is currently scheduled (within ±15 min)
+          // release period eka (within ±15 min)
           const activeInterview = schedules.find((interview: Interview) => {
             if (interview.status !== 'scheduled') return false;
-            
-            // Parse interview date and time
+    
             const interviewDate = new Date(interview.interviewDate);
             const timeMatch = interview.interviewTime.match(/(\d+):(\d+)\s+(AM|PM)/);
             
@@ -58,14 +57,10 @@ useEffect(() => {
             let hour = parseInt(hours);
             if (period === 'PM' && hour < 12) hour += 12;
             if (period === 'AM' && hour === 12) hour = 0;
-            
-            // Set interview time
+        
             interviewDate.setHours(hour, parseInt(minutes), 0, 0);
-            
-            // Calculate time difference in minutes
+    
             const timeDiff = Math.abs(now.getTime() - interviewDate.getTime()) / (1000 * 60);
-            
-            // Allow access if within ±15 minutes of scheduled time
             return timeDiff <= 15;
           });
           
@@ -73,34 +68,29 @@ useEffect(() => {
           
           if (activeInterview) {
             if (!id) {
-              // Calculate remaining time to ensure minimum 1.5s loading
+
               const elapsedTime = Date.now() - startTime;
               const remainingTime = Math.max(0, 1500 - elapsedTime);
               
-              // Wait for minimum loading time before redirecting
               await new Promise(resolve => setTimeout(resolve, remainingTime));
               
-              // If no ID in URL, redirect to the specific interview
               navigate(`/non-tech-interview/${activeInterview._id}`);
               return;
             } else if (id === activeInterview._id) {
-              // If ID matches active interview, allow access
               setInterview(activeInterview);
               setAuthorized(true);
             } else {
-              // If ID doesn't match active interview, deny access
               setAuthorized(false);
             }
           } else {
-            // No active interviews at current time
+
             setAuthorized(false);
           }
         } else {
-          // No interviews scheduled
+
           setAuthorized(false);
         }
-        
-        // Ensure minimum loading time of 1.5 seconds
+
         const elapsedTime = Date.now() - startTime;
         const remainingTime = Math.max(0, 1500 - elapsedTime);
         await new Promise(resolve => setTimeout(resolve, remainingTime));
