@@ -23,6 +23,8 @@ app.use('/api/CVfiles', require('./routes/candidate/CVRoutes'));
 app.use('/api/techQuestions', require('./routes/employer/TechnicalQuestionRoutes'));
 app.use('/api/techAnswers', require('./routes/employer/TechnicalAnswersRoutes'));
 app.use('/api/techCodeExecution', require('./routes/employer/TechnicalCodeExecutionRoute'));
+app.use('/uploads', express.static('uploads'));
+
 
 // voice confidence routes
 app.use('/api', require('./routes/voiceConfidenceRoutes'));
