@@ -1,7 +1,7 @@
 import React, { useState, useEffect, useRef } from 'react';
 import { Mic, MicOff, ChevronRight, Loader2, Clock, AlertCircle } from 'lucide-react';
 import axios from 'axios';
-import { useSearchParams } from 'react-router-dom';
+import { useParams  } from 'react-router-dom';
 
 interface Question {
   _id: string;
@@ -12,11 +12,28 @@ interface Question {
   __v: number;
 }
 
+interface InterviewData {
+  _id: string;
+  userId: string;
+  jobId: string;
+  status: string;
+  scheduledDate: string;
+  // Add other fields as needed
+}
+
+interface Props {
+  interviewData?: InterviewData;
+}
+
 const QUESTION_TIMEOUT = 60; // 60 seconds per question
 
-function App() {
-  const [searchParams] = useSearchParams();
-  const interviewId = searchParams.get("id");
+function App({ interviewData }: Props) {
+
+  const { id } = useParams<{ id: string }>();
+  const interviewId = interviewData?._id || id;
+
+
+  
   const [recording, setRecording] = useState(false);
   const [questions, setQuestions] = useState<Question[]>([]);
   const [currentQuestionIndex, setCurrentQuestionIndex] = useState(0);
@@ -44,13 +61,16 @@ function App() {
   };
 
   useEffect(() => {
-    fetchQuestions();
+    if (interviewId) {
+      fetchQuestions();
+    }
     return () => {
       if (timerRef.current) {
         clearInterval(timerRef.current);
       }
     };
-  }, []);
+  }, [interviewId]);
+
 
   const startQuestionTimer = () => {
     setTimeLeft(QUESTION_TIMEOUT);
