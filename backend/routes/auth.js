@@ -1,6 +1,7 @@
 const express = require('express');
 const router = express.Router();
-const { register, login, getUserData, googleLogin, googleSignup, getUserProfile, updateProfile, updatePassword } = require('../controllers/authController');
+const upload = require('../middleware/uploadMiddleware');
+const { register, login, getUserData, googleLogin, googleSignup, getUserProfile, updateProfile, updatePassword, updateProfilePicture } = require('../controllers/authController');
 
 // @route   POST api/auth/register
 // @desc    Register a new user
@@ -13,6 +14,7 @@ router.post('/register', register);
 // @access  Public
 router.get('/profile/:id', getUserProfile);
 router.put('/profile/:id', updateProfile);
+router.post('/profile/:id/image', upload.single('profilePicture'), updateProfilePicture);
 router.put('/profile/:id/password', updatePassword);
 
 router.post('/login', login);
