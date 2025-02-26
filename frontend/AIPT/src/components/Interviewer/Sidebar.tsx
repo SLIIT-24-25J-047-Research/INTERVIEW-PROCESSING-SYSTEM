@@ -14,7 +14,7 @@ interface MenuItem {
 const menuItems: MenuItem[] = [
   { path: '/interviewer-home', icon: Home, label: 'Dashboard' },
   { path: '/interviewer-profile', icon: PenTool, label: 'profile' },
-  { path: '/interviewer-interviews', icon: Users, label: ' Interview' },
+  { path: '/interviewer-feedback', icon: Users, label: ' Feedbacks' },
   { path: '/interviewer-Vacancies', icon: Users, label: 'Non Technical Interview' },
 
 ];
