@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useRef } from 'react';
 import axios from 'axios';
 import { Mail, MapPin, Briefcase, GraduationCap, Edit2, Save, X, KeyRound, Camera } from 'lucide-react';
 import CandidateHeader from '../../../components/Candidate/CandidateHeader';
@@ -38,6 +38,8 @@ function ProfilePage() {
   const [profile, setProfile] = useState<ProfileData | null>(null);
   const [editedProfile, setEditedProfile] = useState<ProfileData | null>(null);
   const [error, setError] = useState<string | null>(null);
+  const [selectedImage, setSelectedImage] = useState<File | null>(null);
+  const fileInputRef = useRef<HTMLInputElement>(null);
   const { user } = useAuth();
   const userId = user?.id;
 
@@ -46,7 +48,7 @@ function ProfilePage() {
       setIsLoading(true);
       const response = await axios.get(`http://localhost:5000/api/auth/profile/${userId}`);
       setProfile(response.data);
-      console.log('profile', profile);
+      console.log('profile',profile);
       setEditedProfile(response.data); // Initialize edited profile with fetched data
       setError(null);
     } catch (err) {
@@ -67,16 +69,65 @@ function ProfilePage() {
     setIsEditing(true);
   };
 
+  const handleImageClick = () => {
+    fileInputRef.current?.click();
+  };
+
+  const handleImageChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    if (e.target.files && e.target.files[0]) {
+      setSelectedImage(e.target.files[0]);
+
+      // Create a preview immediately
+      const reader = new FileReader();
+      reader.onload = (event) => {
+        if (event.target?.result && editedProfile) {
+          setEditedProfile({
+            ...editedProfile,
+            profilePicture: event.target.result as string
+          });
+        }
+      };
+      reader.readAsDataURL(e.target.files[0]);
+    }
+  };
+
+
+
   const handleSave = async () => {
     if (!editedProfile) return;
 
     try {
+      // Create a FormData object if there's an image to upload
+      if (selectedImage) {
+        const formData = new FormData();
+        formData.append('profilePicture', selectedImage);
+
+        // Upload the image first
+        const imageResponse = await axios.post(
+          `http://localhost:5000/api/auth/profile/${userId}/image`,
+          formData,
+          {
+            headers: {
+              'Content-Type': 'multipart/form-data'
+            }
+          }
+        );
+
+        // Update the profile picture URL with the one returned from server
+        if (imageResponse.data.imageUrl) {
+          editedProfile.profilePicture = imageResponse.data.imageUrl;
+        }
+      }
+
+      // Then update the rest of the profile data
       await axios.put(`http://localhost:5000/api/auth/profile/${userId}`, editedProfile);
       setProfile(editedProfile);
       setIsEditing(false);
+      setSelectedImage(null);
       toast.success('Profile updated successfully');
     } catch (err) {
       toast.error('Failed to update profile');
+      console.error(err);
     }
   };
 
@@ -99,60 +150,60 @@ function ProfilePage() {
 
   const updateExperienceField = (index: number, field: string, value: string) => {
     if (!editedProfile?.experience) return;
-    
+
     const updatedExperience = [...editedProfile.experience];
-    updatedExperience[index] = { 
-      ...updatedExperience[index], 
-      [field]: value 
+    updatedExperience[index] = {
+      ...updatedExperience[index],
+      [field]: value
     };
-    
+
     handleChange('experience', updatedExperience);
   };
 
   const updateEducationField = (index: number, field: string, value: string) => {
     if (!editedProfile?.education) return;
-    
+
     const updatedEducation = [...editedProfile.education];
-    updatedEducation[index] = { 
-      ...updatedEducation[index], 
-      [field]: value 
+    updatedEducation[index] = {
+      ...updatedEducation[index],
+      [field]: value
     };
-    
+
     handleChange('education', updatedEducation);
   };
 
   const addExperienceItem = () => {
     if (!editedProfile) return;
-    
+
     const updatedExperience = [
       ...editedProfile.experience,
       { role: '', company: '', duration: '' }
     ];
-    
+
     handleChange('experience', updatedExperience);
   };
 
   const addEducationItem = () => {
     if (!editedProfile) return;
-    
+
     const updatedEducation = [
       ...editedProfile.education,
       { degree: '', institution: '' }
     ];
-    
+
     handleChange('education', updatedEducation);
   };
 
   const removeExperienceItem = (index: number) => {
     if (!editedProfile?.experience) return;
-    
+
     const updatedExperience = editedProfile.experience.filter((_, i) => i !== index);
     handleChange('experience', updatedExperience);
   };
 
   const removeEducationItem = (index: number) => {
     if (!editedProfile?.education) return;
-    
+
     const updatedEducation = editedProfile.education.filter((_, i) => i !== index);
     handleChange('education', updatedEducation);
   };
@@ -206,37 +257,47 @@ function ProfilePage() {
     <div className="flex h-screen bg-gray-50">
       {/* Sidebar */}
       <Sidebar />
-      
+
       {/* Main Content */}
       <div className="flex-1 overflow-auto">
         <div className="max-w-5xl mx-auto p-6">
           <CandidateHeader title="My Profile" />
-          
+
           {/* Profile Card */}
           <div className="bg-white rounded-xl shadow-sm overflow-hidden">
             {/* Banner and Profile Picture */}
             <div className="relative">
               {/* Banner */}
               <div className="h-48 bg-gradient-to-r from-blue-600 to-indigo-700"></div>
-              
+
               {/* Profile Picture and Edit Button */}
               <div className="absolute top-32 left-8 flex justify-between items-end w-full pr-8">
                 <div className="relative">
                   <img
-                    src={profile.profilePicture || '/default-avatar.png'}
+                    src={editedProfile?.profilePicture || profile.profilePicture || '/default-avatar.png'}
                     alt={profile.name}
                     className="w-32 h-32 rounded-full border-4 border-white object-cover bg-white"
                   />
                   {isEditing && (
-                    <button 
-                      className="absolute bottom-1 right-1 bg-blue-500 text-white p-2 rounded-full shadow hover:bg-blue-600 transition-colors"
-                      title="Change profile picture"
-                    >
-                      <Camera size={16} />
-                    </button>
+                    <>
+                      <button
+                        onClick={handleImageClick}
+                        className="absolute bottom-1 right-1 bg-blue-500 text-white p-2 rounded-full shadow hover:bg-blue-600 transition-colors"
+                        title="Change profile picture"
+                      >
+                        <Camera size={16} />
+                      </button>
+                      <input
+                        type="file"
+                        ref={fileInputRef}
+                        onChange={handleImageChange}
+                        className="hidden"
+                        accept="image/*"
+                      />
+                    </>
                   )}
                 </div>
-                
+
                 {/* Edit/Save Buttons */}
                 <div className="mb-4">
                   {!isEditing ? (
@@ -268,7 +329,7 @@ function ProfilePage() {
                 </div>
               </div>
             </div>
-            
+
             {/* Profile Information */}
             <div className="mt-20 px-8 py-6">
               {/* Name and Role */}
@@ -303,7 +364,7 @@ function ProfilePage() {
                   </>
                 )}
               </div>
-              
+
               {/* Contact Info */}
               <div className="flex flex-wrap gap-6 mb-8 text-gray-600">
                 <div className="flex items-center gap-2">
@@ -333,7 +394,7 @@ function ProfilePage() {
                   )}
                 </div>
               </div>
-              
+
               {/* About/Bio */}
               <div className="mb-8">
                 <h2 className="text-lg font-semibold mb-3">About</h2>
@@ -349,7 +410,7 @@ function ProfilePage() {
                   <p className="text-gray-600 whitespace-pre-line">{profile.bio || 'No bio provided'}</p>
                 )}
               </div>
-              
+
               {/* Professional Info Sections */}
               <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
                 {/* Experience Section */}
@@ -360,7 +421,7 @@ function ProfilePage() {
                       Experience
                     </h2>
                     {isEditing && (
-                      <button 
+                      <button
                         onClick={addExperienceItem}
                         className="text-blue-600 text-sm hover:text-blue-800"
                       >
@@ -368,7 +429,7 @@ function ProfilePage() {
                       </button>
                     )}
                   </div>
-                  
+
                   <div className="space-y-6">
                     {(isEditing ? editedProfile?.experience : profile.experience)?.map((exp, index) => (
                       <div key={index} className="relative">
@@ -381,7 +442,7 @@ function ProfilePage() {
                             <X size={14} />
                           </button>
                         )}
-                        
+
                         {isEditing ? (
                           <div className="space-y-3 p-3 bg-gray-50 rounded-lg">
                             <div>
@@ -424,13 +485,13 @@ function ProfilePage() {
                         )}
                       </div>
                     ))}
-                    
+
                     {(!isEditing && (!profile.experience || profile.experience.length === 0)) && (
                       <p className="text-gray-400 italic">No experience added yet</p>
                     )}
                   </div>
                 </div>
-                
+
                 {/* Education Section */}
                 <div>
                   <div className="flex justify-between items-center mb-4">
@@ -439,7 +500,7 @@ function ProfilePage() {
                       Education
                     </h2>
                     {isEditing && (
-                      <button 
+                      <button
                         onClick={addEducationItem}
                         className="text-blue-600 text-sm hover:text-blue-800"
                       >
@@ -447,7 +508,7 @@ function ProfilePage() {
                       </button>
                     )}
                   </div>
-                  
+
                   <div className="space-y-6">
                     {(isEditing ? editedProfile?.education : profile.education)?.map((edu, index) => (
                       <div key={index} className="relative">
@@ -460,7 +521,7 @@ function ProfilePage() {
                             <X size={14} />
                           </button>
                         )}
-                        
+
                         {isEditing ? (
                           <div className="space-y-3 p-3 bg-gray-50 rounded-lg">
                             <div>
@@ -492,14 +553,14 @@ function ProfilePage() {
                         )}
                       </div>
                     ))}
-                    
+
                     {(!isEditing && (!profile.education || profile.education.length === 0)) && (
                       <p className="text-gray-400 italic">No education added yet</p>
                     )}
                   </div>
                 </div>
               </div>
-              
+
               {/* Skills Section */}
               <div className="mt-8">
                 <h2 className="text-lg font-semibold mb-3">Skills</h2>
@@ -531,7 +592,7 @@ function ProfilePage() {
                   </div>
                 )}
               </div>
-              
+
               {/* Security Settings */}
               <div className="mt-8">
                 <h2 className="text-lg font-semibold mb-3 flex items-center gap-2">
