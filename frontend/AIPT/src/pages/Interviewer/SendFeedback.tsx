@@ -1,7 +1,6 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { MessageSquare, HelpCircle, CheckCircle, XCircle, Send, Search } from 'lucide-react';
 import DashboardLayout from "../../components/Interviewer/DashboardLayout";
-
 
 interface FeedbackItem {
   id: string;
@@ -13,42 +12,90 @@ interface FeedbackItem {
   response?: string;
 }
 
-// Mock data - replace with actual API call
-const mockFeedbacks: FeedbackItem[] = [
-  {
-    id: '1',
-    type: 'help',
-    message: 'I need assistance with accessing my account settings.',
-    contact: '+1234567890',
-    status: 'pending',
-    createdAt: '2024-03-10T10:30:00Z'
-  },
-  {
-    id: '2',
-    type: 'feedback',
-    message: 'The new interface is much more intuitive. Great job!',
-    contact: '+9876543210',
-    status: 'resolved',
-    createdAt: '2024-03-09T15:45:00Z',
-    response: 'Thank you for your positive feedback!'
-  }
-];
-
 export default function SendFeedback() {
-  const [feedbacks, setFeedbacks] = useState<FeedbackItem[]>(mockFeedbacks);
+  const [feedbacks, setFeedbacks] = useState<FeedbackItem[]>([]);
   const [selectedFeedback, setSelectedFeedback] = useState<FeedbackItem | null>(null);
   const [response, setResponse] = useState('');
   const [filter, setFilter] = useState<'all' | 'pending' | 'resolved'>('all');
   const [searchTerm, setSearchTerm] = useState('');
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState<string | null>(null);
 
-  const handleSendResponse = (feedbackId: string) => {
-    setFeedbacks(feedbacks.map(feedback => 
-      feedback.id === feedbackId 
-        ? { ...feedback, status: 'resolved', response }
-        : feedback
-    ));
-    setResponse('');
-    setSelectedFeedback(null);
+  useEffect(() => {
+    fetchFeedbacks();
+  }, []);
+
+  const fetchFeedbacks = async () => {
+    try {
+      setLoading(true);
+      const response = await fetch('/api/user/feedback', {
+        method: 'GET',
+        headers: {
+          'Content-Type': 'application/json',
+          // Add any authentication headers if needed
+          // 'Authorization': `Bearer ${localStorage.getItem('token')}`
+        },
+      });
+
+      if (!response.ok) {
+        const errorData = await response.json();
+        throw new Error(errorData.message || 'Failed to fetch feedbacks');
+      }
+
+      const data = await response.json();
+      
+      // Map the API data to match our FeedbackItem interface if needed
+      const mappedFeedbacks = data.map((item: FeedbackItem) => ({
+        id: item.id,
+        type: item.type || 'feedback',
+        message: item.message,
+        contact: item.contact,
+        status: item.status,
+        createdAt: item.createdAt,
+        response: item.response
+      }));
+
+      setFeedbacks(mappedFeedbacks);
+      setError(null);
+    } catch (err) {
+      setError(err instanceof Error ? err.message : 'Something went wrong');
+      console.error('Error fetching feedbacks:', err);
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  const handleSendResponse = async (feedbackId: string) => {
+    try {
+      const fetchResponse = await fetch(`/api/feedback/${feedbackId}/respond`, {
+        method: 'PUT',
+        headers: {
+          'Content-Type': 'application/json',
+          // Add any authentication headers if needed
+        },
+        body: JSON.stringify({ response, status: 'resolved' }),
+      });
+
+      if (!fetchResponse.ok) {
+        const errorData = await fetchResponse.json();
+        throw new Error(errorData.message || 'Failed to send response');
+      }
+
+      // Update local state
+      setFeedbacks(feedbacks.map(feedback => 
+        feedback.id === feedbackId 
+          ? { ...feedback, status: 'resolved', response: response as string }
+          : feedback
+      ));
+      setResponse('');
+      setSelectedFeedback(null);
+      
+      // Refresh the feedbacks
+      fetchFeedbacks();
+    } catch (err) {
+      setError(err instanceof Error ? err.message : 'Failed to send response');
+      console.error('Error sending response:', err);
+    }
   };
 
   const filteredFeedbacks = feedbacks
@@ -91,47 +138,68 @@ export default function SendFeedback() {
           {/* Feedback List */}
           <div className="bg-white rounded-xl shadow-sm p-6 border border-gray-100">
             <h2 className="text-xl font-semibold text-gray-900 mb-6">Recent Feedbacks</h2>
-            <div className="space-y-4">
-              {filteredFeedbacks.map((feedback) => (
-                <div
-                  key={feedback.id}
-                  className={`p-4 rounded-lg border cursor-pointer transition-all ${
-                    selectedFeedback?.id === feedback.id
-                      ? 'border-blue-500 bg-blue-50'
-                      : 'border-gray-200 hover:border-blue-300'
-                  }`}
-                  onClick={() => setSelectedFeedback(feedback)}
+            
+            {loading ? (
+              <div className="text-center py-8">
+                <p className="text-gray-500">Loading feedbacks...</p>
+              </div>
+            ) : error ? (
+              <div className="text-center py-8">
+                <p className="text-red-500">{error}</p>
+                <button 
+                  onClick={fetchFeedbacks}
+                  className="mt-4 px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700"
                 >
-                  <div className="flex items-center justify-between mb-2">
-                    <div className="flex items-center gap-2">
-                      {feedback.type === 'help' ? (
-                        <HelpCircle className="w-5 h-5 text-orange-500" />
-                      ) : (
-                        <MessageSquare className="w-5 h-5 text-blue-500" />
-                      )}
-                      <span className="font-medium">
-                        {feedback.type === 'help' ? 'Help Request' : 'Feedback'}
-                      </span>
+                  Try Again
+                </button>
+              </div>
+            ) : filteredFeedbacks.length === 0 ? (
+              <div className="text-center py-8">
+                <p className="text-gray-500">No feedbacks found</p>
+              </div>
+            ) : (
+              <div className="space-y-4">
+                {filteredFeedbacks.map((feedback) => (
+                  <div
+                    key={feedback.id}
+                    className={`p-4 rounded-lg border cursor-pointer transition-all ${
+                      selectedFeedback?.id === feedback.id
+                        ? 'border-blue-500 bg-blue-50'
+                        : 'border-gray-200 hover:border-blue-300'
+                    }`}
+                    onClick={() => setSelectedFeedback(feedback)}
+                  >
+                    <div className="flex items-center justify-between mb-2">
+                      <div className="flex items-center gap-2">
+                        {feedback.type === 'help' ? (
+                          <HelpCircle className="w-5 h-5 text-orange-500" />
+                        ) : (
+                          <MessageSquare className="w-5 h-5 text-blue-500" />
+                        )}
+                        <span className="font-medium">
+                          {feedback.type === 'help' ? 'Help Request' : 'Feedback'}
+                        </span>
+                      </div>
+                      <div className={`flex items-center gap-1 ${
+                        feedback.status === 'resolved' ? 'text-green-600' : 'text-orange-500'
+                      }`}>
+                        {feedback.status === 'resolved' ? (
+                          <CheckCircle className="w-4 h-4" />
+                        ) : (
+                          <XCircle className="w-4 h-4" />
+                        )}
+                        <span className="text-sm capitalize">{feedback.status}</span>
+                      </div>
                     </div>
-                    <div className={`flex items-center gap-1 ${
-                      feedback.status === 'resolved' ? 'text-green-600' : 'text-orange-500'
-                    }`}>
-                      {feedback.status === 'resolved' ? (
-                        <CheckCircle className="w-4 h-4" />
-                      ) : (
-                        <XCircle className="w-4 h-4" />
-                      )}
-                      <span className="text-sm capitalize">{feedback.status}</span>
+                    <p className="text-gray-600 text-sm line-clamp-2">{feedback.message}</p>
+                    <div className="mt-2 flex justify-between items-center text-sm text-gray-500">
+                      <span>{feedback.contact}</span>
+                      <span>{new Date(feedback.createdAt).toLocaleDateString()}</span>
                     </div>
                   </div>
-                  <p className="text-gray-600 text-sm line-clamp-2">{feedback.message}</p>
-                  <div className="mt-2 flex justify-between items-center text-sm text-gray-500">
-                    <span>{feedback.contact}</span>
-                    <span>{new Date(feedback.createdAt).toLocaleDateString()}</span>
-                  </div>
-                </div>
-              ))}
-            </div>
+                ))}
+              </div>
+            )}
           </div>
 
           {/* Response Section */}
