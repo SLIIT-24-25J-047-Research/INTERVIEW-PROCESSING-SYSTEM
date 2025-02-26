@@ -254,6 +254,7 @@ const getUserProfile = async (req, res) => {
       email: user.email || '',
       name: user.name || '',
       phone: user.phone || '',
+      profilePicture: user.profilePicture || '',
       location: user.location || '',
       currentRole: user.currentRole || '',
       bio: user.bio || '',
@@ -360,6 +361,32 @@ const updatePassword = async (req, res) => {
 };
 
 
+const updateProfilePicture = async (req, res) => {
+  try {
+    if (!req.file) {
+      return res.status(400).json({ message: 'No image uploaded' });
+    }
+
+    const imageUrl = `/uploads/${req.file.filename}`;
+
+    const user = await User.findByIdAndUpdate(
+      req.params.id,
+      { $set: { profilePicture: imageUrl } },
+      { new: true, runValidators: true }
+    ).select('-password');
+
+    if (!user) {
+      return res.status(404).json({ message: 'User not found' });
+    }
+
+    res.json({ message: 'Profile picture updated successfully', imageUrl });
+  } catch (error) {
+    console.error('Error updating profile picture:', error);
+    res.status(500).json({ message: 'Server error' });
+  }
+};
 
 
-module.exports = { login, register, getUserData, googleLogin, googleSignup, getUserProfile, updateProfile, updatePassword };
+
+
+module.exports = { login, register, getUserData, googleLogin, googleSignup, getUserProfile, updateProfile, updatePassword, updateProfilePicture };
