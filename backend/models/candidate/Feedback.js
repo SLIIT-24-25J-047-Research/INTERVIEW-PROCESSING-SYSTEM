@@ -16,6 +16,11 @@ const feedbackSchema = new mongoose.Schema({
         type: String,
         required: true
     },
+    status: {
+        type: String,
+        enum: ['pending', 'resolved', 'closed'],
+        default: 'pending',
+      },
     contact: {
         type: String,
         required: true
