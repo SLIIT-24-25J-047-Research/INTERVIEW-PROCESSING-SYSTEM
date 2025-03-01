@@ -3,6 +3,7 @@ import { ArrowLeft, Clock, CheckCircle, XCircle, AlertCircle, Loader2 } from 'lu
 import { Answer, Question } from '../../types/admin';
 import { CodeEditor } from '../../Candidate/tech-interview/CodeEditor';
 import { ObjectMechanicQuestion } from '../../Candidate/tech-interview/ObjectMechanicQuestion';
+import  CodeComplexityDashboard  from './CodeComplexityModel'; 
 
 
 interface AnswerDetailsProps {
@@ -49,7 +50,32 @@ export const AnswerDetails: React.FC<AnswerDetailsProps> = ({ submissionId, onBa
   const [totalScore, setTotalScore] = useState(0);
   const [maxPossibleScore, setMaxPossibleScore] = useState(0);
   const [executingCode, setExecutingCode] = useState<Record<string, boolean>>({});
+  interface EvaluationResult {
+    evaluationResult: {
+      cyclomatic_complexity?: number;
+      maintainability_index?: {
+        maintainability_index?: number;
+      };
+      coupling_between_classes?: number;
+      single_value?: number;
+    };
+    submittedAt: string;
+    _id: string;
+  }
 
+  const [evaluations, setEvaluations] = useState<Record<string, EvaluationResult[]>>({});
+  const [showComplexityDashboard, setShowComplexityDashboard] = useState(false);
+  const [selectedQuestionId, setSelectedQuestionId] = useState<string | null>(null);
+
+
+  const openComplexityDashboard = (questionId: string) => {
+    setSelectedQuestionId(questionId);
+    setShowComplexityDashboard(true);
+  };
+
+  
+
+  
   useEffect(() => {
     const fetchData = async () => {
       try {
@@ -86,6 +112,17 @@ export const AnswerDetails: React.FC<AnswerDetailsProps> = ({ submissionId, onBa
             maxPoints += question.points;
 
             if (question.type === 'code') {
+              try {
+                const evaluationResponse = await fetch(`http://localhost:5000/api/CodeSubmissions/question/${answer.questionId}`);
+               
+                if (evaluationResponse.ok) {
+                  const evaluationData = await evaluationResponse.json();
+                  console.log('eval',evaluationData);
+                 setEvaluations(prev => ({ ...prev, [answer.questionId]: Array.isArray(evaluationData) ? evaluationData : [evaluationData] }));
+    }
+              } catch (evalErr) {
+                console.error(`Error fetching evaluation for ${answer.questionId}:`, evalErr);
+              }
               setExecutingCode(prev => ({ ...prev, [answer.questionId]: true }));
               const validation = await validateCodeAnswer(answer, question);
               questionValidations[answer.questionId] = validation;
@@ -465,6 +502,81 @@ export const AnswerDetails: React.FC<AnswerDetailsProps> = ({ submissionId, onBa
                   onChange={() => { }}
                   readOnly={true}
                 />
+                  {evaluations[answer.questionId] && evaluations[answer.questionId].length > 0 ? (
+            <div className="mt-4 p-4 bg-gray-50 rounded-lg border border-gray-200">
+              <h3 className="text-sm font-medium text-gray-700 mb-3">Code Quality Metrics:</h3>
+              
+              <button 
+        onClick={() => openComplexityDashboard(answer.questionId)}
+        className="text-blue-500 hover:text-blue-700 text-sm"
+      >
+        View Detailed Analysis
+      </button>
+              {(() => {
+                const latestEval = evaluations[answer.questionId][evaluations[answer.questionId].length - 1];
+                
+                if (!latestEval.evaluationResult) {
+                  return (
+                    <div className="p-3 bg-white rounded border border-gray-200 text-center">
+                      <p className="text-sm text-gray-500">No score available</p>
+                    </div>
+                  );
+                }
+                
+                return (
+                  <div className="grid grid-cols-2 gap-4">
+                    <div className="p-3 bg-white rounded border border-gray-200">
+                      <p className="text-xs text-gray-500">Cyclomatic Complexity</p>
+                      <p className="text-lg font-semibold">{latestEval.evaluationResult.cyclomatic_complexity || 'N/A'}</p>
+                    </div>
+                    <div className="p-3 bg-white rounded border border-gray-200">
+                      <p className="text-xs text-gray-500">Maintainability Index</p>
+                      <p className="text-lg font-semibold">
+                        {latestEval.evaluationResult.maintainability_index?.maintainability_index?.toFixed(2) || 'N/A'}
+                      </p>
+                    </div>
+                    <div className="p-3 bg-white rounded border border-gray-200">
+                      <p className="text-xs text-gray-500">Coupling Between Classes</p>
+                      <p className="text-lg font-semibold">{latestEval.evaluationResult.coupling_between_classes || 'N/A'}</p>
+                    </div>
+                    <div className="p-3 bg-white rounded border border-gray-200">
+                      <p className="text-xs text-gray-500">Quality Score</p>
+                      <p className="text-lg font-semibold">
+                        {latestEval.evaluationResult.single_value?.toFixed(2) || 'N/A'}
+                      </p>
+                    </div>
+                    
+                    {/* Only show submission history if there's more than one submission */}
+                    {evaluations[answer.questionId].length > 1 && (
+                      <div className="col-span-2 mt-3">
+                        <h4 className="text-sm font-medium text-gray-700 mb-2">Submission History:</h4>
+                        <div className="max-h-40 overflow-y-auto">
+                          {evaluations[answer.questionId].map((evaluation, index) => (
+                            <div key={evaluation._id} className="p-2 mb-2 bg-white rounded border border-gray-200 text-sm">
+                              <div className="flex justify-between items-center">
+                                <span className="font-medium">Submission {index + 1}</span>
+                                <span className="text-xs text-gray-500">
+                                  {new Date(evaluation.submittedAt).toLocaleString()}
+                                </span>
+                              </div>
+                              <div className="text-xs mt-1">
+                                Quality Score: {evaluation.evaluationResult?.single_value?.toFixed(2) || 'N/A'}
+                              </div>
+                            </div>
+                          ))}
+                        </div>
+                      </div>
+                    )}
+                  </div>
+                );
+              })()}
+            </div>
+          ) : (
+            <div className="mt-4 p-4 bg-gray-50 rounded-lg border border-gray-200 text-center">
+              <p className="text-sm text-gray-500">No code quality metrics available</p>
+            </div>
+          )}
+      
                 {validation.testResults && (
                   <div className="mt-4">
                     <div className="flex items-center justify-between mb-4">
@@ -528,7 +640,16 @@ export const AnswerDetails: React.FC<AnswerDetailsProps> = ({ submissionId, onBa
                 )}
               </>
             )}
+
+{showComplexityDashboard && (
+  <CodeComplexityDashboard 
+    isOpen={showComplexityDashboard} 
+    onClose={() => setShowComplexityDashboard(false)} 
+    questionId={selectedQuestionId} 
+  />
+)}
           </div>
+          
         );
 
       case 'dragDrop':
