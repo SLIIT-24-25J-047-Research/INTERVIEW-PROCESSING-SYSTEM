@@ -79,7 +79,7 @@ const pollIntervalRef = useRef(null);
         if (isMounted) {
           setEvaluationData(formattedData);
           
-          // Calculate status distribution
+         
           const distribution = [
             { name: 'Good', value: formattedData.filter((d: { status: string }) => d.status === 'Good').length },
             { name: 'Average', value: formattedData.filter((d: { status: string }) => d.status === 'Average').length },
@@ -104,7 +104,7 @@ const pollIntervalRef = useRef(null);
 
     fetchData();
     
-    // Set up WebSocket for real-time updates
+    //  real-time updates
     const setupWebSocket = () => {
       try {
         socket = new WebSocket('ws://localhost:5000');
@@ -127,7 +127,7 @@ const pollIntervalRef = useRef(null);
         
         socket.onclose = () => {
           console.log('WebSocket disconnected');
-          // Fallback to polling if WebSocket fails
+
           const pollInterval = setInterval(() => {
             if (isMounted) {
               fetchData();
@@ -138,18 +138,18 @@ const pollIntervalRef = useRef(null);
         };
       } catch (err) {
         console.error('WebSocket setup failed:', err);
-        // Fallback to polling if WebSocket fails
+   
         const pollInterval = setInterval(() => {
           if (isMounted) {
             fetchData();
           } else {
             clearInterval(pollInterval);
           }
-        }, 15000); // Poll every 15 seconds
+        }, 15000);
       }
     };
     
-    // Call WebSocket setup
+
     setupWebSocket();
     
     return () => {
@@ -309,7 +309,7 @@ const pollIntervalRef = useRef(null);
               
               {/* Charts Grid */}
               <div className="grid grid-cols-1 lg:grid-cols-2 gap-6 mb-6">
-                {/* Maintainability Index over Time */}
+      
                 <div className="bg-white dark:bg-gray-800 p-5 rounded-xl shadow-sm border border-gray-200 dark:border-gray-700 hover:shadow-md transition-shadow">
                   <div className="flex items-center justify-between mb-4">
                     <h3 className="text-lg font-medium text-gray-800 dark:text-white">Maintainability Index Trend</h3>
