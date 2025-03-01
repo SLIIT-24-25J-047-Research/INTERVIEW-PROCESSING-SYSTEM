@@ -48,7 +48,8 @@ const Techexam: React.FC = () => {
     startExam,
     isExamStarted,
     setAnswer,
-    submitAllAnswers
+    submitAllAnswers,
+    submitCodeForComplexityAnalysis
   } = useInterviewStore();
   // const currentQuestion = mockQuestions[currentQuestionIndex];
   // const questions = getQuestions();
