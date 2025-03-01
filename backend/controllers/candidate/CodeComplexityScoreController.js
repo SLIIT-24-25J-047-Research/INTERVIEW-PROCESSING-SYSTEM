@@ -5,7 +5,7 @@ exports.createCandidateScore = async (req, res) => {
     const { userId, questionId, wcc, cfc, cc } = req.body;
 
     try {
-        const totalScore = wcc + cfc + cc; // Calculate total score
+        const totalScore = wcc + cfc + cc; 
         const candidateScore = new CandidateScore({
             userId,
             questionId,
