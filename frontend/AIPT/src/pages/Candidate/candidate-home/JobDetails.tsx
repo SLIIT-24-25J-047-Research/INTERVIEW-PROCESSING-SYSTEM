@@ -88,9 +88,13 @@ const CandidateCVPage = () => {
           navigate(`/view-cv/${fileId}`);  // Redirect to the ViewCVPage with the fileId
         }, 2000);
       }
-    } catch (error: any) {
+    } catch (error: unknown) {
       console.error("Error uploading CV:", error);
-      setError(error.response?.data?.message || "Failed to upload CV");
+      if (axios.isAxiosError(error)) {
+        setError(error.response?.data?.message || "Failed to upload CV");
+      } else {
+        setError("Failed to upload CV");
+      }
       setUploadProgress(undefined);
     }
   };
