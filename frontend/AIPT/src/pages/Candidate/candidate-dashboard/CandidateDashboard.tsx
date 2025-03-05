@@ -249,6 +249,8 @@ export default function CandidateDashboard() {
     fetchSavedJobs();
   }, [user]);
 
+  console.log("savedJobsList", cvDataList);
+
   // remove saved jobs
   const removeSavedJob = async (jobId: string) => {
     try {
@@ -299,6 +301,7 @@ export default function CandidateDashboard() {
 
   const handleRowClick = (cv: CVWithJobState) => {
     setSelectedCV(cv);
+    console.log("Selected CV:", cv);
   };
 
   const handleUpdate = async () => {
@@ -902,7 +905,10 @@ export default function CandidateDashboard() {
 
                     {/* Technical Interviews */}
                     {selectedCV && techInterviews
-                      .filter(interview => interview.jobId === selectedCV.job.data?._id)
+                    .filter(interview => {
+                      // Ensure job ID matches and exists
+                      return selectedCV.job.data && interview.jobId === selectedCV.job.data._id;
+                    })
                       .map((interview) => (
                         <Box key={interview._id} sx={{ mb: 2 }}>
                           <Typography variant="subtitle1" fontWeight="bold">
@@ -937,7 +943,14 @@ export default function CandidateDashboard() {
 
                     {/* Non-Technical Interviews */}
                     {selectedCV && nonTechInterviews
-                      .filter(interview => (typeof interview.jobId === "string" ? interview.jobId : interview.jobId?._id) === selectedCV.job.data?._id)
+                      .filter(interview => {
+                        // Handle both string and object job ID formats
+                        const jobId = typeof interview.jobId === 'string' 
+                          ? interview.jobId 
+                          : interview.jobId?._id;
+                        
+                        return selectedCV.job.data && jobId === selectedCV.job.data._id;
+                      })
                       .map((interview) => (
                         <Box key={interview._id} sx={{ mb: 2 }}>
                           <Typography variant="subtitle1" fontWeight="bold">
