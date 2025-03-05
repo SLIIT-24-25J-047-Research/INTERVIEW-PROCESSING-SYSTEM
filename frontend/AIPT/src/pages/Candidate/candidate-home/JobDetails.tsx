@@ -7,7 +7,11 @@ import Footer from "../../../components/Candidate/Footer";
 import Header from '../../../components/Candidate/CandidateHeader';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "../../../components/ui/card";
 import axios from "axios";
-import FileSkillExtractor from "../../../components/Candidate/FileSkillExtractor"; // Import the FileSkillExtractor component
+import FileSkillExtractor from "../../../components/Candidate/FileSkillExtractor"; 
+import { toast } from 'react-toastify';
+import 'react-toastify/dist/ReactToastify.css';
+import { ToastContainer } from 'react-toastify';
+
 
 const getUserIdFromToken = (token: string): string => {
   try {
@@ -47,22 +51,22 @@ const CandidateCVPage = () => {
 
   const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
-
+  
     if (!cv || !fullName || !email || !jobId) {
       setError("Please fill in all required fields and upload a CV.");
       return;
     }
-
+  
     const formData = new FormData();
     formData.append("fullName", fullName);
     formData.append("email", email);
     formData.append("userId", userId);
     formData.append("jobId", jobId);
     formData.append("cv", cv);
-
+  
     try {
       setUploadProgress(0);
-
+  
       const response = await axios.post("http://localhost:5000/api/CVfiles/upload", formData, {
         headers: {
           "Content-Type": "multipart/form-data",
@@ -72,7 +76,7 @@ const CandidateCVPage = () => {
           setUploadProgress(percentCompleted);
         },
       });
-
+  
       if (response.status === 200) {
         setMessage("CV Submitted Successfully!");
         const fileId = response.data.fileId;  // Assuming the response includes the fileId
@@ -82,10 +86,13 @@ const CandidateCVPage = () => {
         setCv(null);
         setUploadProgress(undefined);
         setError("");
-
-        // Redirect to the ViewCVPage after 2 seconds
+  
+        // Show success Toast notification
+        toast.success("CV Submitted Successfully!");
+  
+        // Redirect to /candidate-home after 2 seconds
         setTimeout(() => {
-          navigate(`/view-cv/${fileId}`);  // Redirect to the ViewCVPage with the fileId
+          navigate('/candidate-home');  // Navigate to the candidate home page
         }, 2000);
       }
     } catch (error: unknown) {
@@ -97,10 +104,12 @@ const CandidateCVPage = () => {
       }
       setUploadProgress(undefined);
     }
-  };
+  }
 
   return (
     <div className="min-h-screen bg-gray-50">
+      <ToastContainer />
+
       <Header title="Submit Your CV" />
       <section className="header-banner">
         <div className="banner-text">
@@ -208,6 +217,8 @@ const CandidateCVPage = () => {
       )}
 
       <Footer />
+    
+
     </div>
   );
 };
