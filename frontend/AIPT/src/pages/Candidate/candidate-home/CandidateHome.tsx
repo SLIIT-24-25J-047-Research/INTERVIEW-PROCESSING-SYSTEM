@@ -74,7 +74,7 @@ const CandidateHome: React.FC = () => {
             });
     }, []);
 
-   
+
     useEffect(() => {
         if (user) {
             // saved jobs
@@ -90,9 +90,9 @@ const CandidateHome: React.FC = () => {
             //  applied jobs
             axios.get(`http://localhost:5000/api/user-job-applications/user/${user.id}`)
                 .then((response: { data: UserJobApplication }) => {
-                  
+
                     const jobIds = response.data.userJobApplication.appliedJobs.map(
-                        (appliedJob) => appliedJob._id 
+                        (appliedJob) => appliedJob._id
                     );
                     setAppliedJobIds(jobIds);
                 })
@@ -255,7 +255,7 @@ const CandidateHome: React.FC = () => {
                         {filteredJobPosts.length > 0 ? (
                             <div className="job-grid">
                                 {filteredJobPosts.map((job) => {
-                                    const isApplied = appliedJobIds.includes(job._id);  
+                                    const isApplied = appliedJobIds.includes(job._id);
                                     console.log(`Job ${job._id} - isApplied: ${isApplied}`);
                                     return (
                                         <div key={job._id} className="job-card">
@@ -301,11 +301,11 @@ const CandidateHome: React.FC = () => {
                                                                     </Button>
                                                                 )}
                                                             </TooltipTrigger>
-                                                            {isApplied && (
-                                                                <TooltipContent>
+                                                            <TooltipContent>
+                                                                {isApplied ? (
                                                                     <p>You have already applied to this job</p>
-                                                                </TooltipContent>
-                                                            )}
+                                                                ) : null}
+                                                            </TooltipContent>
                                                         </Tooltip>
                                                     </TooltipProvider>
                                                 </div>
