@@ -1,6 +1,6 @@
 
 const express = require('express');
-const { scheduleInterview, editInterview, cancelInterview, getAllSchedules, getScheduleById, getSchedulesByUserId,updateInterviewStatus } = require('../../controllers/employer/NonTechInterviewController');
+const { scheduleInterview, editInterview, cancelInterview, getAllSchedules, getScheduleById, getSchedulesByUserId,updateInterviewStatus, getSchedulesByUserIdAndJobId } = require('../../controllers/employer/NonTechInterviewController');
 const router = express.Router();
 
 
@@ -11,5 +11,6 @@ router.delete('/cancel/:id', cancelInterview);
 router.get('/schedule/get', getAllSchedules);
 router.get('/schedule/get/:id', getScheduleById);
 router.get('/schedule/user/:userId', getSchedulesByUserId);
+router.get('/schedule/user/:userId/job/:jobId', getSchedulesByUserIdAndJobId);
 
 module.exports = router;

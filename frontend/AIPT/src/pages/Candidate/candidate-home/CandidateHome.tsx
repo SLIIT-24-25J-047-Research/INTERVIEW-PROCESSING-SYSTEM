@@ -2,15 +2,16 @@ import React, { useState, useEffect } from 'react';
 import '../../../Styles/CandidateHome.css';
 import Header from '../../../components/Candidate/CandidateHeader';
 import Footer from '../../../components/Candidate/Footer';
-import { Search, Calendar, ArrowUpDown, Filter } from 'lucide-react';
+import { Search, Calendar, ArrowUpDown, Filter, CheckCircle } from 'lucide-react';
 import { Card, CardHeader, CardContent, CardFooter } from "../../../components/ui/card";
 import { Input } from "../../../components/ui/input";
 import { Button } from "../../../components/ui/button";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "../../../components/ui/select";
 import axios from 'axios';
-import { toast, Toaster  } from 'react-hot-toast';
+import { toast, Toaster } from 'react-hot-toast';
 import { useAuth } from '../../../contexts/AuthContext';
 import { useNavigate } from "react-router-dom";
+import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from '../../../components/ui/Tooltip';
 
 
 interface SavedJob {
@@ -19,18 +20,49 @@ interface SavedJob {
     jobId: string;
 }
 
+interface AppliedJobDetail {
+    _id: string;
+    jobID: string;
+    jobRole: string;
+    description: string;
+    company: string;
+    location: string;
+    salary: number;
+    jobType: string;
+}
+
+interface UserJobApplication {
+    userJobApplication: {
+        appliedJobs: AppliedJobDetail[];
+    }
+}
+
+
 const CandidateHome: React.FC = () => {
     const navigate = useNavigate();
-    const [jobPosts, setJobPosts] = useState<any[]>([]);
+    interface JobPost {
+        _id: string;
+        jobRole: string;
+        description: string;
+        date: string;
+        jobType: string;
+        company: string;
+        location: string;
+        salary: number;
+    }
+
+    const [jobPosts, setJobPosts] = useState<JobPost[]>([]);
     const [searchQuery, setSearchQuery] = useState('');
     const [dateFilter, setDateFilter] = useState('all');
     const [orderBy, setOrderBy] = useState('newest');
     const [typeFilter, setTypeFilter] = useState('all');
     const [savedJobIds, setSavedJobIds] = useState<string[]>([]);
+    const [appliedJobIds, setAppliedJobIds] = useState<string[]>([]);
+
 
     const { user } = useAuth();
 
-    // Fetch all jobs
+    //  all jobs
     useEffect(() => {
         axios.get('http://localhost:5000/api/jobs/all')
             .then(response => {
@@ -42,9 +74,10 @@ const CandidateHome: React.FC = () => {
             });
     }, []);
 
-    // Fetch saved jobs
+
     useEffect(() => {
         if (user) {
+            // saved jobs
             axios.get(`http://localhost:5000/api/savejobs/getSavedJobs/${user.id}`)
                 .then(response => {
                     const jobIds = response.data.map((savedJob: SavedJob) => savedJob.jobId);
@@ -53,11 +86,23 @@ const CandidateHome: React.FC = () => {
                 .catch(error => {
                     console.error("Error fetching saved jobs:", error);
                 });
+
+            //  applied jobs
+            axios.get(`http://localhost:5000/api/user-job-applications/user/${user.id}`)
+                .then((response: { data: UserJobApplication }) => {
+
+                    const jobIds = response.data.userJobApplication.appliedJobs.map(
+                        (appliedJob) => appliedJob._id
+                    );
+                    setAppliedJobIds(jobIds);
+                })
+                .catch(error => {
+                    console.error("Error fetching applied jobs:", error);
+                });
         }
     }, [user]);
 
-
-    // Save job function
+    // Save job 
     const saveJob = async (jobId: string) => {
         if (!user) {
             toast.error('Please login to save jobs');
@@ -69,13 +114,13 @@ const CandidateHome: React.FC = () => {
                 jobId,
                 userId: user.id
             });
-            
+
             if (response.status === 200) {
                 setSavedJobIds(prev => [...prev, jobId]);
                 toast.success('Job saved successfully!');
             }
-        } catch (error: any) {
-            if (error.response?.status === 409) {
+        } catch (error: unknown) {
+            if (axios.isAxiosError(error) && error.response?.status === 409) {
                 toast.error('Job already saved!');
             } else {
                 toast.error('Error saving job');
@@ -85,10 +130,10 @@ const CandidateHome: React.FC = () => {
     };
 
 
-    
 
 
-    // Filtering and sorting logic 
+
+    // Filtering
     const filteredJobPosts = jobPosts
         .filter((job) =>
             job.jobRole.toLowerCase().includes(searchQuery.toLowerCase()) ||
@@ -109,12 +154,12 @@ const CandidateHome: React.FC = () => {
             if (orderBy === 'oldest') return new Date(a.date).getTime() - new Date(b.date).getTime();
             return 0;
         });
-    
-    
+
+
 
     return (
         <div className="min-h-screen bg-gray-50">
-              <Toaster /> 
+            <Toaster />
             <Header title="Candidate Home" />
 
             {/* Header Banner  */}
@@ -129,15 +174,15 @@ const CandidateHome: React.FC = () => {
             {/* Main content area */}
             <div className="container mx-auto px-4 py-8">
                 <div className="flex gap-6">
-                    {/* Left Column - Filters */}
-                    <div className="w-80"> 
+                    {/* Lefts */}
+                    <div className="w-80">
                         <Card className="filter-card sticky top-4">
                             <CardHeader className="pb-2">
                                 <h3 className="text-lg font-semibold text-gray-900">Filters</h3>
                             </CardHeader>
                             <CardContent>
-                                <div className="space-y-6"> 
-                                    {/* Search Section */}
+                                <div className="space-y-6">
+                                    {/* Search  */}
                                     <div className="select-wrapper">
                                         <label className="select-label">Search</label>
                                         <div className="relative">
@@ -205,49 +250,75 @@ const CandidateHome: React.FC = () => {
                         </Card>
                     </div>
 
-                    {/* Right Column - Job Listings */}
+                    {/* Right  */}
                     <div className="w-full">
                         {filteredJobPosts.length > 0 ? (
                             <div className="job-grid">
-                                {filteredJobPosts.map((job) => (
-                                    <div key={job._id} className="job-card">
-                                        <div className="job-header">{job.jobRole}</div>
-                                        <div className="job-company text-gray-500 text-sm">{job.company}</div>
-                                        <p className="job-description text-sm text-gray-600 my-2">
-                                            {job.description}
-                                        </p>
-                                        <p className="job-location text-sm text-gray-500">{job.location}</p>
-                                        <p className="job-salary text-sm text-gray-500">${job.salary}</p>
-                                        <div className="job-meta">
-                                            <div className="job-date text-sm text-gray-400">
-                                                <Calendar className="inline-block w-4 h-4 mr-1" />
-                                                {new Date(job.date).toLocaleDateString()}
-                                            </div>
-                                            <div>
-                                            <Button 
-                                                    className={savedJobIds.includes(job._id) 
-                                                        ? 'bg-green-500 text-white' 
-                                                        : 'bg-gray-200 text-black'
-                                                    } 
-                                                    onClick={() => saveJob(job._id)}
-                                                >
-                                                    {savedJobIds.includes(job._id) ? 'Saved' : 'Save Job'}
-                                                </Button>
-                                                <Button
-                                                    className="bg-blue-500 text-white hover:bg-blue-600 ml-2"
-                                                    onClick={() => navigate(`/candidate-home/job/${job._id}/apply`)}
-                                                >
-                                                    Apply Now
-                                                </Button>
+                                {filteredJobPosts.map((job) => {
+                                    const isApplied = appliedJobIds.includes(job._id);
+                                    console.log(`Job ${job._id} - isApplied: ${isApplied}`);
+                                    return (
+                                        <div key={job._id} className="job-card">
+                                            <div className="job-header">{job.jobRole}</div>
+                                            <div className="job-company text-gray-500 text-sm">{job.company}</div>
+                                            <p className="job-description text-sm text-gray-600 my-2">
+                                                {job.description}
+                                            </p>
+                                            <p className="job-location text-sm text-gray-500">{job.location}</p>
+                                            <p className="job-salary text-sm text-gray-500">${job.salary}</p>
+                                            <div className="job-meta">
+                                                <div className="job-date text-sm text-gray-400">
+                                                    <Calendar className="inline-block w-4 h-4 mr-1" />
+                                                    {new Date(job.date).toLocaleDateString()}
+                                                </div>
+                                                <div>
+                                                    <Button
+                                                        className={savedJobIds.includes(job._id)
+                                                            ? 'bg-green-500 text-white'
+                                                            : 'bg-gray-200 text-black'
+                                                        }
+                                                        onClick={() => saveJob(job._id)}
+                                                    >
+                                                        {savedJobIds.includes(job._id) ? 'Saved' : 'Save Job'}
+                                                    </Button>
+                                                    <TooltipProvider>
+                                                        <Tooltip>
+                                                            <TooltipTrigger asChild>
+                                                                {isApplied ? (
+                                                                    <Button
+                                                                        variant="outline"
+                                                                        className="ml-2 bg-gray-100 text-green-600"
+                                                                        disabled
+                                                                    >
+                                                                        <CheckCircle className="mr-2 h-3 w-3" /> Applied
+                                                                    </Button>
+                                                                ) : (
+                                                                    <Button
+                                                                        className="bg-blue-500 text-white hover:bg-blue-600 ml-2"
+                                                                        onClick={() => navigate(`/candidate-home/job/${job._id}/apply`)}
+                                                                    >
+                                                                        Apply Now
+                                                                    </Button>
+                                                                )}
+                                                            </TooltipTrigger>
+                                                            <TooltipContent>
+                                                                {isApplied ? (
+                                                                    <p>You have already applied to this job</p>
+                                                                ) : null}
+                                                            </TooltipContent>
+                                                        </Tooltip>
+                                                    </TooltipProvider>
+                                                </div>
                                             </div>
                                         </div>
-                                    </div>
-                                ))}
+                                    );
+                                })}
                             </div>
                         ) : (
                             <p className="text-center text-gray-500">No jobs found. Try adjusting your filters.</p>
                         )}
                     </div>
+
                 </div>
             </div>
             <Footer />
