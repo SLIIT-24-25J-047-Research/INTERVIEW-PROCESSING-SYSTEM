@@ -51,7 +51,7 @@ const FileSkillExtractor: React.FC<FileSkillExtractorProps> = ({ filePath, fileI
         for (let i = 1; i <= pdf.numPages; i++) {
           const page = await pdf.getPage(i);
           const textContent = await page.getTextContent();
-          extractedText += textContent.items.map((item: any) => item.str).join(" ") + " ";
+          extractedText += textContent.items.map((item) => 'str' in item ? item.str : '').join(" ") + " ";
         }
 
         const skills = extractSkills(extractedText);
