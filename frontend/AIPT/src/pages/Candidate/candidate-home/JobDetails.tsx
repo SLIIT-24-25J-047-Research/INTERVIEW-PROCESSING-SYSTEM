@@ -7,6 +7,7 @@ import Footer from "../../../components/Candidate/Footer";
 import Header from '../../../components/Candidate/CandidateHeader';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "../../../components/ui/card";
 import axios from "axios";
+import FileSkillExtractor from "../../../components/Candidate/FileSkillExtractor"; // Import the FileSkillExtractor component
 
 const getUserIdFromToken = (token: string): string => {
   try {
@@ -31,6 +32,7 @@ const CandidateCVPage = () => {
   const [message, setMessage] = useState("");
   const [error, setError] = useState("");
   const [userId, setUserId] = useState<string>("");
+  const [fileId, setFileId] = useState<string>(""); // State to store the uploaded fileId
 
   // Get the email and userId from the token
   useEffect(() => {
@@ -74,6 +76,7 @@ const CandidateCVPage = () => {
       if (response.status === 200) {
         setMessage("CV Submitted Successfully!");
         const fileId = response.data.fileId;  // Assuming the response includes the fileId
+        setFileId(fileId); // Save the fileId to state
         setFullName("");
         setEmail("");
         setCv(null);
@@ -189,6 +192,16 @@ const CandidateCVPage = () => {
           </CardContent>
         </Card>
       </div>
+
+      {/* Render FileSkillExtractor after CV is uploaded */}
+      {fileId && (
+        <FileSkillExtractor
+          filePath={`http://localhost:5000/api/CVfiles/download/${fileId}`} // Path to the uploaded CV
+          fileId={fileId}
+          jobId={jobId!} // Pass jobId as a prop
+          userId={userId} // Pass userId as a prop
+        />
+      )}
 
       <Footer />
     </div>
