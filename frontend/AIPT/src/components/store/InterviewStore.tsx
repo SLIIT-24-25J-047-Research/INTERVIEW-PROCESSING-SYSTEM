@@ -94,16 +94,17 @@ interface InterviewState {
   isSubmitting: boolean;
   hasSubmitted: boolean;
   submitAllAnswers: () => Promise<void>;
+  submitCodeForComplexityAnalysis: (questionId: string, code: string, language: string) => Promise<void>;
+  // Track which code questions have already been submitted for complexity analysis
+  submittedCodeQuestions: Set<string>;
+  // Flag to mark when we're submitting the whole exam
+  isSubmittingExam: boolean;
 }
-
-
-
 
 const loadTimerState = (): TimerState => {
   const saved = localStorage.getItem('examTimerState');
   return saved ? JSON.parse(saved) : {};
 };
-
 
 const loadLockedQuestions = (): Set<string> => {
   const saved = localStorage.getItem('lockedQuestions');
@@ -115,7 +116,10 @@ const loadAnswers = (): Record<string, Answer> => {
   return saved ? JSON.parse(saved) : {};
 };
 
-
+const loadSubmittedCodeQuestions = (): Set<string> => {
+  const saved = localStorage.getItem('submittedCodeQuestions');
+  return saved ? new Set(JSON.parse(saved)) : new Set();
+};
 
 export const useInterviewStore = create<InterviewState>((set, get) => ({
   currentQuestionIndex: 0,
@@ -129,6 +133,8 @@ export const useInterviewStore = create<InterviewState>((set, get) => ({
   examStarted: localStorage.getItem('examStarted') === 'true',
   isSubmitting: false,
   hasSubmitted: localStorage.getItem('hasSubmitted') === 'true',
+  submittedCodeQuestions: loadSubmittedCodeQuestions(),
+  isSubmittingExam: false,
 
   setCurrentQuestion: (index) => set({ currentQuestionIndex: index }),
   
@@ -149,10 +155,8 @@ export const useInterviewStore = create<InterviewState>((set, get) => ({
     });
   },
   
-  
   updateScore: (points) =>
     set((state) => ({ score: state.score + points })),
-
   
   lockQuestion: (questionId, timeTaken) => {
     set((state) => {
@@ -177,8 +181,30 @@ export const useInterviewStore = create<InterviewState>((set, get) => ({
         answers: newAnswers
       };
     });
+
+    // Only submit code for complexity analysis if:
+    // 1. This is a code question
+    // 2. It hasn't been submitted before
+    // 3. We're not in the middle of submitting the entire exam
+    const state = get();
+    const answer = state.answers[questionId];
+    const question = state.questions.find(q => q._id === questionId);
+
+    if (
+      !state.isSubmittingExam && 
+      question && 
+      question.type === 'code' && 
+      typeof answer?.response === 'string' && 
+      !state.submittedCodeQuestions.has(questionId)
+    ) {
+      // We make this call AFTER updating the state to ensure consistency
+      get().submitCodeForComplexityAnalysis(
+        questionId, 
+        answer.response, 
+        question.content.language || 'javascript'
+      );
+    }
   },
-  
   
   isQuestionLocked: (questionId) => 
     get().lockedQuestions.has(questionId),
@@ -224,6 +250,51 @@ export const useInterviewStore = create<InterviewState>((set, get) => ({
 
   isExamStarted: () => get().examStarted,
 
+  submitCodeForComplexityAnalysis: async (questionId, code, language) => {
+    try {
+      // Double-check if we've already submitted this question for complexity analysis
+      // Using direct get() here to ensure we have the latest state
+      if (get().submittedCodeQuestions.has(questionId)) {
+        console.log(`Skipping complexity analysis for Question ${questionId} - already submitted`);
+        return;
+      }
+      
+      console.log(`Submitting code for complexity analysis: Question ${questionId}`);
+      
+      // First mark this question as submitted BEFORE making the API call
+      // This prevents race conditions where multiple submissions might be triggered
+      set(state => {
+        const newSubmittedCodeQuestions = new Set([...state.submittedCodeQuestions, questionId]);
+        localStorage.setItem('submittedCodeQuestions', JSON.stringify([...newSubmittedCodeQuestions]));
+        return { submittedCodeQuestions: newSubmittedCodeQuestions };
+      });
+      
+      const response = await fetch('http://localhost:5000/api/CodeSubmissions', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({
+          questionId,
+          code,
+          language,
+          userId: "6759439c7cf33b13b125340e", 
+        }),
+      });
+      
+      if (!response.ok) {
+        throw new Error('Failed to submit code for complexity analysis');
+      }
+      
+      const result = await response.json();
+      console.log('Complexity analysis result:', result);
+      
+    } catch (error) {
+      console.error('Error submitting code for complexity analysis:', error);
+      // We don't want to interrupt the user experience if this fails
+    }
+  },
+
   submitAllAnswers: async () => {
     const state = get();
     if (state.isSubmitting || state.hasSubmitted) {
@@ -231,27 +302,43 @@ export const useInterviewStore = create<InterviewState>((set, get) => ({
       return;
     }
 
-    set({ isSubmitting: true });
+    // Set both flags to prevent duplicate submissions
+    set({ isSubmitting: true, isSubmittingExam: true });
 
-    const answersArray = Object.values(state.answers).map(answer => ({
-      questionId: answer.questionId,
-      type: answer.type,
-      response: answer.response,
-      timeTaken: answer.timeTaken,
-    }));
-  
-   
-    console.log('Submitting answers:', {
-      interviewId: "678f8b2bce0b5bbe13d5515d",
-      userId: "6759439c7cf33b13b125340e",
-      answers: answersArray,
-    });
-
-
-
-    
-  
     try {
+      const answersArray = Object.values(state.answers).map(answer => ({
+        questionId: answer.questionId,
+        type: answer.type,
+        response: answer.response,
+        timeTaken: answer.timeTaken,
+      }));
+    
+      // First, submit any pending code questions for complexity analysis
+      // but only if they haven't been submitted yet
+      const pendingCodeQuestions = state.questions.filter(q => 
+        q.type === 'code' && 
+        state.answers[q._id]?.response && 
+        !state.submittedCodeQuestions.has(q._id)
+      );
+      
+      // Process these one at a time to prevent race conditions
+      for (const question of pendingCodeQuestions) {
+        const answer = state.answers[question._id];
+        if (typeof answer.response === 'string') {
+          await get().submitCodeForComplexityAnalysis(
+            question._id,
+            answer.response,
+            question.content.language || 'javascript'
+          );
+        }
+      }
+    
+      console.log('Submitting answers:', {
+        interviewId: "678f8b2bce0b5bbe13d5515d",
+        userId: "6759439c7cf33b13b125340e",
+        answers: answersArray,
+      });
+    
       const response = await fetch('http://localhost:5000/api/techAnswers/submit', {
         method: 'POST',
         headers: {
@@ -263,34 +350,33 @@ export const useInterviewStore = create<InterviewState>((set, get) => ({
           answers: answersArray,
         }),
       });
-  
+    
       if (!response.ok) {
         throw new Error('Failed to submit answers');
       }
-  
+    
       const responseData = await response.json();
-  
- 
+    
+      // Clear all exam-related localStorage items
       localStorage.removeItem('examAnswers');
       localStorage.removeItem('examTimerState');
       localStorage.removeItem('lockedQuestions');
       localStorage.removeItem('examStarted');
+      localStorage.removeItem('submittedCodeQuestions');
 
       set({ 
         hasSubmitted: true,
         isSubmitting: false,
+        isSubmittingExam: false,
       });
-
-  
+    
       return responseData;
     } catch (error) {
-      set({ isSubmitting: false });
+      set({ isSubmitting: false, isSubmittingExam: false });
       console.error('Error submitting answers:', error);
       throw error;
     }
   },
-  
-  
   
   fetchQuestions: async () => {
     set({ isLoading: true, error: null });
@@ -300,7 +386,6 @@ export const useInterviewStore = create<InterviewState>((set, get) => ({
         throw new Error('Failed to fetch questions');
       }
       
-      // Remove the console.log that's consuming the response
       const questions: Question[] = await response.json();
       
       // Validate the response structure matches your Question type

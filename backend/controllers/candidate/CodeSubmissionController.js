@@ -73,6 +73,25 @@ exports.getSubmissionById = async (req, res) => {
 };
 
 
+exports.getSubmissionsByQuestionId = async (req, res) => {
+    const { questionId } = req.params;
+
+    try {
+        const submissions = await CodeSubmissionModels.find({ questionId });
+
+        if (!submissions || submissions.length === 0) {
+            return res.status(404).json({ message: "No submissions found for this question" });
+        }
+
+        res.status(200).json(submissions);
+    } catch (error) {
+        console.error("Error fetching submissions by question ID:", error);
+        res.status(500).json({ error: "Failed to fetch submissions", details: error.message });
+    }
+};
+
+
+
 //get all
 
 exports.getAllSubmissions = async (req, res) => {
