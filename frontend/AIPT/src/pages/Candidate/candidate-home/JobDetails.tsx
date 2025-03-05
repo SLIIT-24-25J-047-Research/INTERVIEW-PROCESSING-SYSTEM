@@ -90,6 +90,11 @@ const CandidateCVPage = () => {
         // Show success Toast notification
         toast.success("CV Submitted Successfully!");
   
+        await axios.post("http://localhost:5000/api/user-job-applications/apply", {
+          userId,
+          jobId,
+        });
+        
         // Redirect to /candidate-home after 2 seconds
         setTimeout(() => {
           navigate('/candidate-home');  // Navigate to the candidate home page
