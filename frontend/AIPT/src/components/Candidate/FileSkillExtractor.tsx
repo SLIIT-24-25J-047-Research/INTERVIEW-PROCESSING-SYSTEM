@@ -1,14 +1,18 @@
-import { useEffect } from "react";
+import React, { useEffect } from "react";
 import * as pdfjsLib from "pdfjs-dist";
 import mammoth from "mammoth";
+import axios from "axios";
 
 pdfjsLib.GlobalWorkerOptions.workerSrc = `//cdnjs.cloudflare.com/ajax/libs/pdf.js/${pdfjsLib.version}/pdf.worker.js`;
 
 interface FileSkillExtractorProps {
   filePath: string;
+  fileId: string; // Add fileId as a prop
+  jobId: string; // Add jobId as a prop
+  userId: string; // Add userId as a prop
 }
 
-const FileSkillExtractor: React.FC<FileSkillExtractorProps> = ({ filePath }) => {
+const FileSkillExtractor: React.FC<FileSkillExtractorProps> = ({ filePath, fileId, jobId, userId }) => {
   useEffect(() => {
     if (filePath) {
       loadFile(filePath);
@@ -50,7 +54,8 @@ const FileSkillExtractor: React.FC<FileSkillExtractorProps> = ({ filePath }) => 
           extractedText += textContent.items.map((item: any) => item.str).join(" ") + " ";
         }
 
-        extractSkills(extractedText);
+        const skills = extractSkills(extractedText);
+        saveSkillsToBackend(skills);
       } catch (error) {
         console.error("Error extracting text from PDF:", error);
       }
@@ -63,7 +68,8 @@ const FileSkillExtractor: React.FC<FileSkillExtractorProps> = ({ filePath }) => 
     reader.onload = async (event) => {
       try {
         const result = await mammoth.extractRawText({ arrayBuffer: event.target?.result as ArrayBuffer });
-        extractSkills(result.value);
+        const skills = extractSkills(result.value);
+        saveSkillsToBackend(skills);
       } catch (error) {
         console.error("Error extracting text from DOCX:", error);
       }
@@ -71,7 +77,7 @@ const FileSkillExtractor: React.FC<FileSkillExtractorProps> = ({ filePath }) => 
     reader.readAsArrayBuffer(file);
   };
 
-  const extractSkills = (text: string) => {
+  const extractSkills = (text: string): string[] => {
     const skillsList = [
       "JavaScript",
       "React",
@@ -90,9 +96,22 @@ const FileSkillExtractor: React.FC<FileSkillExtractorProps> = ({ filePath }) => 
       "MVC",
     ];
 
-    const foundSkills = skillsList.filter((skill) => text.toLowerCase().includes(skill.toLowerCase()));
+    return skillsList.filter((skill) => text.toLowerCase().includes(skill.toLowerCase()));
+  };
 
-    console.log("Extracted Skills:", foundSkills);
+  const saveSkillsToBackend = async (skills: string[]) => {
+    try {
+      const response = await axios.post("http://localhost:5000/api/cv-skills/save-skills", {
+        fileId, // Use the fileId passed as a prop
+        jobId, // Use the jobId passed as a prop
+        userId, // Use the userId passed as a prop
+        skills,
+      });
+
+      console.log("Skills saved successfully:", response.data);
+    } catch (error) {
+      console.error("Error saving skills:", error);
+    }
   };
 
   return null; // No UI elements, just processing
