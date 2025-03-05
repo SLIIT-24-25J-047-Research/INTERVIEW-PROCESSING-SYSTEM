@@ -222,4 +222,25 @@ const getSchedulesByUserId = async (req, res) => {
 };
 
 
-module.exports = { scheduleInterview, editInterview, cancelInterview, getAllSchedules, getScheduleById, getSchedulesByUserId, updateInterviewStatus };
+const getSchedulesByUserIdAndJobId = async (req, res) => {
+  try {
+    const { userId, jobId } = req.params;
+
+    // Find schedules that match both userId and jobId
+    const schedules = await InterviewSchedule.find({ userId, jobId })
+      .populate('jobId', 'title description'); 
+
+    if (schedules.length === 0) {
+      return res.status(404).json({ message: 'No schedules found for this user and job' });
+    }
+
+    return res.status(200).json({ message: 'Schedules retrieved for user and job', schedules });
+  } catch (error) {
+    console.error(error);
+    return res.status(500).json({ message: 'Error retrieving schedules by user ID and job ID', error });
+  }
+};
+
+
+
+module.exports = { scheduleInterview, editInterview, cancelInterview, getAllSchedules, getScheduleById, getSchedulesByUserId, updateInterviewStatus , getSchedulesByUserIdAndJobId};

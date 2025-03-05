@@ -26,6 +26,7 @@ app.use('/api/techAnswers', require('./routes/employer/TechnicalAnswersRoutes'))
 app.use('/api/techCodeExecution', require('./routes/employer/TechnicalCodeExecutionRoute'));
 app.use('/uploads', express.static('uploads'));
 app.use('/api/feedback', require('./routes/candidate/FeedbackRoutes'));
+app.use('/api/user-job-applications', require('./routes/candidate/UserHasJobApplicationRoutes'));
 
 
 // voice confidence routes
