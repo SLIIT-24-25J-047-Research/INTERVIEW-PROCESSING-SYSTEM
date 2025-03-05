@@ -20,6 +20,7 @@ app.use('/api/t-interviews', require('./routes/employer/TechInterviewRoutes'));
 app.use('/api/notifications', require('./routes/candidate/NotificationRoutes'));
 app.use('/api/savejobs', require('./routes/candidate/SavedJobRoutes'));
 app.use('/api/CVfiles', require('./routes/candidate/CVRoutes'));
+app.use('/api/cv-skills', require('./routes/candidate/CVSkillsRoutes'));
 app.use('/api/techQuestions', require('./routes/employer/TechnicalQuestionRoutes'));
 app.use('/api/techAnswers', require('./routes/employer/TechnicalAnswersRoutes'));
 app.use('/api/techCodeExecution', require('./routes/employer/TechnicalCodeExecutionRoute'));
