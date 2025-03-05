@@ -21,7 +21,18 @@ interface SavedJob {
 
 const CandidateHome: React.FC = () => {
     const navigate = useNavigate();
-    const [jobPosts, setJobPosts] = useState<any[]>([]);
+    interface JobPost {
+        _id: string;
+        jobRole: string;
+        description: string;
+        date: string;
+        jobType: string;
+        company: string;
+        location: string;
+        salary: number;
+    }
+
+    const [jobPosts, setJobPosts] = useState<JobPost[]>([]);
     const [searchQuery, setSearchQuery] = useState('');
     const [dateFilter, setDateFilter] = useState('all');
     const [orderBy, setOrderBy] = useState('newest');
@@ -74,8 +85,8 @@ const CandidateHome: React.FC = () => {
                 setSavedJobIds(prev => [...prev, jobId]);
                 toast.success('Job saved successfully!');
             }
-        } catch (error: any) {
-            if (error.response?.status === 409) {
+        } catch (error: unknown) {
+            if (axios.isAxiosError(error) && error.response?.status === 409) {
                 toast.error('Job already saved!');
             } else {
                 toast.error('Error saving job');
