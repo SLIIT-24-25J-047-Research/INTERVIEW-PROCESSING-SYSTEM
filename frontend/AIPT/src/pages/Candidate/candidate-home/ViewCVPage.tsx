@@ -23,7 +23,7 @@ const ViewCVPage = () => {
         });
         const url = URL.createObjectURL(response.data);
         setCvUrl(url); // Set the URL to the blob response
-      } catch (error: any) {
+      } catch (error: unknown) {
         console.error("Error fetching CV:", error);
         setError("Failed to fetch CV. Please try again.");
       }
@@ -64,7 +64,7 @@ const ViewCVPage = () => {
             <div className="flex justify-center">
             <FileViewer filePath={cvUrl} />
             </div>
-            <FileSkillExtractor filePath={cvUrl} />
+            {fileId && <FileSkillExtractor filePath={cvUrl} fileId={fileId} jobId="someJobId" userId="someUserId" />}
 
             {/* Pagination for PDF (if it's a multi-page PDF) */}
             {numPages && numPages > 1 && (
