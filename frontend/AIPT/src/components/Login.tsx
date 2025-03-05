@@ -35,14 +35,14 @@ const Login: React.FC = () => {
         }
     };
 
-    const handleGoogleSuccess = async (response: any) => {
+    const handleGoogleSuccess = async (response: { credential: string }) => {
         try {
             const token = response.credential;
             const backendResponse = await axios.post<LoginResponse>(
                 'http://localhost:5000/api/auth/glogin',
                 { token }
             );
-
+            console.log("Backend Response Data:", backendResponse.data);
             handleLoginSuccess(backendResponse.data);
         } catch (error) {
             console.error('Google Login Error:', error);

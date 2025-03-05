@@ -17,12 +17,12 @@ exports.savePrediction = async (req, res) => {
   }
 };
 
-// Function to get a single prediction (for a given email)
+//  get 
 exports.getPrediction = async (req, res) => {
   const { email } = req.params;
 
   try {
-    // Fetch the prediction by email from the database
+    // Fetch the prediction by email 
     const prediction = await Prediction.findOne({ email });
 
     if (!prediction) {
@@ -36,25 +36,25 @@ exports.getPrediction = async (req, res) => {
   }
 };
 
-// Function to get all predictions and determine the most frequent prediction
+//  get all
 exports.getAllPredictions = async (req, res) => {
   const { email } = req.params;
 
   try {
-    // Fetch all predictions for the given email
+ 
     const predictions = await Prediction.find({ email });
 
     if (predictions.length === 0) {
       return res.status(404).json({ error: "No predictions found for this email" });
     }
 
-    // Count the occurrences of each prediction
+   
     const predictionCount = predictions.reduce((acc, curr) => {
       acc[curr.prediction] = (acc[curr.prediction] || 0) + 1;
       return acc;
     }, {});
 
-    // Find the most frequent prediction
+   
     const mostFrequentPrediction = Object.keys(predictionCount).reduce((a, b) =>
       predictionCount[a] > predictionCount[b] ? a : b
     );

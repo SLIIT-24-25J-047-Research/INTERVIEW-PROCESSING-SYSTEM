@@ -31,7 +31,19 @@ const QuestionSchema = new mongoose.Schema({
     ],
     correctOrder: [{ type: String }],
     options: [{ type: String }],
-    correctAnswer: { type: Number },
+    correctAnswer: { type: Number },dataset: {
+      data: { type: String }, // JSON string for datasets (used in data visualization)
+      expectedVisualization: { type: String }, // Expected output type (e.g., "bar-chart")
+    },
+    mechanics: {
+      worldConfig: { type: String }, // JSON string defining physics mechanics
+      expectedBehavior: { type: String }, // Description of expected behavior
+    },
+    puzzle: {
+      initialState: { type: String }, // JSON string defining puzzle initial state
+      goalState: { type: String }, // JSON string defining puzzle goal state
+      rules: [{ type: String }], // List of rules for the puzzle
+    },
   },
 });
 

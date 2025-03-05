@@ -1,6 +1,6 @@
 const CandidateScore = require('../../models/candidate/CodeComplexityScoreModels');
 
-// Create a new candidate score
+// Create 
 exports.createCandidateScore = async (req, res) => {
     const { userId, questionId, wcc, cfc, cc } = req.body;
 
@@ -21,7 +21,7 @@ exports.createCandidateScore = async (req, res) => {
     }
 };
 
-// Read (get) a specific candidate score
+// Read 
 exports.getCandidateScore = async (req, res) => {
     const { id } = req.params;
 
@@ -36,7 +36,7 @@ exports.getCandidateScore = async (req, res) => {
     }
 };
 
-// Update a candidate score
+// Update
 exports.updateCandidateScore = async (req, res) => {
     const { id } = req.params;
     const { wcc, cfc, cc } = req.body;
@@ -57,7 +57,7 @@ exports.updateCandidateScore = async (req, res) => {
     }
 };
 
-// Delete a candidate score
+// Delete 
 exports.deleteCandidateScore = async (req, res) => {
     const { id } = req.params;
 
@@ -72,7 +72,7 @@ exports.deleteCandidateScore = async (req, res) => {
     }
 };
 
-// List and sort all candidate scores
+// List and sort all 
 exports.listCandidateScores = async (req, res) => {
     const { sort = 'desc', userId, questionId } = req.query;
 
