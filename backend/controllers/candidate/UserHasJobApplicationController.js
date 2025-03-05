@@ -98,7 +98,7 @@ const getApplicationByUserId = async (req, res) => {
 
     const userJobApplication = await UserJobApplication.findOne({ userId })
       .populate('appliedJobs')
-      .populate('userId');
+      // .populate('userId');
 
     if (!userJobApplication) {
       return res.status(404).json({ message: 'User job application not found' });
