@@ -22,6 +22,10 @@ import ScheduledInterviewPage from "./pages/Candidate/candidate-dashboard/Schedu
 import Techexam from "./pages/Candidate/candidate-dashboard/TechInterviewPage";
 import { AnswersDashboard } from "./components/Interviewer/answers/AnswersDashboaard";
 import ViewCVPage from "./pages/Candidate/candidate-home/ViewCVPage";
+import NonTechnicalInterviewGuard from "./components/Candidate/non-tech-interview/NonTechInterviewGuard";
+import OptionsPage from "./pages/Candidate/candidate-dashboard/OptionsPage";
+import SendFeedback from "./pages/Interviewer/SendFeedback";
+import JobAdminDashboard from "./pages/Interviewer/jobdetails/Job-admin-dashboard";
 
 const App: React.FC = () => {
   return (
@@ -73,6 +77,25 @@ const App: React.FC = () => {
         }
       />
 
+      <Route
+        path="/interviewer-feedback"
+        element={
+          <PrivateRoute allowedRoles={["interviewer"]}>
+            <SendFeedback />
+          </PrivateRoute>
+        }
+      />
+
+
+      <Route
+        path="/interviewer-jobs"
+        element={
+          <PrivateRoute allowedRoles={["interviewer"]}>
+            <JobAdminDashboard />       
+          </PrivateRoute>
+        }
+      />
+
 
 
 
@@ -106,10 +129,13 @@ const App: React.FC = () => {
       />
 
       <Route
-        path="/non-tech-interview"
+        path="/non-tech-interview/:id?"
         element={
           <PrivateRoute allowedRoles={["candidate"]}>
-            <NonTechInterviewPage />
+            <NonTechnicalInterviewGuard>
+              <NonTechInterviewPage />
+            </NonTechnicalInterviewGuard>
+
           </PrivateRoute>
         }
       />
@@ -198,11 +224,20 @@ const App: React.FC = () => {
         }
       />
 
-<Route
+      <Route
         path="/test"
         element={
           <PrivateRoute allowedRoles={["candidate"]}>
             <AnswersDashboard />
+          </PrivateRoute>
+        }
+      />
+
+      <Route
+        path="/options"
+        element={
+          <PrivateRoute allowedRoles={["candidate"]}>
+            <OptionsPage />
           </PrivateRoute>
         }
       />

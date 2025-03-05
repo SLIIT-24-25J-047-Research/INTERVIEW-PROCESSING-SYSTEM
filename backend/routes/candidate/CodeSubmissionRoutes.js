@@ -8,6 +8,7 @@ const CodeSubmissionController = require('../../controllers/candidate/CodeSubmis
 router.post('/', CodeSubmissionController.createSubmission);
 router.get('/all', CodeSubmissionController.getAllSubmissions);
 router.get('/:id', CodeSubmissionController.getSubmissionById);
+router.get('/question/:questionId', CodeSubmissionController.getSubmissionsByQuestionId);
 router.put('/:id', CodeSubmissionController.updateSubmission);
 router.delete('/:id', CodeSubmissionController.deleteSubmission);
 

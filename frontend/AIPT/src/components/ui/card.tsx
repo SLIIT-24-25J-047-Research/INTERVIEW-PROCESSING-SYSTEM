@@ -77,4 +77,4 @@ CardDescription.displayName = "CardDescription"
 
 
 
-export { Card, CardHeader, CardContent, CardFooter , CardTitle, CardDescription}
+export { Card, CardHeader, CardContent, CardFooter, CardTitle, CardDescription }

@@ -355,24 +355,28 @@ export default function CandidateDashboard() {
 
             {/* Banner Section */}
             <Card className="mb-6 bg-gradient-to-r from-purple-500 to-purple-700 text-white">
-              <CardContent className="">
+              <CardContent>
                 <div className="flex justify-between items-center">
                   <div className="space-y-2 max-w-xl">
                     <h2 className="text-2xl font-bold p-6">
                       Your Only Place to Apply for the Jobs
                     </h2>
                     <p className="text-purple-100">
-                      APT 2.9 is an online interview platform, we make
-                      recruiting easier.
+                      APT 2.9 is an online interview platform, we make recruiting easier.
                     </p>
                   </div>
-                  <div>
+                  <div className="flex-shrink-0">
                     {/* Image on the right side */}
-                    <img src={image} alt="Your Image Description" />
+                    <img
+                      src={image}
+                      alt="Your Image Description"
+                      className="w-64 h-64 object-cover" // Adjust size and fit as needed
+                    />
                   </div>
                 </div>
               </CardContent>
             </Card>
+
 
             {/* Stats Cards */}
             <div className="grid md:grid-cols-2 gap-6 mb-6">
