@@ -99,6 +99,7 @@ interface InterviewState {
   submittedCodeQuestions: Set<string>;
   // Flag to mark when we're submitting the whole exam
   isSubmittingExam: boolean;
+  sendWebcamSnapshot: (questionId: string, imageData: string) => Promise<void>;
 }
 
 const loadTimerState = (): TimerState => {
@@ -410,6 +411,32 @@ export const useInterviewStore = create<InterviewState>((set, get) => ({
         error: error instanceof Error ? error.message : 'An error occurred', 
         isLoading: false 
       });
+    }
+  },
+
+  sendWebcamSnapshot: async (questionId: string, imageData: string) => {
+    try {
+      const response = await fetch('http://localhost:5000/api/webcam/snapshot', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({
+          questionId,
+          imageData,
+          userId: "6759439c7cf33b13b125340e",
+          timestamp: new Date().toISOString(),
+        }),
+      });
+
+      if (!response.ok) {
+        throw new Error('Failed to send webcam snapshot');
+      }
+
+      const result = await response.json();
+      console.log('Snapshot sent successfully:', result);
+    } catch (error) {
+      console.error('Error sending webcam snapshot:', error);
     }
   },
 }));
