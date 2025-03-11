@@ -21,7 +21,7 @@ import { MultipleChoiceQuestion } from "../../../components/Candidate/tech-inter
 import { DataVisualizationQuestion } from '../../../components/Candidate/tech-interview/DataVisualizationQuestion';
 import { ObjectMechanicQuestion } from '../../../components/Candidate/tech-interview/ObjectMechanicQuestion';
 import { LogicalPuzzleQuestion } from '../../../components/Candidate/tech-interview/LogicalPuzzleQuestion';
-
+import { WebcamMonitor } from '../../../components/Candidate/tech-interview/WebcamMonitor';
 
 interface LocationState {
   interviewId: string;
@@ -372,6 +372,9 @@ const Techexam: React.FC = () => {
             </div>
           </div>
         </main>
+        {isExamStarted() && questions.length > 0 && (
+        <WebcamMonitor questionId={questions[currentQuestionIndex]._id} />
+      )}
       </div>
     </div>
   );
