@@ -1,60 +1,33 @@
-const NodeWebcam = require('node-webcam');
+// controller.js
 const axios = require('axios');
+const FormData = require('form-data');
 const fs = require('fs');
-
-// Camera options
-const opts = {
-    width: 1280,
-    height: 720,
-    quality: 100,
-    saveShots: true,
-    output: "jpeg",
-    callbackReturn: "location",
-    verbose: false
-};
-
-exports.captureAndDetect = async (req, res) => {
-    const Webcam = NodeWebcam.create(opts);
-
-    // Capture the image
-    Webcam.capture("captured_image", async (err, data) => {
-        if (err) {
-            return res.status(500).json({ error: "Failed to capture image." });
-        }
-
-        try {
-            // Send the image to Flask API
-            const response = await axios.post(
-                "http://127.0.0.1:3001/detect-stress",
-                {
-                    image: fs.createReadStream(data),
-                },
-                {
-                    headers: {
-                        "Content-Type": "multipart/form-data",
-                    },
-                }
-            );
-
-            // Send the stress level prediction back to the frontend
-            res.status(200).json(response.data);
-        } catch (error) {
-            res.status(500).json({ error: "Failed to predict stress.", details: error.message });
-        }
-    });
-};
+const path = require('path');
 
 exports.detectStress = async (req, res) => {
     try {
-        const imageFile = req.file; // Assuming you handle file upload middleware
-        const response = await axios.post('http://127.0.0.1:3000/detect-stress', {
-            image: imageFile.buffer
+        if (!req.file) {
+            return res.status(400).json({ error: 'No file uploaded' });
+        }
+
+        const formData = new FormData();
+        formData.append('file', fs.createReadStream(req.file.path), {
+            filename: req.file.filename,
+            contentType: req.file.mimetype
         });
 
-        res.status(200).json(response.data);
+        const response = await axios.post('http://127.0.0.1:3001/predict', formData, {
+            headers: {
+                ...formData.getHeaders()
+            }
+        });
+
+        // Delete the uploaded file after sending
+        fs.unlinkSync(req.file.path);
+
+        res.json(response.data);
     } catch (error) {
-        res.status(500).json({ error: 'Stress detection failed', details: error.message });
+        console.error('Error sending image to microservice:', error);
+        res.status(500).json({ error: 'Internal server error' });
     }
 };
-
-
