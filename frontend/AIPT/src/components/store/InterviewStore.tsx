@@ -253,17 +253,14 @@ export const useInterviewStore = create<InterviewState>((set, get) => ({
 
   submitCodeForComplexityAnalysis: async (questionId, code, language) => {
     try {
-      // Double-check if we've already submitted this question for complexity analysis
-      // Using direct get() here to ensure we have the latest state
+ 
       if (get().submittedCodeQuestions.has(questionId)) {
         console.log(`Skipping complexity analysis for Question ${questionId} - already submitted`);
         return;
       }
       
       console.log(`Submitting code for complexity analysis: Question ${questionId}`);
-      
-      // First mark this question as submitted BEFORE making the API call
-      // This prevents race conditions where multiple submissions might be triggered
+  
       set(state => {
         const newSubmittedCodeQuestions = new Set([...state.submittedCodeQuestions, questionId]);
         localStorage.setItem('submittedCodeQuestions', JSON.stringify([...newSubmittedCodeQuestions]));
@@ -416,27 +413,36 @@ export const useInterviewStore = create<InterviewState>((set, get) => ({
 
   sendWebcamSnapshot: async (questionId: string, imageData: string) => {
     try {
-      const response = await fetch('http://localhost:5000/api/webcam/snapshot', {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-        },
-        body: JSON.stringify({
-          questionId,
-          imageData,
-          userId: "6759439c7cf33b13b125340e",
-          timestamp: new Date().toISOString(),
-        }),
-      });
-
-      if (!response.ok) {
-        throw new Error('Failed to send webcam snapshot');
+      // Convert base64 image to Blob
+      const byteCharacters = atob(imageData.split(",")[1]);
+      const byteNumbers = new Array(byteCharacters.length);
+      for (let i = 0; i < byteCharacters.length; i++) {
+        byteNumbers[i] = byteCharacters.charCodeAt(i);
       }
-
+      const byteArray = new Uint8Array(byteNumbers);
+      const blob = new Blob([byteArray], { type: "image/jpeg" });
+  
+      // Create FormData object
+      const formData = new FormData();
+      formData.append("file", blob, "snapshot.jpg");
+  
+      console.log("Sending FormData:", formData);
+  
+      // Send request
+      const response = await fetch("http://localhost:5000/api/stress/detect/", {
+        method: "POST",
+        body: formData, // No need for headers, FormData handles it
+      });
+  
+      if (!response.ok) {
+        const errorResponse = await response.text();
+        throw new Error(`Failed to send webcam snapshot: ${errorResponse}`);
+      }
+  
       const result = await response.json();
-      console.log('Snapshot sent successfully:', result);
+      console.log("Snapshot sent successfully:", result);
     } catch (error) {
-      console.error('Error sending webcam snapshot:', error);
+      console.error("Error sending webcam snapshot:", error);
     }
   },
 }));
