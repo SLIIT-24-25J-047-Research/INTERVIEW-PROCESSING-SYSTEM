@@ -51,8 +51,8 @@ app.get('/api/test', (req, res) => {
 
 
 // stress routes
-const stressRoutes = require('./routes/stressRoutes');
-app.use('/api/stress', stressRoutes);
+
+app.use('/api/stress',  require('./routes/stressRoutes'));
 
 
 // MongoDB Connection
