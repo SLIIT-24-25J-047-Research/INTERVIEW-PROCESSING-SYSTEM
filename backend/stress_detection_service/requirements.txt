@@ -1,6 +1,5 @@
 flask
 tensorflow
-opencv-python
 numpy
-Pillow
-
+pillow
+opencv-python
