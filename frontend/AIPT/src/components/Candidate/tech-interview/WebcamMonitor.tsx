@@ -6,17 +6,30 @@ import { useInterviewStore } from '../../store/InterviewStore';
 interface WebcamMonitorProps {
     questionId: string;
   }
+
+
   
   export const WebcamMonitor: React.FC<WebcamMonitorProps> = ({ questionId }) => {
     const webcamRef = useRef<Webcam>(null);
     const { sendWebcamSnapshot } = useInterviewStore();
   
+    const saveSnapshotLocally = (imageSrc: string) => {
+      const link = document.createElement("a");
+      link.href = imageSrc;
+      link.download = `snapshot_${Date.now()}.jpg`;
+      document.body.appendChild(link);
+      link.click();
+      document.body.removeChild(link);
+  };
+
+
     const captureSnapshot = useCallback(() => {
       if (!webcamRef.current) return;
       
       const imageSrc = webcamRef.current.getScreenshot();
       if (imageSrc) {
         sendWebcamSnapshot(questionId, imageSrc);
+        saveSnapshotLocally(imageSrc);
       }
     }, [questionId, sendWebcamSnapshot]);
   
