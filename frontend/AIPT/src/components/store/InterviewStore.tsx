@@ -70,6 +70,15 @@ interface Answer {
   timeTaken: number;
 }
 
+interface InterviewContext {
+  interviewId: string;
+  testLink: string;
+  duration: number;
+  userId: string;
+  jobId: string;
+}
+
+
 interface InterviewState {
   currentQuestionIndex: number;
   questions: Question[];
@@ -100,6 +109,9 @@ interface InterviewState {
   // Flag to mark when we're submitting the whole exam
   isSubmittingExam: boolean;
   sendWebcamSnapshot: (questionId: string, imageData: string) => Promise<void>;
+  interviewContext: InterviewContext | null;
+  setInterviewContext: (context: InterviewContext) => void;
+  
 }
 
 const loadTimerState = (): TimerState => {
@@ -136,7 +148,9 @@ export const useInterviewStore = create<InterviewState>((set, get) => ({
   hasSubmitted: localStorage.getItem('hasSubmitted') === 'true',
   submittedCodeQuestions: loadSubmittedCodeQuestions(),
   isSubmittingExam: false,
+  interviewContext: null,
 
+  setInterviewContext: (context) => set({ interviewContext: context }),
   setCurrentQuestion: (index) => set({ currentQuestionIndex: index }),
   
   setAnswer: (questionId, type, response) => {
@@ -413,7 +427,6 @@ export const useInterviewStore = create<InterviewState>((set, get) => ({
 
   sendWebcamSnapshot: async (questionId: string, imageData: string) => {
     try {
-   
       const byteCharacters = atob(imageData.split(",")[1]);
       const byteNumbers = new Array(byteCharacters.length);
       for (let i = 0; i < byteCharacters.length; i++) {
@@ -422,13 +435,27 @@ export const useInterviewStore = create<InterviewState>((set, get) => ({
       const byteArray = new Uint8Array(byteNumbers);
       const blob = new Blob([byteArray], { type: "image/jpeg" });
   
-    
       const formData = new FormData();
       formData.append("file", blob, "snapshot.jpg");
   
-      console.log("Sending FormData:", formData);
+      const state = get();
+      if (state.interviewContext) {
+        formData.append("questionID", questionId);
+        formData.append("jobID", state.interviewContext.jobId);
+        formData.append("interviewScheduleID", state.interviewContext.interviewId);
+        formData.append("userID", state.interviewContext.userId);
+      } else {
+        throw new Error("Interview context is not available.");
+      }
   
      
+      const formDataObject: Record<string, string | Blob> = {};
+      formData.forEach((value, key) => {
+        formDataObject[key] = value;
+      });
+  
+      console.log("🚀 FormData JSON being sent:", JSON.stringify(formDataObject, null, 2));
+  
       const response = await fetch("http://localhost:5000/api/stress/detect/", {
         method: "POST",
         body: formData,
@@ -440,9 +467,10 @@ export const useInterviewStore = create<InterviewState>((set, get) => ({
       }
   
       const result = await response.json();
-      console.log("Snapshot sent successfully:", result);
+      console.log("✅ Snapshot sent successfully:", result);
     } catch (error) {
-      console.error("Error sending webcam snapshot:", error);
+      console.error("❌ Error sending webcam snapshot:", error);
     }
   },
+  
 }));
