@@ -413,7 +413,7 @@ export const useInterviewStore = create<InterviewState>((set, get) => ({
 
   sendWebcamSnapshot: async (questionId: string, imageData: string) => {
     try {
-      // Convert base64 image to Blob
+   
       const byteCharacters = atob(imageData.split(",")[1]);
       const byteNumbers = new Array(byteCharacters.length);
       for (let i = 0; i < byteCharacters.length; i++) {
@@ -422,16 +422,16 @@ export const useInterviewStore = create<InterviewState>((set, get) => ({
       const byteArray = new Uint8Array(byteNumbers);
       const blob = new Blob([byteArray], { type: "image/jpeg" });
   
-      // Create FormData object
+    
       const formData = new FormData();
       formData.append("file", blob, "snapshot.jpg");
   
       console.log("Sending FormData:", formData);
   
-      // Send request
+     
       const response = await fetch("http://localhost:5000/api/stress/detect/", {
         method: "POST",
-        body: formData, // No need for headers, FormData handles it
+        body: formData,
       });
   
       if (!response.ok) {
