@@ -27,13 +27,15 @@ interface LocationState {
   interviewId: string;
   testLink: string;
   duration: number;
+  userId: string;
+  jobId: string;
 }
 
 
 
 const Techexam: React.FC = () => {
-  // const location = useLocation();
-  // const { interviewId, testLink, duration } = location.state as LocationState;
+  const location = useLocation();
+  const { interviewId, testLink, duration, userId, jobId } = location.state as LocationState;
 
 
   const {
@@ -49,15 +51,25 @@ const Techexam: React.FC = () => {
     isExamStarted,
     setAnswer,
     submitAllAnswers,
-    submitCodeForComplexityAnalysis
+    submitCodeForComplexityAnalysis,
+    setInterviewContext 
   } = useInterviewStore();
   // const currentQuestion = mockQuestions[currentQuestionIndex];
   // const questions = getQuestions();
   // const currentQuestion = questions[currentQuestionIndex];
 
   useEffect(() => {
+
+    setInterviewContext({
+      interviewId,
+      testLink,
+      duration,
+      userId,
+      jobId
+    });
+
     fetchQuestions();
-  }, [fetchQuestions]);
+  }, [interviewId, testLink, duration, userId, jobId, setInterviewContext, fetchQuestions]);
 
   const handleAnswerChange = (questionId: string, type: string, answer: string | string[] | number | number[] | boolean) => {
     setAnswer(questionId, type, answer);
