@@ -48,6 +48,7 @@ interface TechnicalSchedule {
   status: string;
   testLink: string;
   jobId: string;
+  
 }
 
 interface JobApplication {
@@ -184,6 +185,8 @@ const ScheduledInterviewPage: React.FC = () => {
         interviewId: interview._id,
         testLink: interview.testLink,
         duration: interview.duration,
+        userId: userId, 
+      jobId: interview.jobId,
       },
     });
   };
