@@ -9,6 +9,7 @@ const upload = multer({ dest: 'stressUploads/' });
 
 router.post('/detect',  upload.single('file'), stressController.detectStress);
 router.get('/user/:userId', stressController.getByUserId);
+router.get('/question/:questionId', stressController.getByQuestionId);
 router.get('/job/:jobId', stressController.getByJobId);
 router.get('/interview/:interviewScheduleId', stressController.getByInterviewId);
 router.get('/all', stressController.getAll);
