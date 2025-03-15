@@ -94,3 +94,50 @@ exports.detectStress = async (req, res) => {
         res.status(500).json({ error: 'Internal server error' });
     }
 };
+
+
+exports.getByUserId = async (req, res) => {
+    try {
+        const { userId } = req.params;
+        const records = await StressDetection.find({ userId })
+        res.json({ success: true, data: records });
+    } catch (error) {
+        console.error('❌ Error fetching by userId:', error.message);
+        res.status(500).json({ error: 'Internal server error' });
+    }
+};
+
+// Get stress  by job ID
+exports.getByJobId = async (req, res) => {
+    try {
+        const { jobId } = req.params;
+        const records = await StressDetection.find({ jobId })
+        res.json({ success: true, data: records });
+    } catch (error) {
+        console.error('❌ Error fetching by jobId:', error.message);
+        res.status(500).json({ error: 'Internal server error' });
+    }
+};
+
+// Get stress  by interview ID
+exports.getByInterviewId = async (req, res) => {
+    try {
+        const { interviewScheduleId } = req.params;
+        const records = await StressDetection.find({ interviewScheduleId })
+        res.json({ success: true, data: records });
+    } catch (error) {
+        console.error('❌ Error fetching by interviewScheduleId:', error.message);
+        res.status(500).json({ error: 'Internal server error' });
+    }
+};
+
+// Get all 
+exports.getAll = async (req, res) => {
+    try {
+        const records = await StressDetection.find()
+        res.json({ success: true, data: records });
+    } catch (error) {
+        console.error('❌ Error fetching all records:', error.message);
+        res.status(500).json({ error: 'Internal server error' });
+    }
+};
