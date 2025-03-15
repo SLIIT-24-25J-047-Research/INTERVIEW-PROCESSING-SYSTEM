@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { ArrowLeft, Clock, CheckCircle, XCircle, AlertCircle, Loader2 } from 'lucide-react';
+import { ArrowLeft, Clock, CheckCircle, XCircle, AlertCircle, Loader2, Brain } from 'lucide-react';
 import { Answer, Question } from '../../types/admin';
 import { CodeEditor } from '../../Candidate/tech-interview/CodeEditor';
 import { ObjectMechanicQuestion } from '../../Candidate/tech-interview/ObjectMechanicQuestion';
@@ -40,16 +40,37 @@ interface PatternGroup {
   [key: string]: PatternDefinition;
 }
 
+interface StressData {
+  success: boolean;
+  data: {
+    emotion: string;
+    predictionValues: number[];
+    stressLevel: string;
+  }[];
+}
+
+interface StressDetectionData {
+  _id: string;
+  userId: string;
+  interviewScheduleId: string;
+  jobId: string;
+  questions: StressData[];
+  createdAt: string;
+  updatedAt: string;
+  __v: number;
+}
 
 export const AnswerDetails: React.FC<AnswerDetailsProps> = ({ submissionId, onBack }) => {
   const [answers, setAnswers] = useState<Answer[]>([]);
   const [questions, setQuestions] = useState<Record<string, Question>>({});
   const [validations, setValidations] = useState<Record<string, AnswerValidation>>({});
   const [isLoading, setIsLoading] = useState(true);
+  const [stressData, setStressData] = useState<Record<string, StressData>>({});
   const [error, setError] = useState<string | null>(null);
   const [totalScore, setTotalScore] = useState(0);
   const [maxPossibleScore, setMaxPossibleScore] = useState(0);
   const [executingCode, setExecutingCode] = useState<Record<string, boolean>>({});
+  const [selectedStressQuestionId, setSelectedStressQuestionId] = useState<string | null>(null);
   interface EvaluationResult {
     evaluationResult: {
       cyclomatic_complexity?: number;
@@ -74,6 +95,94 @@ export const AnswerDetails: React.FC<AnswerDetailsProps> = ({ submissionId, onBa
   };
 
 
+  const StressAnalysisModal: React.FC<{
+    isOpen: boolean;
+    onClose: () => void;
+    questionId: string;
+  }> = ({ isOpen, onClose, questionId }) => {
+    const stress = stressData[questionId];
+    if (!stress || !stress.data || stress.data.length === 0) return null;
+
+    const stressDetails = stress.data[0];
+
+    const getStressLevelColor = (level: string) => {
+      switch (level.toLowerCase()) {
+        case 'no stress detected': return 'text-green-600';
+        case 'normal': return 'text-blue-600';
+        case 'medium': return 'text-yellow-600';
+        case 'high': return 'text-red-600';
+        default: return 'text-gray-600';
+      }
+    };
+
+    return (
+      <div className={`fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center ${isOpen ? 'block' : 'hidden'}`}>
+        <div className="bg-white rounded-lg p-6 w-11/12 max-w-2xl">
+          <div className="flex justify-between items-center mb-4">
+            <h2 className="text-lg font-semibold">Detailed Stress Analysis</h2>
+            <button onClick={onClose} className="text-gray-500 hover:text-gray-700">
+              &times;
+            </button>
+          </div>
+
+          <div className="grid grid-cols-2 gap-4">
+            <div>
+              <p className="text-xs text-gray-500 mb-1">Stress Level</p>
+              <p className={`text-sm font-medium ${getStressLevelColor(stressDetails.stressLevel)}`}>
+                {stressDetails.stressLevel}
+              </p>
+            </div>
+
+            <div>
+              <p className="text-xs text-gray-500 mb-1">Emotional State</p>
+              <p className="text-sm font-medium">
+                {stressDetails.emotion}
+              </p>
+            </div>
+          </div>
+
+          <div className="mt-4">
+            <p className="text-xs text-gray-500 mb-2">Emotional Analysis</p>
+            <div className="grid grid-cols-7 gap-1">
+              {stressDetails.predictionValues.map((value, index) => {
+                const emotions = ['Angry', 'Disgust', 'Fear', 'Happy', 'Sad', 'Surprise', 'Neutral'];
+                return (
+                  <div key={index} className="flex flex-col items-center">
+                    <div className="w-full bg-gray-200 rounded-full h-24 relative">
+                      <div
+                        className="absolute bottom-0 w-full bg-blue-500 rounded-b-full transition-all"
+                        style={{
+                          height: `${value * 100}%`,
+                          backgroundColor: `hsl(${200 + (index * 30)}, 70%, 50%)`
+                        }}
+                      />
+                    </div>
+                    <span className="text-xs text-gray-500 mt-1 whitespace-nowrap transform -rotate-45 origin-top-left">
+                      {emotions[index]}
+                    </span>
+                    <span className="text-xs font-medium mt-1">
+                      {(value * 100).toFixed(1)}%
+                    </span>
+                  </div>
+                );
+              })}
+            </div>
+          </div>
+
+          <div className="mt-6 flex justify-end">
+            <button
+              onClick={onClose}
+              className="px-4 py-2 bg-gray-100 text-gray-700 rounded-lg hover:bg-gray-200"
+            >
+              Close
+            </button>
+          </div>
+        </div>
+      </div>
+    );
+  };
+
+
 
 
   useEffect(() => {
@@ -94,6 +203,26 @@ export const AnswerDetails: React.FC<AnswerDetailsProps> = ({ submissionId, onBa
         }
 
         setAnswers(submission.answers);
+        // Fetch stress detection data for each question
+        const stressMap: Record<string, StressData> = {};
+        for (const answer of submission.answers) {
+          try {
+            const stressResponse = await fetch(
+              `http://localhost:5000/api/stress/question/${answer.questionId}`
+            );
+            if (stressResponse.ok) {
+              const stressData: StressData = await stressResponse.json();
+              console.log('stress', stressData);
+              if (stressData.success && stressData.data) {
+                stressMap[answer.questionId] = stressData;
+              }
+            }
+          } catch (err) {
+            console.error(`Error fetching stress data for question ${answer.questionId}:`, err);
+          }
+        }
+
+        setStressData(stressMap);
 
         // Fetch and validate each question
         const questionValidations: Record<string, AnswerValidation> = {};
@@ -150,6 +279,61 @@ export const AnswerDetails: React.FC<AnswerDetailsProps> = ({ submissionId, onBa
 
     fetchData();
   }, [submissionId]);
+
+
+  const renderStressMetrics = (questionId: string) => {
+    const stress = stressData[questionId];
+    if (!stress || !stress.data || stress.data.length === 0) return null;
+
+    const stressDetails = stress.data[0];
+
+    const getStressLevelColor = (level: string) => {
+      switch (level.toLowerCase()) {
+        case 'no stress detected': return 'text-green-600';
+        case 'normal': return 'text-blue-600';
+        case 'medium': return 'text-yellow-600';
+        case 'high': return 'text-red-600';
+        default: return 'text-gray-600';
+      }
+    };
+
+    const getEmotionIcon = (emotion: string) => {
+      switch (emotion.toLowerCase()) {
+        case 'happy': return '😊';
+        case 'neutral': return '😐';
+        case 'surprise': return '😲';
+        case 'stressed': return '😰';
+        case 'confused': return '🤔';
+        default: return '❓';
+      }
+    };
+
+    return (
+      <div
+        className="mt-4 p-4 bg-gray-50 rounded-lg border border-gray-200 cursor-pointer hover:bg-gray-100"
+        onClick={() => openStressAnalysisModal(questionId)} // Open modal on click
+      >
+        <div className="flex items-center justify-between">
+          <div>
+            <p className="text-xs text-gray-500 mb-1">Stress Level</p>
+            <p className={`text-sm font-medium ${getStressLevelColor(stressDetails.stressLevel)}`}>
+              {stressDetails.stressLevel}
+            </p>
+          </div>
+          <div>
+            <p className="text-xs text-gray-500 mb-1">Emotional State</p>
+            <p className="text-sm font-medium flex items-center">
+              {getEmotionIcon(stressDetails.emotion)} <span className="ml-2">{stressDetails.emotion}</span>
+            </p>
+          </div>
+        </div>
+      </div>
+    );
+  };
+
+  const openStressAnalysisModal = (questionId: string) => {
+    setSelectedStressQuestionId(questionId);
+  };
 
   const validateObjectMechanicAnswer = (answer: Answer, question: Question): AnswerValidation => {
     try {
@@ -428,11 +612,15 @@ export const AnswerDetails: React.FC<AnswerDetailsProps> = ({ submissionId, onBa
   };
 
   const renderAnswer = (answer: Answer, question: Question, validation: AnswerValidation) => {
+    { renderStressMetrics(answer.questionId) }
     switch (question.type) {
 
       case 'objectMechanic':
         return (
           <div className="space-y-4">
+            {/* Stress Metrics */}
+            {renderStressMetrics(answer.questionId)}
+
             <div className="p-4 bg-gray-50 rounded-lg">
               <h3 className="text-sm font-medium text-gray-700 mb-2">Implementation Analysis:</h3>
               <div className="space-y-2">
@@ -489,6 +677,7 @@ export const AnswerDetails: React.FC<AnswerDetailsProps> = ({ submissionId, onBa
       case 'code':
         return (
           <div className="space-y-4">
+            {renderStressMetrics(answer.questionId)}
             {executingCode[answer.questionId] ? (
               <div className="flex items-center justify-center py-8">
                 <Loader2 className="w-8 h-8 animate-spin text-blue-500" />
@@ -655,6 +844,7 @@ export const AnswerDetails: React.FC<AnswerDetailsProps> = ({ submissionId, onBa
       case 'dragDrop':
         return (
           <div className="space-y-4">
+            {renderStressMetrics(answer.questionId)}
             <div className="space-y-2">
               <h3 className="text-sm font-medium text-gray-700 mb-2">Submitted Order:</h3>
               {(answer.response as string[]).map((itemId, index) => {
@@ -683,6 +873,7 @@ export const AnswerDetails: React.FC<AnswerDetailsProps> = ({ submissionId, onBa
       case 'multipleChoice':
         return (
           <div className="space-y-4">
+            {renderStressMetrics(answer.questionId)}
             <div>
               <h3 className="text-sm font-medium text-gray-700 mb-2">Selected Answer:</h3>
               <div className={`p-3 rounded-lg border ${validation.isCorrect
@@ -809,6 +1000,11 @@ export const AnswerDetails: React.FC<AnswerDetailsProps> = ({ submissionId, onBa
               <div className="px-6 py-4">
                 {renderAnswer(answer, question, validation)}
               </div>
+              <StressAnalysisModal
+                isOpen={!!selectedStressQuestionId}
+                onClose={() => setSelectedStressQuestionId(null)}
+                questionId={selectedStressQuestionId || ''}
+              />
             </div>
           );
         })}
