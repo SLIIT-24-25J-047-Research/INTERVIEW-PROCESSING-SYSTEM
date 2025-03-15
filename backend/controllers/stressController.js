@@ -107,6 +107,33 @@ exports.getByUserId = async (req, res) => {
     }
 };
 
+exports.getByQuestionId = async (req, res) => {
+    try {
+        const { questionId } = req.params;
+
+        // Find records containing the given questionId
+        const records = await StressDetection.find({ 'questions.questionId': questionId });
+
+        // Extract required fields for the given questionId
+        const questionData = records.flatMap(record =>
+            record.questions
+                .filter(q => q.questionId.toString() === questionId)
+                .map(q => ({
+                    emotion: q.emotion,
+                    predictionValues: q.predictionValues,
+                    stressLevel: q.stressLevel
+                }))
+        );
+
+        res.json({ success: true, data: questionData });
+    } catch (error) {
+        console.error('❌ Error fetching data by questionId:', error.message);
+        res.status(500).json({ error: 'Internal server error' });
+    }
+};
+
+
+
 // Get stress  by job ID
 exports.getByJobId = async (req, res) => {
     try {
