@@ -29,13 +29,13 @@ exports.unifiedAudioController = async (req, res) => {
         }
 
         // Check if we have a question ID
-        const questionId = req.body.questionId;
-        if (!questionId) {
-            console.error('No question ID provided.');
+        const { questionId, interviewId } = req.body;
+        if (!questionId || !interviewId) {
+            console.error('Question ID or Interview ID not provided.');
             cleanupFiles(req.file.path);
             return res.status(400).json({
                 success: false,
-                message: 'Question ID not provided',
+                message: 'Question ID or Interview ID not provided',
             });
         }
 
@@ -96,19 +96,23 @@ exports.unifiedAudioController = async (req, res) => {
         cleanupFiles(transcriptionPath);
 
          // Create a new AudioResponse document
-         const audioResponse = new AudioResponse({
+         const questionResponse = {
             questionId: questionId,
             prediction: confidencePrediction || null,
             transcription: transcriptionResult ? transcriptionResult.transcription : null,
             similarityScores: transcriptionResult ? transcriptionResult.similarity : null,
             isCorrect: transcriptionResult ? transcriptionResult.isCorrect : null
-        });
+        };
 
         // Save the response to the database
-        await audioResponse.save();
-        console.log('Audio response saved to database:', audioResponse);
+        const audioResponse = await AudioResponse.findOneAndUpdate(
+            { interviewId: interviewId }, // Query
+            { $push: { responses: questionResponse } }, // Update
+            { upsert: true, new: true } // Options: Create if not found, return updated document
+        );
+        console.log('Audio response saved/updated in database:', audioResponse);
 
-        
+
 
         // Return all results
         return res.status(200).json({
