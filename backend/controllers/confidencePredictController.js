@@ -5,7 +5,7 @@ const axios = require('axios');
 const path = require('path');
 const Question = require('../models/employer/Question');
 const AudioResponse = require('../models/AudioResponseModel'); // Import the model
-const Interview = require('../models/employer/NonTechInterviewSchedule'); 
+const Interview = require('../models/employer/NonTechInterviewSchedule');
 
 //  base URL
 const MICROSERVICE_URL = 'http://127.0.0.1:3000';
@@ -66,12 +66,12 @@ exports.unifiedAudioController = async (req, res) => {
         const originalPath = req.file.path;
         const predictionPath = path.join(path.dirname(originalPath), `pred_${path.basename(originalPath)}`);
         const transcriptionPath = path.join(path.dirname(originalPath), `trans_${path.basename(originalPath)}`);
-        
+
         // Copy the file for prediction
         fs.copyFileSync(originalPath, predictionPath);
         // Copy the file for transcription
         fs.copyFileSync(originalPath, transcriptionPath);
-        
+
         // 1. Process prediction
         let confidencePrediction = null;
         try {
@@ -86,11 +86,11 @@ exports.unifiedAudioController = async (req, res) => {
         try {
             const transcription = await transcribeAudio(transcriptionPath);
             console.log('Transcription result:', transcription);
-            
+
             // Process comparison
             const comparisonResult = await compareAnswers(transcription, question.answers);
             console.log('Comparison results:', comparisonResult);
-            
+
             transcriptionResult = {
                 transcription: transcription,
                 similarity: comparisonResult.similarity_scores,
@@ -118,10 +118,10 @@ exports.unifiedAudioController = async (req, res) => {
         const audioResponse = await AudioResponse.findOneAndUpdate(
             { interviewId: interviewId }, // Query
             {
-                $setOnInsert: { userId: userId, jobId: jobId }, // Set these fields only on insert (upsert)
-                $push: { responses: questionResponse } // Push the new response
+                $setOnInsert: { userId: userId, jobId: jobId },
+                $push: { responses: questionResponse }
             },
-            { upsert: true, new: true } // Options: Create if not found, return updated document
+            { upsert: true, new: true }
         );
         console.log('Audio response saved/updated in database:', audioResponse);
 
@@ -151,29 +151,29 @@ exports.unifiedAudioController = async (req, res) => {
  */
 async function processPrediction(filePath) {
     const tempFilePath = path.join(__dirname, `temp_pred_${Date.now()}.wav`);
-    
+
     return new Promise((resolve, reject) => {
         ffmpeg(filePath)
             .toFormat('wav')
             .on('end', async () => {
                 console.log('Conversion for prediction completed');
-                
+
                 try {
                     const form = new FormData();
                     form.append('audio', fs.createReadStream(tempFilePath));
-                    
+
                     console.log('Sending audio for prediction');
                     const response = await axios.post(`${MICROSERVICE_URL}/predict`, form, {
                         headers: {
                             ...form.getHeaders()
                         }
                     });
-                    
+
                     console.log('Prediction response received');
-                    
+
                     // Clean up temp file
                     cleanupFiles(tempFilePath);
-                    
+
                     resolve(response.data);
                 } catch (error) {
                     console.error('Error in prediction processing:', error.message);
@@ -195,27 +195,27 @@ async function processPrediction(filePath) {
  */
 async function transcribeAudio(filePath) {
     const tempFilePath = path.join(__dirname, `temp_trans_${Date.now()}.wav`);
-    
+
     return new Promise((resolve, reject) => {
         ffmpeg(filePath)
             .toFormat('wav')
             .on('end', async () => {
                 console.log('Conversion for transcription completed');
-                
+
                 try {
                     const form = new FormData();
                     form.append('audio', fs.createReadStream(tempFilePath));
-                    
+
                     console.log('Sending audio for transcription');
                     const response = await axios.post(`${MICROSERVICE_URL}/transcribe`, form, {
                         headers: {
                             ...form.getHeaders()
                         }
                     });
-                    
+
                     console.log('Transcription response received');
                     cleanupFiles(tempFilePath);
-                    
+
                     resolve(response.data.candidate_answer);
                 } catch (error) {
                     console.error('Error in transcription:', error.message);
@@ -239,14 +239,14 @@ async function compareAnswers(candidateAnswer, actualAnswers) {
     console.log('Sending answers for comparison');
     console.log('candidate_answer:', candidateAnswer);
     console.log('actual_answer:', actualAnswers);
-    
+
     const response = await axios.post(`${MICROSERVICE_URL}/compare`, {
         candidate_answer: candidateAnswer,
         actual_answer: actualAnswers,
     });
-    
+
     console.log('Comparison response received');
-    
+
     return {
         similarity_scores: response.data.similarity_scores,
         is_correct: response.data.is_correct
@@ -280,7 +280,7 @@ exports.getByInterviewId = async (req, res) => {
             });
         }
 
-       
+
         const audioResponse = await AudioResponse.findOne({ interviewId }).populate('responses.questionId', 'text'); // Populate question text if needed
 
         if (!audioResponse) {
@@ -316,11 +316,11 @@ exports.getByQuestionId = async (req, res) => {
             });
         }
 
-       
+
         const audioResponse = await AudioResponse.findOne(
             { 'responses.questionId': questionId },
             { 'responses.$': 1 }
-        ).populate('responses.questionId', 'text'); 
+        ).populate('responses.questionId', 'text');
 
         if (!audioResponse || !audioResponse.responses || audioResponse.responses.length === 0) {
             return res.status(404).json({
@@ -329,7 +329,7 @@ exports.getByQuestionId = async (req, res) => {
             });
         }
 
-       
+
         const questionResponse = audioResponse.responses[0];
 
         return res.status(200).json({
