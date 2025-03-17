@@ -4,23 +4,23 @@ const audioResponseSchema = new mongoose.Schema({
     questionId: {
         type: mongoose.Schema.Types.ObjectId,
         required: true,
-        ref: 'Question' // Assuming you have a Question model
+        ref: 'technicalquestions' // Assuming you have a Question model
     },
     prediction: {
-        type: mongoose.Schema.Types.Mixed, // Mixed type to store any kind of prediction data
-        required: false // Optional, as prediction might fail
+        type: mongoose.Schema.Types.Mixed, 
+        required: false 
     },
     transcription: {
         type: String,
-        required: false // Optional, as transcription might fail
+        required: false
     },
     similarityScores: {
-        type: [Number], // Array of similarity scores
-        required: false // Optional, as comparison might fail
+        type: [Number], 
+        required: false 
     },
     isCorrect: {
         type: Boolean,
-        required: false // Optional, as comparison might fail
+        required: false 
     },
     createdAt: {
         type: Date,
