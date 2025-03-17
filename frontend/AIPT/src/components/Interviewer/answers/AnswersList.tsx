@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { Calendar, Clock, User, ChevronRight, Code, Mic, AlertCircle } from 'lucide-react';
+import { Calendar, User, ChevronRight, Code, Mic, AlertCircle } from 'lucide-react';
 import { 
   TechnicalSubmissionGroup, 
   NonTechnicalSubmissionGroup, 
@@ -34,16 +34,21 @@ export const AnswersList: React.FC<AnswersListProps> = ({ onSelectInterview }) =
         // Updated to handle the new data structure
         const nonTechnicalGroups: NonTechnicalSubmissionGroup[] = nonTechnicalData.success ? nonTechnicalData.data : [];
 
-        // Combine submissions by userId + jobId
-        const combined: CombinedSubmission[] = [];
+        // Create a map of all unique userId + jobId combinations
+        const submissionMap = new Map<string, CombinedSubmission>();
         
         // Process technical submissions
         technicalData.forEach(group => {
           group.answers.forEach(submission => {
-            combined.push({
-              userId: submission.userId,
-              jobId: submission.interviewId.split('-')[0], // Assuming jobId is part of interviewId
-              technical: submission
+            const jobId = submission.interviewId.split('-')[0];
+            const userId = submission.userId;
+            const key = `${userId}-${jobId}`;
+            
+            submissionMap.set(key, {
+              userId,
+              jobId,
+              technical: submission,
+              nonTechnical: undefined
             });
           });
         });
@@ -56,24 +61,26 @@ export const AnswersList: React.FC<AnswersListProps> = ({ onSelectInterview }) =
             // Extract jobId and userId from interviewId or use direct properties
             const jobId = submission.jobId || submission.interviewId?.split('-')[0] || 'unknown';
             const userId = submission.userId || submission.interviewId?.split('-')[1] || 'unknown';
+            const key = `${userId}-${jobId}`;
             
-            const existingIndex = combined.findIndex(c => 
-              c.userId === userId && c.jobId === jobId
-            );
-
-            if (existingIndex >= 0) {
-              combined[existingIndex].nonTechnical = submission;
+            if (submissionMap.has(key)) {
+              // Update existing entry
+              const existingSubmission = submissionMap.get(key)!;
+              existingSubmission.nonTechnical = submission;
             } else {
-              combined.push({
+              // Create new entry
+              submissionMap.set(key, {
                 userId,
                 jobId,
+                technical: undefined,
                 nonTechnical: submission
               });
             }
           });
         });
 
-        setCombinedSubmissions(combined);
+        // Convert map to array
+        setCombinedSubmissions(Array.from(submissionMap.values()));
       } catch (err) {
         setError(err instanceof Error ? err.message : 'Failed to fetch submissions');
       } finally {
@@ -128,39 +135,52 @@ export const AnswersList: React.FC<AnswersListProps> = ({ onSelectInterview }) =
                   </div>
                 </div>
 
-                <div className="space-y-4">
-                  {submission.technical && (
-                    <button
-                      onClick={() => onSelectInterview(submission.technical?._id)}
-                      className="w-full flex items-center justify-between p-4 bg-blue-50 rounded-lg hover:bg-blue-100 transition-colors"
-                    >
-                      <div className="flex items-center">
-                        <Code className="w-5 h-5 text-blue-600 mr-2" />
-                        <span className="font-medium text-blue-700">Technical Interview</span>
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                  {/* Technical Interview - Always on the left */}
+                  <div>
+                    {submission.technical ? (
+                      <button
+                        onClick={() => onSelectInterview(submission.technical?._id)}
+                        className="w-full flex items-center justify-between p-4 bg-blue-50 rounded-lg hover:bg-blue-100 transition-colors"
+                      >
+                        <div className="flex items-center">
+                          <Code className="w-5 h-5 text-blue-600 mr-2" />
+                          <span className="font-medium text-blue-700">Technical Interview</span>
+                        </div>
+                        <ChevronRight className="w-5 h-5 text-blue-600" />
+                      </button>
+                    ) : (
+                      <div className="w-full flex items-center justify-between p-4 bg-gray-50 rounded-lg">
+                        <div className="flex items-center">
+                          <AlertCircle className="w-5 h-5 text-amber-600 mr-2" />
+                          <span className="font-medium text-gray-700">Technical Interview Not Yet Attended</span>
+                        </div>
                       </div>
-                      <ChevronRight className="w-5 h-5 text-blue-600" />
-                    </button>
-                  )}
+                    )}
+                  </div>
 
-                  {submission.nonTechnical ? (
-                    <button
-                      onClick={() => onSelectInterview(undefined, submission.nonTechnical?._id)}
-                      className="w-full flex items-center justify-between p-4 bg-purple-50 rounded-lg hover:bg-purple-100 transition-colors"
-                    >
-                      <div className="flex items-center">
-                        <Mic className="w-5 h-5 text-purple-600 mr-2" />
-                        <span className="font-medium text-purple-700">Non-Technical Interview</span>
+                  {/* Non-Technical Interview - Always on the right */}
+                  <div>
+                    {submission.nonTechnical ? (
+                      <button
+                        onClick={() => onSelectInterview(undefined, submission.nonTechnical?._id)}
+                        className="w-full flex items-center justify-between p-4 bg-purple-50 rounded-lg hover:bg-purple-100 transition-colors"
+                      >
+                        <div className="flex items-center">
+                          <Mic className="w-5 h-5 text-purple-600 mr-2" />
+                          <span className="font-medium text-purple-700">Non-Technical Interview</span>
+                        </div>
+                        <ChevronRight className="w-5 h-5 text-purple-600" />
+                      </button>
+                    ) : (
+                      <div className="w-full flex items-center justify-between p-4 bg-gray-50 rounded-lg">
+                        <div className="flex items-center">
+                          <AlertCircle className="w-5 h-5 text-amber-600 mr-2" />
+                          <span className="font-medium text-gray-700">Non-Technical Interview Not Yet Attended</span>
+                        </div>
                       </div>
-                      <ChevronRight className="w-5 h-5 text-purple-600" />
-                    </button>
-                  ) : (
-                    <div className="w-full flex items-center justify-between p-4 bg-gray-50 rounded-lg">
-                      <div className="flex items-center">
-                        <AlertCircle className="w-5 h-5 text-amber-600 mr-2" />
-                        <span className="font-medium text-gray-700">Non-Technical Interview Not Yet Attended</span>
-                      </div>
-                    </div>
-                  )}
+                    )}
+                  </div>
                 </div>
               </div>
             </div>
