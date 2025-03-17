@@ -170,6 +170,10 @@ function App({ interviewData }: Props) {
       
       confidenceFormData.append("audio", audioBlob, `answer_${currentQuestionIndex}.wav`);
       confidenceFormData.append("questionId", questions[currentQuestionIndex]._id);
+      if (interviewId) {
+        confidenceFormData.append("interviewId", interviewId); 
+      }
+    confidenceFormData.append("userId", interviewData?.userId || "defaultUserId");
       
    
 
