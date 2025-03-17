@@ -99,10 +99,7 @@ function App({ interviewData }: Props) {
       noAnswerFormData.append("questionId", questions[currentQuestionIndex]._id);
       noAnswerFormData.append("noAnswer", "true");
       
-      await Promise.all([
-        axios.post("http://localhost:5000/api/predict", noAnswerFormData),
-        axios.post("http://localhost:5000/api/audio/audio", noAnswerFormData)
-      ]);
+      await axios.post("http://localhost:5000/api/audio", noAnswerFormData);
     } catch (error) {
       console.error("Error sending no-answer response:", error);
     }
@@ -169,23 +166,19 @@ function App({ interviewData }: Props) {
     if (audioBlob) {
       setProcessing(true);
       const confidenceFormData = new FormData();
-      const transcribeFormData = new FormData();
+   
       
       confidenceFormData.append("audio", audioBlob, `answer_${currentQuestionIndex}.wav`);
       confidenceFormData.append("questionId", questions[currentQuestionIndex]._id);
       
-      transcribeFormData.append("audio", audioBlob, `answer_${currentQuestionIndex}.wav`);
-      transcribeFormData.append("questionId", questions[currentQuestionIndex]._id);
+   
+
+      
 
       try {
-        await Promise.all([
-          // axios.post("http://localhost:5000/api/predict", confidenceFormData, {
-          //   headers: { "Content-Type": "multipart/form-data" },
-          // }),
-          axios.post("http://localhost:5000/api/audio/audio", transcribeFormData, {
-            headers: { "Content-Type": "multipart/form-data" },
-          })
-        ]);
+        await axios.post("http://localhost:5000/api/predict", confidenceFormData, {
+          headers: { "Content-Type": "multipart/form-data" },
+        });
       } catch (error) {
         console.error("Error processing audio:", error);
       } finally {
