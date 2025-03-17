@@ -1,25 +1,79 @@
 import React, { useState, useEffect } from 'react';
-import { Calendar, Clock, User, ChevronRight } from 'lucide-react';
-import { SubmissionGroup } from '../../types/admin';
+import { Calendar, Clock, User, ChevronRight, Code, Mic, AlertCircle } from 'lucide-react';
+import { 
+  TechnicalSubmissionGroup, 
+  NonTechnicalSubmissionGroup, 
+  CombinedSubmission 
+} from '../../types/admin';
 
 interface AnswersListProps {
-  onSelectInterview: (interviewId: string) => void;
+  onSelectInterview: (technicalId?: string, nonTechnicalId?: string) => void;
 }
 
 export const AnswersList: React.FC<AnswersListProps> = ({ onSelectInterview }) => {
-  const [submissions, setSubmissions] = useState<SubmissionGroup[]>([]);
+  const [combinedSubmissions, setCombinedSubmissions] = useState<CombinedSubmission[]>([]);
   const [isLoading, setIsLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
 
   useEffect(() => {
     const fetchSubmissions = async () => {
       try {
-        const response = await fetch('http://localhost:5000/api/techAnswers/answers/grouped');
-        if (!response.ok) {
+        // Fetch both technical and non-technical submissions
+        const [technicalResponse, nonTechnicalResponse] = await Promise.all([
+          fetch('http://localhost:5000/api/techAnswers/answers/grouped'),
+          fetch('http://localhost:5000/api/answers/grouped')
+        ]);
+
+        if (!technicalResponse.ok || !nonTechnicalResponse.ok) {
           throw new Error('Failed to fetch submissions');
         }
-        const data = await response.json();
-        setSubmissions(data);
+
+        const technicalData: TechnicalSubmissionGroup[] = await technicalResponse.json();
+        const nonTechnicalData = await nonTechnicalResponse.json();
+        
+        // Updated to handle the new data structure
+        const nonTechnicalGroups: NonTechnicalSubmissionGroup[] = nonTechnicalData.success ? nonTechnicalData.data : [];
+
+        // Combine submissions by userId + jobId
+        const combined: CombinedSubmission[] = [];
+        
+        // Process technical submissions
+        technicalData.forEach(group => {
+          group.answers.forEach(submission => {
+            combined.push({
+              userId: submission.userId,
+              jobId: submission.interviewId.split('-')[0], // Assuming jobId is part of interviewId
+              technical: submission
+            });
+          });
+        });
+
+        // Process non-technical submissions
+        nonTechnicalGroups.forEach(group => {
+          if (!group.responses || !group.responses.length) return;
+          
+          group.responses.forEach(submission => {
+            // Extract jobId and userId from interviewId or use direct properties
+            const jobId = submission.jobId || submission.interviewId?.split('-')[0] || 'unknown';
+            const userId = submission.userId || submission.interviewId?.split('-')[1] || 'unknown';
+            
+            const existingIndex = combined.findIndex(c => 
+              c.userId === userId && c.jobId === jobId
+            );
+
+            if (existingIndex >= 0) {
+              combined[existingIndex].nonTechnical = submission;
+            } else {
+              combined.push({
+                userId,
+                jobId,
+                nonTechnical: submission
+              });
+            }
+          });
+        });
+
+        setCombinedSubmissions(combined);
       } catch (err) {
         setError(err instanceof Error ? err.message : 'Failed to fetch submissions');
       } finally {
@@ -48,46 +102,67 @@ export const AnswersList: React.FC<AnswersListProps> = ({ onSelectInterview }) =
 
   return (
     <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
-      <h1 className="text-2xl font-bold text-gray-900 mb-8">Technical Interview Submissions</h1>
+      <h1 className="text-2xl font-bold text-gray-900 mb-8">Interview Submissions</h1>
       <div className="grid gap-6">
-        {submissions.map((group) => (
-          <div key={group._id} className="bg-white shadow rounded-lg overflow-hidden">
+        {combinedSubmissions.map((submission, index) => (
+          <div key={`${submission.userId}-${submission.jobId}-${index}`} className="bg-white shadow rounded-lg overflow-hidden">
             <div className="px-6 py-4 border-b border-gray-200">
               <h2 className="text-lg font-semibold text-gray-900">
-                Interview Session {group._id}
+                Candidate Submission
               </h2>
             </div>
             <div className="divide-y divide-gray-200">
-              {group.answers.map((submission) => (
-                <div
-                  key={submission._id}
-                  className="px-6 py-4 hover:bg-gray-50 transition-colors cursor-pointer"
-                  onClick={() => onSelectInterview(submission._id)}
-                >
-                  <div className="flex items-center justify-between">
-                    <div className="space-y-2">
-                      <div className="flex items-center space-x-4 text-sm text-gray-500">
-                        <span className="flex items-center">
-                          <User className="w-4 h-4 mr-1" />
-                          User: {submission.userId}
-                        </span>
-                        <span className="flex items-center">
-                          <Calendar className="w-4 h-4 mr-1" />
-                          {new Date(submission.submittedAt).toLocaleDateString()}
-                        </span>
-                        <span className="flex items-center">
-                          <Clock className="w-4 h-4 mr-1" />
-                          {new Date(submission.submittedAt).toLocaleTimeString()}
-                        </span>
-                      </div>
-                      <div className="text-sm text-gray-500">
-                        {submission.answers.length} answers submitted
-                      </div>
+              <div className="px-6 py-4">
+                <div className="flex items-center justify-between mb-4">
+                  <div className="space-y-1">
+                    <div className="flex items-center space-x-4 text-sm text-gray-500">
+                      <span className="flex items-center">
+                        <User className="w-4 h-4 mr-1" />
+                        User ID: {submission.userId}
+                      </span>
+                      <span className="flex items-center">
+                        <Calendar className="w-4 h-4 mr-1" />
+                        Job ID: {submission.jobId}
+                      </span>
                     </div>
-                    <ChevronRight className="w-5 h-5 text-gray-400" />
                   </div>
                 </div>
-              ))}
+
+                <div className="space-y-4">
+                  {submission.technical && (
+                    <button
+                      onClick={() => onSelectInterview(submission.technical?._id)}
+                      className="w-full flex items-center justify-between p-4 bg-blue-50 rounded-lg hover:bg-blue-100 transition-colors"
+                    >
+                      <div className="flex items-center">
+                        <Code className="w-5 h-5 text-blue-600 mr-2" />
+                        <span className="font-medium text-blue-700">Technical Interview</span>
+                      </div>
+                      <ChevronRight className="w-5 h-5 text-blue-600" />
+                    </button>
+                  )}
+
+                  {submission.nonTechnical ? (
+                    <button
+                      onClick={() => onSelectInterview(undefined, submission.nonTechnical?._id)}
+                      className="w-full flex items-center justify-between p-4 bg-purple-50 rounded-lg hover:bg-purple-100 transition-colors"
+                    >
+                      <div className="flex items-center">
+                        <Mic className="w-5 h-5 text-purple-600 mr-2" />
+                        <span className="font-medium text-purple-700">Non-Technical Interview</span>
+                      </div>
+                      <ChevronRight className="w-5 h-5 text-purple-600" />
+                    </button>
+                  ) : (
+                    <div className="w-full flex items-center justify-between p-4 bg-gray-50 rounded-lg">
+                      <div className="flex items-center">
+                        <AlertCircle className="w-5 h-5 text-amber-600 mr-2" />
+                        <span className="font-medium text-gray-700">Non-Technical Interview Not Yet Attended</span>
+                      </div>
+                    </div>
+                  )}
+                </div>
+              </div>
             </div>
           </div>
         ))}
