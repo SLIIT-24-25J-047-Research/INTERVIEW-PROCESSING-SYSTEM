@@ -4,23 +4,23 @@ const questionResponseSchema = new mongoose.Schema({
     questionId: {
         type: mongoose.Schema.Types.ObjectId,
         required: true,
-        ref: 'non-technical-questions' // Reference to the Question model
+        ref: 'non-technical-questions' 
     },
     prediction: {
-        type: mongoose.Schema.Types.Mixed, // Mixed type to store any kind of prediction data
-        required: false // Optional, as prediction might fail
+        type: mongoose.Schema.Types.Mixed, 
+        required: false 
     },
     transcription: {
         type: String,
-        required: false // Optional, as transcription might fail
+        required: false 
     },
     similarityScores: {
-        type: [Number], // Array of similarity scores
-        required: false // Optional, as comparison might fail
+        type: [Number], 
+        required: false 
     },
     isCorrect: {
         type: Boolean,
-        required: false // Optional, as comparison might fail
+        required: false
     }
 });
 
@@ -28,9 +28,9 @@ const audioResponseSchema = new mongoose.Schema({
     interviewId: {
         type: mongoose.Schema.Types.ObjectId,
         required: true,
-        ref: 'non-technical-interviewschedules' // Assuming you have an Interview model
+        ref: 'non-technical-interviewschedules' 
     },
-    responses: [questionResponseSchema], // Array of question responses
+    responses: [questionResponseSchema], 
     createdAt: {
         type: Date,
         default: Date.now
