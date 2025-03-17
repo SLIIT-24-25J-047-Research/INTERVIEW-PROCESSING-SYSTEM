@@ -253,3 +253,81 @@ function cleanupFiles(filePath) {
         });
     }
 }
+
+
+exports.getByInterviewId = async (req, res) => {
+    try {
+        const { interviewId } = req.params;
+
+        if (!interviewId) {
+            return res.status(400).json({
+                success: false,
+                message: 'Interview ID is required',
+            });
+        }
+
+       
+        const audioResponse = await AudioResponse.findOne({ interviewId }).populate('responses.questionId', 'text'); // Populate question text if needed
+
+        if (!audioResponse) {
+            return res.status(404).json({
+                success: false,
+                message: 'No responses found for this interview',
+            });
+        }
+
+        return res.status(200).json({
+            success: true,
+            data: audioResponse,
+        });
+    } catch (error) {
+        console.error('Error fetching responses by interview ID:', error.message);
+        return res.status(500).json({
+            success: false,
+            message: 'An error occurred while fetching responses',
+            error: error.message,
+        });
+    }
+};
+
+
+exports.getByQuestionId = async (req, res) => {
+    try {
+        const { questionId } = req.params;
+
+        if (!questionId) {
+            return res.status(400).json({
+                success: false,
+                message: 'Question ID is required',
+            });
+        }
+
+        // Find the document that contains the question response
+        const audioResponse = await AudioResponse.findOne(
+            { 'responses.questionId': questionId },
+            { 'responses.$': 1 } // Project only the matching response
+        ).populate('responses.questionId', 'text'); // Populate question text if needed
+
+        if (!audioResponse || !audioResponse.responses || audioResponse.responses.length === 0) {
+            return res.status(404).json({
+                success: false,
+                message: 'No response found for this question',
+            });
+        }
+
+        // Extract the specific question response
+        const questionResponse = audioResponse.responses[0];
+
+        return res.status(200).json({
+            success: true,
+            data: questionResponse,
+        });
+    } catch (error) {
+        console.error('Error fetching response by question ID:', error.message);
+        return res.status(500).json({
+            success: false,
+            message: 'An error occurred while fetching the response',
+            error: error.message,
+        });
+    }
+};
