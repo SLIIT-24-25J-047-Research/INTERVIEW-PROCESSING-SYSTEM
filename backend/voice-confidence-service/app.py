@@ -200,6 +200,7 @@ def transcribe_audio(file_path):
         print(f"Current working directory: {os.getcwd()}")
         print(f"Attempting to transcribe file: {file_path}")
         result = whisper_model.transcribe(file_path, fp16=False)
+        print (result)
         return result['text']  
     except Exception as e:
         print(f"Error during transcription: {str(e)}")
@@ -231,8 +232,8 @@ def compare_answers(candidate_answer: str, actual_answers: Union[str, List[str]]
         logger.info(f"Comparing answers - Candidate length: {len(candidate_answer)}, Number of actual answers: {len(actual_answers)}")
 
         # Preprocess answers
-        processed_candidate = preprocess_text(candidate_answer)
-        processed_actuals = [preprocess_text(answer) for answer in actual_answers]
+        processed_candidate = preprocess_text(candidate_answer.lower())
+        processed_actuals = [preprocess_text(answer.lower()) for answer in actual_answers]
         
         # Generate paraphrases for candidate answer
         candidate_paraphrases = generate_paraphrases(candidate_answer)
@@ -375,7 +376,7 @@ def compare():
         logger.info(f"Received comparison request - Candidate Answer Length: {len(str(candidate_answer))}")
         
         result = compare_answers(candidate_answer, actual_answers)
-        
+        result['similarity_scores'] = result.pop('similarity_score') 
         logger.info("Comparison completed successfully")
         return jsonify(result)
     
