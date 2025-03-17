@@ -5,7 +5,7 @@ const axios = require('axios');
 const path = require('path');
 const Question = require('../models/employer/Question');
 const AudioResponse = require('../models/AudioResponseModel'); // Import the model
-
+const Interview = require('../models/employer/NonTechInterviewSchedule'); 
 
 //  base URL
 const MICROSERVICE_URL = 'http://127.0.0.1:3000';
@@ -17,7 +17,7 @@ exports.unifiedAudioController = async (req, res) => {
         console.log('Request body:', req.body);
         console.log('Uploaded file:', req.file);
 
-       
+        // Check if audio file exists
         if (!req.file) {
             console.error('No audio file provided.');
             return res.status(400).json({
@@ -26,18 +26,31 @@ exports.unifiedAudioController = async (req, res) => {
             });
         }
 
- 
-        const { questionId, interviewId } = req.body;
-        if (!questionId || !interviewId) {
-            console.error('Question ID or Interview ID not provided.');
+        // Validate required fields
+        const { questionId, interviewId, userId } = req.body;
+        if (!questionId || !interviewId || !userId) {
+            console.error('Question ID, Interview ID, or User ID not provided.');
             cleanupFiles(req.file.path);
             return res.status(400).json({
                 success: false,
-                message: 'Question ID or Interview ID not provided',
+                message: 'Question ID, Interview ID, or User ID not provided',
             });
         }
 
-        // Get the question first before starting any processing
+        // Fetch interview details
+        const interview = await Interview.findById(interviewId);
+        if (!interview) {
+            console.error(`Interview not found for ID: ${interviewId}`);
+            cleanupFiles(req.file.path);
+            return res.status(404).json({
+                success: false,
+                message: 'Interview not found',
+            });
+        }
+        const jobId = interview.jobId;
+        console.log('Found jobId:', jobId);
+
+        // Fetch question details
         const question = await Question.findById(questionId);
         if (!question) {
             console.error(`Question not found for ID: ${questionId}`);
@@ -59,23 +72,22 @@ exports.unifiedAudioController = async (req, res) => {
         // Copy the file for transcription
         fs.copyFileSync(originalPath, transcriptionPath);
         
-        // 1.  process prediction
+        // 1. Process prediction
         let confidencePrediction = null;
         try {
             confidencePrediction = await processPrediction(predictionPath);
             console.log('Confidence prediction completed:', confidencePrediction);
         } catch (error) {
             console.error('Error in confidence prediction:', error.message);
-           
         }
 
-        // 2.  process transcription
+        // 2. Process transcription
         let transcriptionResult = null;
         try {
             const transcription = await transcribeAudio(transcriptionPath);
             console.log('Transcription result:', transcription);
             
-            // Then process comparison
+            // Process comparison
             const comparisonResult = await compareAnswers(transcription, question.answers);
             console.log('Comparison results:', comparisonResult);
             
@@ -93,8 +105,8 @@ exports.unifiedAudioController = async (req, res) => {
         cleanupFiles(predictionPath);
         cleanupFiles(transcriptionPath);
 
-        
-         const questionResponse = {
+        // Prepare the question response object
+        const questionResponse = {
             questionId: questionId,
             prediction: confidencePrediction || null,
             transcription: transcriptionResult ? transcriptionResult.transcription : null,
@@ -102,16 +114,18 @@ exports.unifiedAudioController = async (req, res) => {
             isCorrect: transcriptionResult ? transcriptionResult.isCorrect : null
         };
 
-        // Save to  database
+        // Save to database
         const audioResponse = await AudioResponse.findOneAndUpdate(
             { interviewId: interviewId }, // Query
-            { $push: { responses: questionResponse } }, // Update
+            {
+                $setOnInsert: { userId: userId, jobId: jobId }, // Set these fields only on insert (upsert)
+                $push: { responses: questionResponse } // Push the new response
+            },
             { upsert: true, new: true } // Options: Create if not found, return updated document
         );
         console.log('Audio response saved/updated in database:', audioResponse);
 
-
-
+        // Return success response
         return res.status(200).json({
             success: true,
             prediction: confidencePrediction || { message: "Prediction failed" },
@@ -302,11 +316,11 @@ exports.getByQuestionId = async (req, res) => {
             });
         }
 
-        // Find the document that contains the question response
+       
         const audioResponse = await AudioResponse.findOne(
             { 'responses.questionId': questionId },
-            { 'responses.$': 1 } // Project only the matching response
-        ).populate('responses.questionId', 'text'); // Populate question text if needed
+            { 'responses.$': 1 }
+        ).populate('responses.questionId', 'text'); 
 
         if (!audioResponse || !audioResponse.responses || audioResponse.responses.length === 0) {
             return res.status(404).json({
@@ -315,7 +329,7 @@ exports.getByQuestionId = async (req, res) => {
             });
         }
 
-        // Extract the specific question response
+       
         const questionResponse = audioResponse.responses[0];
 
         return res.status(200).json({
@@ -327,6 +341,48 @@ exports.getByQuestionId = async (req, res) => {
         return res.status(500).json({
             success: false,
             message: 'An error occurred while fetching the response',
+            error: error.message,
+        });
+    }
+};
+
+
+
+exports.getAll = async (req, res) => {
+    try {
+        // Use MongoDB aggregation to group responses by interviewId
+        const groupedResponses = await AudioResponse.aggregate([
+            {
+                $group: {
+                    _id: '$interviewId', // Group by interviewId
+                    responses: { $push: '$$ROOT' } // Push all documents into an array
+                }
+            },
+            {
+                $project: {
+                    _id: 0, // Exclude the default _id field
+                    interviewId: '$_id', // Rename _id to interviewId
+                    responses: 1 // Include the responses array
+                }
+            }
+        ]);
+
+        if (!groupedResponses || groupedResponses.length === 0) {
+            return res.status(404).json({
+                success: false,
+                message: 'No responses found',
+            });
+        }
+
+        return res.status(200).json({
+            success: true,
+            data: groupedResponses,
+        });
+    } catch (error) {
+        console.error('Error fetching all responses:', error.message);
+        return res.status(500).json({
+            success: false,
+            message: 'An error occurred while fetching responses',
             error: error.message,
         });
     }
