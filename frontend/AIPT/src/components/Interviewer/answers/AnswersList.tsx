@@ -31,17 +31,17 @@ export const AnswersList: React.FC<AnswersListProps> = ({ onSelectInterview }) =
         const technicalData: TechnicalSubmissionGroup[] = await technicalResponse.json();
         const nonTechnicalData = await nonTechnicalResponse.json();
         
-        // Updated to handle the new data structure
+        // new data structure
         const nonTechnicalGroups: NonTechnicalSubmissionGroup[] = nonTechnicalData.success ? nonTechnicalData.data : [];
 
-        // Create a map of all unique userId + jobId combinations
+        // Create a map of all unique jobId + userId combinations
         const submissionMap = new Map<string, CombinedSubmission>();
         
         // Process technical submissions
         technicalData.forEach(group => {
           group.answers.forEach(submission => {
-            const jobId = submission.interviewId.split('-')[0];
             const userId = submission.userId;
+            const jobId = submission.jobId; 
             const key = `${userId}-${jobId}`;
             
             submissionMap.set(key, {
@@ -58,9 +58,11 @@ export const AnswersList: React.FC<AnswersListProps> = ({ onSelectInterview }) =
           if (!group.responses || !group.responses.length) return;
           
           group.responses.forEach(submission => {
-            // Extract jobId and userId from interviewId or use direct properties
-            const jobId = submission.jobId || submission.interviewId?.split('-')[0] || 'unknown';
-            const userId = submission.userId || submission.interviewId?.split('-')[1] || 'unknown';
+            const userId = submission.userId;
+            const jobId = submission.jobId;
+            
+            if (!userId || !jobId) return; 
+            
             const key = `${userId}-${jobId}`;
             
             if (submissionMap.has(key)) {
@@ -68,7 +70,7 @@ export const AnswersList: React.FC<AnswersListProps> = ({ onSelectInterview }) =
               const existingSubmission = submissionMap.get(key)!;
               existingSubmission.nonTechnical = submission;
             } else {
-              // Create new entry
+    
               submissionMap.set(key, {
                 userId,
                 jobId,
@@ -118,69 +120,67 @@ export const AnswersList: React.FC<AnswersListProps> = ({ onSelectInterview }) =
                 Candidate Submission
               </h2>
             </div>
-            <div className="divide-y divide-gray-200">
-              <div className="px-6 py-4">
-                <div className="flex items-center justify-between mb-4">
-                  <div className="space-y-1">
-                    <div className="flex items-center space-x-4 text-sm text-gray-500">
-                      <span className="flex items-center">
-                        <User className="w-4 h-4 mr-1" />
-                        User ID: {submission.userId}
-                      </span>
-                      <span className="flex items-center">
-                        <Calendar className="w-4 h-4 mr-1" />
-                        Job ID: {submission.jobId}
-                      </span>
-                    </div>
+            <div className="px-6 py-4">
+              <div className="flex items-center justify-between mb-4">
+                <div className="space-y-1">
+                  <div className="flex items-center space-x-4 text-sm text-gray-500">
+                    <span className="flex items-center">
+                      <User className="w-4 h-4 mr-1" />
+                      User ID: {submission.userId}
+                    </span>
+                    <span className="flex items-center">
+                      <Calendar className="w-4 h-4 mr-1" />
+                      Job ID: {submission.jobId}
+                    </span>
                   </div>
                 </div>
+              </div>
 
-                <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                  {/* Technical Interview - Always on the left */}
-                  <div>
-                    {submission.technical ? (
-                      <button
-                        onClick={() => onSelectInterview(submission.technical?._id)}
-                        className="w-full flex items-center justify-between p-4 bg-blue-50 rounded-lg hover:bg-blue-100 transition-colors"
-                      >
-                        <div className="flex items-center">
-                          <Code className="w-5 h-5 text-blue-600 mr-2" />
-                          <span className="font-medium text-blue-700">Technical Interview</span>
-                        </div>
-                        <ChevronRight className="w-5 h-5 text-blue-600" />
-                      </button>
-                    ) : (
-                      <div className="w-full flex items-center justify-between p-4 bg-gray-50 rounded-lg">
-                        <div className="flex items-center">
-                          <AlertCircle className="w-5 h-5 text-amber-600 mr-2" />
-                          <span className="font-medium text-gray-700">Technical Interview Not Yet Attended</span>
-                        </div>
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                {/* Technical Interview  */}
+                <div>
+                  {submission.technical ? (
+                    <button
+                      onClick={() => onSelectInterview(submission.technical?._id)}
+                      className="w-full flex items-center justify-between p-4 bg-blue-50 rounded-lg hover:bg-blue-100 transition-colors"
+                    >
+                      <div className="flex items-center">
+                        <Code className="w-5 h-5 text-blue-600 mr-2" />
+                        <span className="font-medium text-blue-700">Technical Interview</span>
                       </div>
-                    )}
-                  </div>
+                      <ChevronRight className="w-5 h-5 text-blue-600" />
+                    </button>
+                  ) : (
+                    <div className="w-full flex items-center justify-between p-4 bg-gray-50 rounded-lg">
+                      <div className="flex items-center">
+                        <AlertCircle className="w-5 h-5 text-amber-600 mr-2" />
+                        <span className="font-medium text-gray-700">Technical Interview Not Yet Attended</span>
+                      </div>
+                    </div>
+                  )}
+                </div>
 
-                  {/* Non-Technical Interview - Always on the right */}
-                  <div>
-                    {submission.nonTechnical ? (
-                      <button
-                        onClick={() => onSelectInterview(undefined, submission.nonTechnical?._id)}
-                        className="w-full flex items-center justify-between p-4 bg-purple-50 rounded-lg hover:bg-purple-100 transition-colors"
-                      >
-                        <div className="flex items-center">
-                          <Mic className="w-5 h-5 text-purple-600 mr-2" />
-                          <span className="font-medium text-purple-700">Non-Technical Interview</span>
-                        </div>
-                        <ChevronRight className="w-5 h-5 text-purple-600" />
-                      </button>
-                    ) : (
-                      <div className="w-full flex items-center justify-between p-4 bg-gray-50 rounded-lg">
-                        <div className="flex items-center">
-                          <AlertCircle className="w-5 h-5 text-amber-600 mr-2" />
-                          <span className="font-medium text-gray-700">Non-Technical Interview Not Yet Attended</span>
-                        </div>
+                {/* Non-Technical Interview  */}
+                <div>
+                  {submission.nonTechnical ? (
+                    <button
+                      onClick={() => onSelectInterview(undefined, submission.nonTechnical?._id)}
+                      className="w-full flex items-center justify-between p-4 bg-purple-50 rounded-lg hover:bg-purple-100 transition-colors"
+                    >
+                      <div className="flex items-center">
+                        <Mic className="w-5 h-5 text-purple-600 mr-2" />
+                        <span className="font-medium text-purple-700">Non-Technical Interview</span>
                       </div>
-                    )}
-                  </div>
+                      <ChevronRight className="w-5 h-5 text-purple-600" />
+                    </button>
+                  ) : (
+                    <div className="w-full flex items-center justify-between p-4 bg-gray-50 rounded-lg">
+                      <div className="flex items-center">
+                        <AlertCircle className="w-5 h-5 text-amber-600 mr-2" />
+                        <span className="font-medium text-gray-700">Non-Technical Interview Not Yet Attended</span>
+                      </div>
+                    </div>
+                  )}
                 </div>
               </div>
             </div>
