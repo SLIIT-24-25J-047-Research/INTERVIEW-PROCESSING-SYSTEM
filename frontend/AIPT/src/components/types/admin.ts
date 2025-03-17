@@ -23,6 +23,7 @@ export interface TechnicalSubmission {
   interviewId: string;
   userId: string;
   answers: TechnicalAnswer[];
+  jobId: string;
   submittedAt: string;
   __v: number;
 }
