@@ -4,6 +4,8 @@ const ffmpeg = require('fluent-ffmpeg');
 const axios = require('axios');
 const path = require('path');
 const Question = require('../models/employer/Question');
+const AudioResponse = require('../models/AudioResponseModel'); // Import the model
+
 
 // Microservice base URL - centralized configuration
 const MICROSERVICE_URL = 'http://127.0.0.1:3000';
@@ -92,6 +94,21 @@ exports.unifiedAudioController = async (req, res) => {
         cleanupFiles(originalPath);
         cleanupFiles(predictionPath);
         cleanupFiles(transcriptionPath);
+
+         // Create a new AudioResponse document
+         const audioResponse = new AudioResponse({
+            questionId: questionId,
+            prediction: confidencePrediction || null,
+            transcription: transcriptionResult ? transcriptionResult.transcription : null,
+            similarityScores: transcriptionResult ? transcriptionResult.similarity : null,
+            isCorrect: transcriptionResult ? transcriptionResult.isCorrect : null
+        });
+
+        // Save the response to the database
+        await audioResponse.save();
+        console.log('Audio response saved to database:', audioResponse);
+
+        
 
         // Return all results
         return res.status(200).json({
