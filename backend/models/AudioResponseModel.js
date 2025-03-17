@@ -4,7 +4,7 @@ const audioResponseSchema = new mongoose.Schema({
     questionId: {
         type: mongoose.Schema.Types.ObjectId,
         required: true,
-        ref: 'technicalquestions' // Assuming you have a Question model
+        ref: 'non-technical-questions' // Assuming you have a Question model
     },
     prediction: {
         type: mongoose.Schema.Types.Mixed, 
