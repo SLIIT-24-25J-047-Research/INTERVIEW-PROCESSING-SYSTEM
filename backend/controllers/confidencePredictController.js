@@ -7,19 +7,17 @@ const Question = require('../models/employer/Question');
 const AudioResponse = require('../models/AudioResponseModel'); // Import the model
 
 
-// Microservice base URL - centralized configuration
+//  base URL
 const MICROSERVICE_URL = 'http://127.0.0.1:3000';
 
-/**
- * Unified audio controller that handles all requests to Python service sequentially
- */
+
 exports.unifiedAudioController = async (req, res) => {
     try {
         console.log('Request headers:', req.headers);
         console.log('Request body:', req.body);
         console.log('Uploaded file:', req.file);
 
-        // Check if audio file exists
+       
         if (!req.file) {
             console.error('No audio file provided.');
             return res.status(400).json({
@@ -28,7 +26,7 @@ exports.unifiedAudioController = async (req, res) => {
             });
         }
 
-        // Check if we have a question ID
+ 
         const { questionId, interviewId } = req.body;
         if (!questionId || !interviewId) {
             console.error('Question ID or Interview ID not provided.');
@@ -61,23 +59,23 @@ exports.unifiedAudioController = async (req, res) => {
         // Copy the file for transcription
         fs.copyFileSync(originalPath, transcriptionPath);
         
-        // 1. First process prediction
+        // 1.  process prediction
         let confidencePrediction = null;
         try {
             confidencePrediction = await processPrediction(predictionPath);
             console.log('Confidence prediction completed:', confidencePrediction);
         } catch (error) {
             console.error('Error in confidence prediction:', error.message);
-            // Continue with transcription even if prediction fails
+           
         }
 
-        // 2. Then process transcription
+        // 2.  process transcription
         let transcriptionResult = null;
         try {
             const transcription = await transcribeAudio(transcriptionPath);
             console.log('Transcription result:', transcription);
             
-            // 3. Then process comparison
+            // Then process comparison
             const comparisonResult = await compareAnswers(transcription, question.answers);
             console.log('Comparison results:', comparisonResult);
             
@@ -95,7 +93,7 @@ exports.unifiedAudioController = async (req, res) => {
         cleanupFiles(predictionPath);
         cleanupFiles(transcriptionPath);
 
-         // Create a new AudioResponse document
+        
          const questionResponse = {
             questionId: questionId,
             prediction: confidencePrediction || null,
@@ -104,7 +102,7 @@ exports.unifiedAudioController = async (req, res) => {
             isCorrect: transcriptionResult ? transcriptionResult.isCorrect : null
         };
 
-        // Save the response to the database
+        // Save to  database
         const audioResponse = await AudioResponse.findOneAndUpdate(
             { interviewId: interviewId }, // Query
             { $push: { responses: questionResponse } }, // Update
@@ -114,7 +112,6 @@ exports.unifiedAudioController = async (req, res) => {
 
 
 
-        // Return all results
         return res.status(200).json({
             success: true,
             prediction: confidencePrediction || { message: "Prediction failed" },
