@@ -387,3 +387,39 @@ exports.getAll = async (req, res) => {
         });
     }
 };
+
+
+// get by id
+exports.getById = async (req, res) => {
+    try {
+        const { id } = req.params;
+
+        if (!id) {
+            return res.status(400).json({
+                success: false,
+                message: 'ID is required',
+            });
+        }
+
+        const audioResponse = await AudioResponse.findById(id).populate('responses.questionId', 'text'); // Populate question text if needed
+
+        if (!audioResponse) {
+            return res.status(404).json({
+                success: false,
+                message: 'No responses found for this ID',
+            });
+        }
+
+        return res.status(200).json({
+            success: true,
+            data: audioResponse,
+        });
+    } catch (error) {
+        console.error('Error fetching response by ID:', error.message);
+        return res.status(500).json({
+            success: false,
+            message: 'An error occurred while fetching response',
+            error: error.message,
+        });
+    }
+};
