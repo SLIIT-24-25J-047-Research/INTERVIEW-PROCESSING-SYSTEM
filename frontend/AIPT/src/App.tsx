@@ -26,6 +26,7 @@ import NonTechnicalInterviewGuard from "./components/Candidate/non-tech-intervie
 import OptionsPage from "./pages/Candidate/candidate-dashboard/OptionsPage";
 import SendFeedback from "./pages/Interviewer/SendFeedback";
 import JobAdminDashboard from "./pages/Interviewer/jobdetails/Job-admin-dashboard";
+import { NonTechnicalAnswerDetails } from "./components/Interviewer/answers/NonTechnicalInterviewDetails";
 
 const App: React.FC = () => {
   return (
@@ -232,6 +233,7 @@ const App: React.FC = () => {
           </PrivateRoute>
         }
       />
+          
 
       <Route
         path="/options"
