@@ -1,20 +1,20 @@
 const Score  = require('../../models/employer/TechnicalSubmissionResult');
 
-// Save or update scores
+// Save 
 exports.saveScores = async (req, res) => {
     const { interviewScheduleId, jobId, userId, scores, totalScore, maxPossibleScore } = req.body;
   
     try {
-      // Check if a score document already exists for this interview schedule
+    
       let scoreDoc = await Score.findOne({ interviewScheduleId });
   
       if (scoreDoc) {
-        // Update existing document
+     
         scoreDoc.scores = scores;
         scoreDoc.totalScore = totalScore;
         scoreDoc.maxPossibleScore = maxPossibleScore;
       } else {
-        // Create new document
+       
         scoreDoc = new Score({
           interviewScheduleId,
           jobId,
@@ -32,7 +32,7 @@ exports.saveScores = async (req, res) => {
     }
   };
   
-  // Get scores by interview schedule ID
+  // Get  by interview schedule ID
   exports.getScores = async (req, res) => {
     const { interviewScheduleId } = req.params;
   
