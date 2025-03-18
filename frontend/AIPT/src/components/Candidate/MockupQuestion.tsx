@@ -46,10 +46,34 @@ const MockupQuestion: React.FC<{ onEndTest: (score: number) => void }> = ({ onEn
   const [selectedAnswers, setSelectedAnswers] = useState<{ [key: number]: string }>({});
   const [score, setScore] = useState<number>(0);
   const [isButtonVisible, setIsButtonVisible] = useState<boolean>(false);
+  const [shuffledOptions, setShuffledOptions] = useState<{ [key: number]: string[] }>({});
+
+  // Function to shuffle an array (Fisher-Yates algorithm)
+  const shuffleArray = (array: string[]): string[] => {
+    const newArray = [...array];
+    for (let i = newArray.length - 1; i > 0; i--) {
+      const j = Math.floor(Math.random() * (i + 1));
+      [newArray[i], newArray[j]] = [newArray[j], newArray[i]];
+    }
+    return newArray;
+  };
 
   useEffect(() => {
+    // Select 10 random questions
     const shuffledQuestions = allQuestions.sort(() => 0.5 - Math.random()).slice(0, 10);
     setQuizQuestions(shuffledQuestions);
+    
+    // Create shuffled options for each question
+    const initialShuffledOptions: { [key: number]: string[] } = {};
+    shuffledQuestions.forEach(question => {
+      initialShuffledOptions[question.id] = shuffleArray(question.options);
+    });
+    setShuffledOptions(initialShuffledOptions);
+
+    // Set timeout for end button visibility
+    setTimeout(() => {
+      setIsButtonVisible(true);
+    }, 30000);
   }, []);
 
   const handleOptionSelect = (questionId: number, option: string) => {
@@ -66,18 +90,29 @@ const MockupQuestion: React.FC<{ onEndTest: (score: number) => void }> = ({ onEn
 
     // If the answer is correct, add 1 to the score
     if (selectedAnswer === correctAnswer) {
-      setScore((prevScore) => Math.min(prevScore + 1, quizQuestions.length)); // Ensure score is capped at total number of questions
+      setScore((prevScore) => Math.min(prevScore + 1, quizQuestions.length));
     }
 
-    setTimeout(() => {
-      setIsButtonVisible(true);
-    }, 30000); // 30 seconds for each question
+    // Move to next question
     setCurrentQuestionIndex(currentQuestionIndex + 1);
+    
+    // Reset visibility timer if not on last question
+    if (currentQuestionIndex < quizQuestions.length - 1) {
+      setIsButtonVisible(false);
+      setTimeout(() => {
+        setIsButtonVisible(true);
+      }, 30000);
+    }
   };
 
   const handleFinishTest = () => {
     onEndTest(score);
   };
+
+  // Handle the case where quiz questions haven't loaded yet
+  if (quizQuestions.length === 0) {
+    return <div className="text-center p-4">Loading questions...</div>;
+  }
 
   return (
     <div className="mockup-container p-4 bg-gradient-to-r from-blue-300 to-blue-500 rounded-lg shadow-lg">
@@ -86,7 +121,8 @@ const MockupQuestion: React.FC<{ onEndTest: (score: number) => void }> = ({ onEn
           <h2 className="text-xl font-bold text-blue-700 mb-4">Question {currentQuestionIndex + 1}</h2>
           <p className="text-lg text-gray-700">{quizQuestions[currentQuestionIndex].text}</p>
           <div className="options mt-4">
-            {quizQuestions[currentQuestionIndex].options.map((option, index) => (
+            {shuffledOptions[quizQuestions[currentQuestionIndex].id] && 
+             shuffledOptions[quizQuestions[currentQuestionIndex].id].map((option, index) => (
               <div key={index} className="option mb-2">
                 <label className="block text-gray-800">
                   <input
@@ -102,12 +138,20 @@ const MockupQuestion: React.FC<{ onEndTest: (score: number) => void }> = ({ onEn
               </div>
             ))}
           </div>
-          <button onClick={handleNextQuestion} className="mt-4 py-2 px-4 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition duration-300">
+          <button 
+            onClick={handleNextQuestion} 
+            disabled={!selectedAnswers[quizQuestions[currentQuestionIndex].id]}
+            className={`mt-4 py-2 px-4 ${
+              selectedAnswers[quizQuestions[currentQuestionIndex].id] 
+                ? "bg-blue-600 hover:bg-blue-700" 
+                : "bg-blue-300 cursor-not-allowed"
+            } text-white rounded-lg transition duration-300`}
+          >
             Next
           </button>
         </div>
       ) : (
-        <div className="text-center">
+        <div className="text-center bg-white p-6 rounded-lg shadow-lg">
           <h2 className="text-2xl font-semibold text-green-500">Test Finished!</h2>
           <p className="text-xl mt-2">Your score: {score} / 10</p>
           {isButtonVisible && (
