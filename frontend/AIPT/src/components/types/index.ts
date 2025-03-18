@@ -25,14 +25,14 @@ interface QuestionContent {
   correctOrder: string[];
   options: string[];
   correctAnswer?: number;
-  // For data visualization challenges
+
   dataset?: {
-    data: string; // JSON string of the dataset
-    expectedVisualization: string; // Description or configuration of expected visualization
+    data: string; 
+    expectedVisualization: string; 
   };
-  // For object mechanics
+  //  object mechanics
   mechanics?: {
-    worldConfig: string; // JSON string of world configuration
+    worldConfig: string;
     expectedBehavior: string; // Description of expected behavior
   };
   // For logical puzzles
