@@ -7,7 +7,15 @@ export interface TechnicalAnswer {
 
 export interface NonTechnicalResponse {
   _id: string;
-  questionId: string;
+  questionId: {
+    _id: string;
+    text: string;
+    skillGroupId: {
+      _id: string;
+      groupId: string;
+    };
+    answers: string[];
+  };
   prediction: {
     confidence_level: number;
     confidence_score: number;
@@ -16,6 +24,14 @@ export interface NonTechnicalResponse {
   similarityScores: number[];
   isCorrect: boolean;
   createdAt: string;
+}
+
+export interface SkillGroup {
+  _id: string;
+  name: string;
+  skills: string[];
+  focus: string;
+  groupId: string;
 }
 
 export interface TechnicalSubmission {
@@ -63,6 +79,11 @@ export interface Question {
     blanks: { [key: string]: string | number | boolean }[];
     items: { [key: string]: string | number | boolean }[];
     correctOrder: string[];
+    correctAnswer?: number;
+    mechanics?: {
+      worldConfig: string;
+      // Add any other properties that might be in mechanics
+    };
     options: string[];
   };
 }
