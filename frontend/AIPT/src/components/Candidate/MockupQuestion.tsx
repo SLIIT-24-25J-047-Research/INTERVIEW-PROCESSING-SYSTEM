@@ -1,5 +1,4 @@
 import React, { useState, useEffect } from "react";
-import "../../Styles/MockupQuestion.css";
 
 interface Question {
   id: number;
@@ -31,7 +30,7 @@ const MockupQuestion: React.FC<{ onEndTest: (score: number) => void }> = ({ onEn
   const [currentQuestionIndex, setCurrentQuestionIndex] = useState<number>(0);
   const [selectedAnswers, setSelectedAnswers] = useState<{ [key: number]: string }>({});
   const [score, setScore] = useState<number>(0);
-  const [isButtonVisible, setIsButtonVisible] = useState<boolean>(false); // State for button visibility
+  const [isButtonVisible, setIsButtonVisible] = useState<boolean>(false);
 
   useEffect(() => {
     const shuffledQuestions = allQuestions.sort(() => 0.5 - Math.random()).slice(0, 10);
@@ -41,61 +40,65 @@ const MockupQuestion: React.FC<{ onEndTest: (score: number) => void }> = ({ onEn
   const handleOptionSelect = (questionId: number, option: string) => {
     setSelectedAnswers((prev) => {
       const updatedAnswers = { ...prev, [questionId]: option };
-      
-      // Update score if correct answer is selected
-      const correctAnswer = quizQuestions.find(q => q.id === questionId)?.correctAnswer;
-      const isCorrect = correctAnswer === option;
-      setScore(prevScore => prevScore + (isCorrect ? 1 : 0));
-
       return updatedAnswers;
     });
   };
 
   const handleNextQuestion = () => {
+    const currentQuestion = quizQuestions[currentQuestionIndex];
+    const selectedAnswer = selectedAnswers[currentQuestion.id];
+    const correctAnswer = currentQuestion.correctAnswer;
+
+    // If the answer is correct, add 1 to the score
+    if (selectedAnswer === correctAnswer) {
+      setScore((prevScore) => Math.min(prevScore + 1, quizQuestions.length)); // Ensure score is capped at total number of questions
+    }
+
     setTimeout(() => {
-      setIsButtonVisible(true); // Show the button after 30 seconds
-    }, 30000);
+      setIsButtonVisible(true);
+    }, 30000); // 30 seconds for each question
     setCurrentQuestionIndex(currentQuestionIndex + 1);
   };
 
   const handleFinishTest = () => {
-    onEndTest(score); // Send the score to the parent component when the test ends
-  };
-
-  const handleEndTestClick = () => {
-    handleFinishTest();
+    onEndTest(score);
   };
 
   return (
-    <div className="mockup-container">
+    <div className="mockup-container p-4 bg-gradient-to-r from-blue-300 to-blue-500 rounded-lg shadow-lg">
       {currentQuestionIndex < quizQuestions.length ? (
-        <div className="question-box">
-          <h2>Question {currentQuestionIndex + 1}</h2>
-          <p>{quizQuestions[currentQuestionIndex].text}</p>
-          <div className="options">
+        <div className="question-box bg-white p-6 rounded-lg shadow-lg">
+          <h2 className="text-xl font-bold text-blue-700 mb-4">Question {currentQuestionIndex + 1}</h2>
+          <p className="text-lg text-gray-700">{quizQuestions[currentQuestionIndex].text}</p>
+          <div className="options mt-4">
             {quizQuestions[currentQuestionIndex].options.map((option, index) => (
-              <div key={index} className="option">
-                <label>
+              <div key={index} className="option mb-2">
+                <label className="block text-gray-800">
                   <input
                     type="radio"
                     name={`question-${quizQuestions[currentQuestionIndex].id}`}
                     value={option}
                     checked={selectedAnswers[quizQuestions[currentQuestionIndex].id] === option}
                     onChange={() => handleOptionSelect(quizQuestions[currentQuestionIndex].id, option)}
+                    className="mr-2"
                   />
                   {option}
                 </label>
               </div>
             ))}
           </div>
-          <button onClick={handleNextQuestion} className="bg-blue-400">Next</button>
+          <button onClick={handleNextQuestion} className="mt-4 py-2 px-4 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition duration-300">
+            Next
+          </button>
         </div>
       ) : (
-        <div>
-          <h2>Test Finished!</h2>
-          <p>Your score: {score} / 10</p>
+        <div className="text-center">
+          <h2 className="text-2xl font-semibold text-green-500">Test Finished!</h2>
+          <p className="text-xl mt-2">Your score: {score} / 10</p>
           {isButtonVisible && (
-            <button onClick={handleEndTestClick} className="bg-blue-400">End Test</button>
+            <button onClick={handleFinishTest} className="mt-4 py-2 px-4 bg-green-500 text-white rounded-lg hover:bg-green-600 transition duration-300">
+              End Test
+            </button>
           )}
         </div>
       )}
