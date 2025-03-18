@@ -3,6 +3,7 @@ const submissionResultController = require('../../controllers/employer/Technical
 
 const router = express.Router();
 
-router.post('/submission-results', submissionResultController.saveSubmissionResult);
+router.post('/submission-results', submissionResultController.saveScores);
+router.get('/:interviewScheduleId', submissionResultController.getScores);
 
 module.exports = router;
