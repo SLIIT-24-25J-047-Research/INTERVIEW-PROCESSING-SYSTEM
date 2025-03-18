@@ -60,7 +60,7 @@ export const NonTechnicalAnswerDetails: React.FC<NonTechnicalAnswerDetailsProps>
               questionDetailsMap[questionId] = {
                 text: questionData.text,
                 skillGroupId: questionData.skillGroupId,
-                answers: questionData.answers || [], 
+                answers: questionData.answers || [],
               };
 
               if (questionData.skillGroupId) {
@@ -129,8 +129,8 @@ export const NonTechnicalAnswerDetails: React.FC<NonTechnicalAnswerDetailsProps>
       <div className="w-full bg-gray-200 rounded-full h-2.5">
         <div
           className={`h-2.5 rounded-full ${confidence >= 0.7 ? 'bg-green-600' :
-              confidence >= 0.4 ? 'bg-yellow-500' :
-                'bg-red-600'
+            confidence >= 0.4 ? 'bg-yellow-500' :
+              'bg-red-600'
             }`}
           style={{ width: `${percentage}%` }}
         />
@@ -174,7 +174,7 @@ export const NonTechnicalAnswerDetails: React.FC<NonTechnicalAnswerDetailsProps>
 
       <div className="space-y-8">
         {submission.responses.map((response, index) => {
-       
+
           const questionId = response.questionId?._id;
           const fullQuestionDetails = questionId ? questionDetails[questionId] : null;
           const skillGroupId = typeof fullQuestionDetails?.skillGroupId === 'object'
