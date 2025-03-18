@@ -68,7 +68,7 @@ export const AnswersList: React.FC<AnswersListProps> = ({ onSelectInterview }) =
             const key = `${userId}-${jobId}`;
             
             if (submissionMap.has(key)) {
-              // Update existing entry
+         
               const existingSubmission = submissionMap.get(key)!;
               existingSubmission.nonTechnical = submission;
             } else {
@@ -95,7 +95,7 @@ export const AnswersList: React.FC<AnswersListProps> = ({ onSelectInterview }) =
     fetchSubmissions();
   }, []);
 
-  // Group submissions by jobId
+  // Group  by jobId
   const getSubmissionsByJobId = () => {
     const jobGroups = new Map<string, CombinedSubmission[]>();
     
