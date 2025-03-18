@@ -8,11 +8,16 @@ interface PredictionDocument {
   prediction: string;
 }
 
+interface TestResult {
+  score: number;
+}
+
 const Results: React.FC = () => {
   const { email } = useParams<{ email: string }>();
   const [error, setError] = useState<string | null>(null);
   const [finalPrediction, setFinalPrediction] = useState<string | null>(null);
   const [score, setScore] = useState<number | null>(null);
+  const [testResult, setTestResult] = useState<TestResult | null>(null);
 
   const predictionScores: Record<string, number> = {
     clean_formal: 100,
@@ -23,6 +28,7 @@ const Results: React.FC = () => {
 
   useEffect(() => {
     if (email) {
+      // Fetch prediction from the backend
       axios
         .get<{ prediction: string }>(`http://localhost:5000/api/classification/getAllPredictions/${email}`)
         .then((response) => {
@@ -39,40 +45,57 @@ const Results: React.FC = () => {
           console.error(err);
           setError("Failed to fetch predictions.");
         });
+
+      // Fetch test result from the backend
+      axios
+        .get<TestResult>(`http://localhost:5000/api/candidate-result/getResultByEmail/${email}`)
+        .then((response) => {
+          const result = response.data;
+
+          if (result) {
+            setTestResult(result);
+          } else {
+            setError("No test result found for this email.");
+          }
+        })
+        .catch((err) => {
+          console.error(err);
+          setError("Failed to fetch test result.");
+        });
     } else {
       setError("No email provided.");
     }
   }, [email]);
 
   return (
-    <>
-     <CandidateLayout>
-    <div className="results-container">
-      {error && <p className="error-message">{error}</p>}
-      {!error && finalPrediction && score !== null ? (
-        <div className="results-card">
-          <h1>Results for {email}</h1>
-          <table className="results-table">
-            <thead>
-              <tr>
-                <th>Final Prediction</th>
-                <th>Score</th>
-              </tr>
-            </thead>
-            <tbody>
-              <tr>
-                <td>{finalPrediction}</td>
-                <td>{score}/100</td>
-              </tr>
-            </tbody>
-          </table>
-        </div>
-      ) : (
-        <p className="loading-message">Loading results...</p>
-      )}
-    </div>
+    <CandidateLayout>
+      <div className="results-container">
+        {error && <p className="error-message">{error}</p>}
+        {!error && finalPrediction && score !== null ? (
+          <div className="results-card">
+            <h1>Results for {email}</h1>
+            <table className="results-table">
+              <thead>
+                <tr>
+                  <th>Final Prediction</th>
+                  <th>Prediction Score</th>
+                  <th>Mockup Test Score</th>
+                </tr>
+              </thead>
+              <tbody>
+                <tr>
+                  <td>{finalPrediction}</td>
+                  <td>{score}/100</td>
+                  <td>{testResult ? testResult.score : "N/A"}/10</td>
+                </tr>
+              </tbody>
+            </table>
+          </div>
+        ) : (
+          <p className="loading-message">Loading results...</p>
+        )}
+      </div>
     </CandidateLayout>
-    </>
   );
 };
 
