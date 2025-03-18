@@ -937,6 +937,48 @@ export const AnswerDetails: React.FC<AnswerDetailsProps> = ({ submissionId, onBa
     );
   }
 
+
+  const saveSubmissionResults = async () => {
+    const submissionData = {
+      submissionId,
+      userId: 'user-id-here', // Replace with actual user ID
+      interviewScheduleId: 'interview-id-here', // Replace with actual interview ID
+      jobId: 'job-id-here', // Replace with actual job ID
+      questions: answers.map(answer => ({
+        questionId: answer.questionId,
+        score: validations[answer.questionId].points,
+        maxScore: questions[answer.questionId].points,
+        feedback: validations[answer.questionId].feedback,
+        isCorrect: validations[answer.questionId].isCorrect,
+        testResults: validations[answer.questionId].testResults,
+        mechanicsValidation: validations[answer.questionId].mechanicsValidation
+      })),
+      totalScore,
+      maxPossibleScore
+    };
+  
+    try {
+      const response = await fetch('http://localhost:5000/api/results/submission-results', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify(submissionData),
+      });
+  
+      if (!response.ok) {
+        throw new Error('Failed to save submission results');
+      }
+  
+      const result = await response.json();
+      console.log('Submission results saved successfully:', result);
+    } catch (error) {
+      console.error('Error saving submission results:', error);
+    }
+  };
+
+  saveSubmissionResults();
+
   return (
     <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
       <button
