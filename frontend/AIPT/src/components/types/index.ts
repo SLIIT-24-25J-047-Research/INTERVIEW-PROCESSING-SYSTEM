@@ -33,13 +33,13 @@ interface QuestionContent {
   //  object mechanics
   mechanics?: {
     worldConfig: string;
-    expectedBehavior: string; // Description of expected behavior
+    expectedBehavior: string; 
   };
   // For logical puzzles
   puzzle?: {
-    initialState: string; // JSON string of initial puzzle state
-    goalState: string; // JSON string of goal state
-    rules: string[]; // Array of rules or constraints
+    initialState: string; 
+    goalState: string; 
+    rules: string[]; 
   };
 }
 
