@@ -16,7 +16,7 @@ interface MockupTestProps {
   webcamHeight?: number;
 }
 
-const MockupTest: React.FC<MockupTestProps> = ({}) => {
+const MockupTest: React.FC<MockupTestProps> = () => {
   const webcamRef = useRef<Webcam>(null);
   const [isTesting, setIsTesting] = useState(false); 
   const [intervalId, setIntervalId] = useState<ReturnType<typeof setInterval> | null>(null); 
@@ -24,6 +24,8 @@ const MockupTest: React.FC<MockupTestProps> = ({}) => {
   const navigate = useNavigate();
 
   const candidateEmail = localStorage.getItem("email");
+  const [score, setScore] = useState<number | null>(null);
+  const [testEnded, setTestEnded] = useState<boolean>(false);
 
   interface SavePredictionResponse {
     message: string;
@@ -101,15 +103,30 @@ const MockupTest: React.FC<MockupTestProps> = ({}) => {
     }, 30000); // 30 seconds delay
   };
 
-  const endTest = () => {
+  const endTest = async (finalScore: number) => {
     setIsTesting(false);
+    setScore(finalScore);
+    setTestEnded(true);
 
     if (intervalId) {
       clearInterval(intervalId);
     }
 
-    navigate(`/candidate-mockup-results/${candidateEmail}`);
-  };
+    try {
+      const response = await axios.post('http://127.0.0.1:5000/api/candidate-result/save', {
+        email: candidateEmail,
+        score: finalScore,
+      });
+
+      console.log(response.data.message);
+
+      // Navigate only after the result is successfully saved
+      navigate(`/candidate-mockup-results/${candidateEmail}`, { replace: true });
+    } catch (error) {
+      console.error('Error saving the result:', error);
+    }
+};
+
 
   return (
     <>
@@ -166,15 +183,13 @@ const MockupTest: React.FC<MockupTestProps> = ({}) => {
               <Instructions />
             </div>
           )}
-          {isTesting && <MockupQuestion />}
+          {isTesting &&  <MockupQuestion onEndTest={endTest} />}
 
           <div className="mockup-test-controls">
             {!isTesting ? (
               <button onClick={startTest}>Start Test</button>
-            ) : isEndButtonDisabled ? (
-              <span>Wait 30 seconds</span>
             ) : (
-              <button onClick={endTest}>End Test</button>
+              <span>Wait 30 seconds</span>
             )}
           </div>
         </div>
