@@ -5,6 +5,7 @@ import { useNavigate } from "react-router-dom";
 import CandidateLayout from "../../../components/Candidate/CandidateLayout";
 import MockupQuestion from "../../../components/Candidate/MockupQuestion";
 import Instructions from "../../../components/Candidate/tech-interview/Instructions";
+import { useParams } from "react-router-dom";
 
 // Define the PredictionResponse type
 interface PredictionResponse {
@@ -18,24 +19,59 @@ interface MockupTestProps {
 
 const MockupTest: React.FC<MockupTestProps> = () => {
   const webcamRef = useRef<Webcam>(null);
-  const [isTesting, setIsTesting] = useState(false); 
-  const [intervalId, setIntervalId] = useState<ReturnType<typeof setInterval> | null>(null); 
-  const [isEndButtonDisabled, setIsEndButtonDisabled] = useState(true); 
+  const [isTesting, setIsTesting] = useState(false);
+  const [intervalId, setIntervalId] = useState<ReturnType<typeof setInterval> | null>(null);
+  const [isEndButtonDisabled, setIsEndButtonDisabled] = useState(true);
   const navigate = useNavigate();
 
   const candidateEmail = localStorage.getItem("email");
   const [score, setScore] = useState<number | null>(null);
   const [testEnded, setTestEnded] = useState<boolean>(false);
+  const [hasExistingResult, setHasExistingResult] = useState<boolean>(false);
 
   interface SavePredictionResponse {
     message: string;
   }
 
+  interface TestResult {
+    score: number;
+  }
+
+  const predictionScores: Record<string, number> = {
+    clean_formal: 100,   // Clean environment with formal attire is perceived highly professional
+    messy_formal: 75,    // Formal attire still holds value, but messiness reduces the perception
+    clean_casual: 50,    // Clean environment with casual attire is generally acceptable but less professional
+    messy_casual: 25,    // Messy environment with casual attire is seen negatively in terms of professionalism
+};
+
   useEffect(() => {
     if (!candidateEmail) {
       console.error("No candidate email found in localStorage");
       navigate("/login");
+      return;
     }
+
+    // Check if results exist before starting test
+    axios
+      .get<{ prediction: string }>(`http://localhost:5000/api/classification/getAllPredictions/${candidateEmail}`)
+      .then((response) => {
+        const prediction = response.data.prediction;
+        if (prediction) {
+          const initialScore = predictionScores[prediction];
+          setScore(initialScore);
+        }
+      })
+      .catch(() => console.error("Failed to fetch predictions."));
+
+    axios
+      .get<TestResult>(`http://localhost:5000/api/candidate-result/getResultByEmail/${candidateEmail}`)
+      .then((response) => {
+        if (response.data) {
+          setHasExistingResult(true);
+          navigate(`/candidate-mockup-results/${candidateEmail}`, { replace: true });
+        }
+      })
+      .catch(() => console.error("Failed to fetch test result."));
   }, [candidateEmail, navigate]);
 
   const captureScreenshot = async () => {
@@ -72,13 +108,8 @@ const MockupTest: React.FC<MockupTestProps> = () => {
             }
           );
 
-          if (
-            saveResponse.data.message ===
-            "Prediction already saved within the last 30 seconds"
-          ) {
-            console.log(
-              "Prediction skipped, already saved in the last 30 seconds."
-            );
+          if (saveResponse.data.message === "Prediction already saved within the last 30 seconds") {
+            console.log("Prediction skipped, already saved in the last 30 seconds.");
           }
         } catch (error) {
           console.error("Error during prediction or save:", error);
@@ -113,7 +144,7 @@ const MockupTest: React.FC<MockupTestProps> = () => {
     }
 
     try {
-      const response = await axios.post('http://127.0.0.1:5000/api/candidate-result/save', {
+      const response = await axios.post("http://127.0.0.1:5000/api/candidate-result/save", {
         email: candidateEmail,
         score: finalScore,
       });
@@ -123,10 +154,13 @@ const MockupTest: React.FC<MockupTestProps> = () => {
       // Navigate only after the result is successfully saved
       navigate(`/candidate-mockup-results/${candidateEmail}`, { replace: true });
     } catch (error) {
-      console.error('Error saving the result:', error);
+      console.error("Error saving the result:", error);
     }
-};
+  };
 
+  if (hasExistingResult) {
+    return null;
+  }
 
   return (
     <>
@@ -169,10 +203,7 @@ const MockupTest: React.FC<MockupTestProps> = () => {
       <CandidateLayout>
         <div>
           {isTesting && (
-            <div
-              className="webcam-container"
-              style={{ width: "150px", height: "100px" }}
-            >
+            <div className="webcam-container" style={{ width: "150px", height: "100px" }}>
               <Webcam ref={webcamRef} screenshotFormat="image/jpeg" />
             </div>
           )}
@@ -183,14 +214,10 @@ const MockupTest: React.FC<MockupTestProps> = () => {
               <Instructions />
             </div>
           )}
-          {isTesting &&  <MockupQuestion onEndTest={endTest} />}
+          {isTesting && <MockupQuestion onEndTest={endTest} />}
 
           <div className="mockup-test-controls">
-            {!isTesting ? (
-              <button onClick={startTest}>Start Test</button>
-            ) : (
-              <span>Wait 30 seconds</span>
-            )}
+            {!isTesting ? <button onClick={startTest}>Start Test</button> : <span></span>}
           </div>
         </div>
       </CandidateLayout>
