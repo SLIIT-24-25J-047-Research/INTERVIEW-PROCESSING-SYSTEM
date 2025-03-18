@@ -5,7 +5,7 @@ import {
   NonTechnicalSubmissionGroup, 
   CombinedSubmission 
 } from '../../types/admin';
-
+import { useNavigate } from 'react-router-dom';
 interface AnswersListProps {
   onSelectInterview: (technicalId?: string, nonTechnicalId?: string) => void;
 }
@@ -14,6 +14,8 @@ export const AnswersList: React.FC<AnswersListProps> = ({ onSelectInterview }) =
   const [combinedSubmissions, setCombinedSubmissions] = useState<CombinedSubmission[]>([]);
   const [isLoading, setIsLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
+  const navigate = useNavigate();
+
 
   useEffect(() => {
     const fetchSubmissions = async () => {
@@ -93,6 +95,8 @@ export const AnswersList: React.FC<AnswersListProps> = ({ onSelectInterview }) =
     fetchSubmissions();
   }, []);
 
+  
+
   if (isLoading) {
     return (
       <div className="flex items-center justify-center min-h-screen">
@@ -162,7 +166,7 @@ export const AnswersList: React.FC<AnswersListProps> = ({ onSelectInterview }) =
 
                 {/* Non-Technical Interview  */}
                 <div>
-                  {submission.nonTechnical ? (
+                {submission.nonTechnical ? (
                     <button
                       onClick={() => onSelectInterview(undefined, submission.nonTechnical?._id)}
                       className="w-full flex items-center justify-between p-4 bg-purple-50 rounded-lg hover:bg-purple-100 transition-colors"
