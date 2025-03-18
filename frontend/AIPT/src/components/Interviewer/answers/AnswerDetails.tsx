@@ -280,6 +280,36 @@ export const AnswerDetails: React.FC<AnswerDetailsProps> = ({ submissionId, onBa
     fetchData();
   }, [submissionId]);
 
+  useEffect(() => {
+    if (!isLoading && !error) {
+      saveScores();
+    }
+  }, [isLoading, error]);
+
+  // Inside your AnswerDetails component
+useEffect(() => {
+  const fetchScores = async () => {
+    try {
+      const response = await fetch(`http://localhost:5000/api/results/${submissionId}`);
+      if (!response.ok) {
+        throw new Error('Failed to fetch scores');
+      }
+
+      const data = await response.json();
+      if (data) {
+        // Use the existing scores instead of recalculating
+        setTotalScore(data.totalScore);
+        setMaxPossibleScore(data.maxPossibleScore);
+        // Set other necessary states...
+      }
+    } catch (error) {
+      console.error('Error fetching scores:', error);
+    }
+  };
+
+  fetchScores();
+}, [submissionId]);
+
 
   const renderStressMetrics = (questionId: string) => {
     const stress = stressData[questionId];
@@ -938,46 +968,74 @@ export const AnswerDetails: React.FC<AnswerDetailsProps> = ({ submissionId, onBa
   }
 
 
-  const saveSubmissionResults = async () => {
-    const submissionData = {
-      submissionId,
-      userId: 'user-id-here', // Replace with actual user ID
-      interviewScheduleId: 'interview-id-here', // Replace with actual interview ID
-      jobId: 'job-id-here', // Replace with actual job ID
-      questions: answers.map(answer => ({
-        questionId: answer.questionId,
-        score: validations[answer.questionId].points,
-        maxScore: questions[answer.questionId].points,
-        feedback: validations[answer.questionId].feedback,
-        isCorrect: validations[answer.questionId].isCorrect,
-        testResults: validations[answer.questionId].testResults,
-        mechanicsValidation: validations[answer.questionId].mechanicsValidation
-      })),
+
+  const saveScores = async () => {
+    // First, find the specific submission from the grouped data
+    const answersResponse = await fetch(`http://localhost:5000/api/techAnswers/answers/grouped`);
+    if (!answersResponse.ok) {
+      throw new Error('Failed to fetch submission details');
+    }
+    const groupedData = await answersResponse.json();
+    const submission = groupedData
+      .flatMap((group: { answers: TechnicalAnswer[] }) => group.answers)
+      .find((sub: TechnicalAnswer) => sub._id === submissionId);
+  
+    if (!submission) {
+      throw new Error('Submission not found');
+    }
+  
+    // Extract jobId and userId from the submission
+    const jobId = submission.jobId;
+    const userId = submission.userId;
+  
+    const scores = answers.map(answer => ({
+      questionId: answer.questionId,
+      score: validations[answer.questionId].points,
+      maxScore: questions[answer.questionId].points
+    }));
+  
+    const payload = {
+      interviewScheduleId: submissionId,
+      jobId,
+      userId,
+      scores,
       totalScore,
       maxPossibleScore
     };
   
     try {
+      // Check if scores already exist
+      const existingScoresResponse = await fetch(`http://localhost:5000/api/results/${submissionId}`);
+      if (existingScoresResponse.ok) {
+        const existingScores = await existingScoresResponse.json();
+        if (existingScores) {
+          console.log('Scores already exist, not saving again');
+          return;
+        }
+      }
+  
+      // Save scores if they don't exist
       const response = await fetch('http://localhost:5000/api/results/submission-results', {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
         },
-        body: JSON.stringify(submissionData),
+        body: JSON.stringify(payload),
       });
   
       if (!response.ok) {
-        throw new Error('Failed to save submission results');
+        throw new Error('Failed to save scores');
       }
   
-      const result = await response.json();
-      console.log('Submission results saved successfully:', result);
+      const data = await response.json();
+      console.log('Scores saved successfully:', data);
     } catch (error) {
-      console.error('Error saving submission results:', error);
+      console.error('Error saving scores:', error);
     }
   };
 
-  saveSubmissionResults();
+
+  
 
   return (
     <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
