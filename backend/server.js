@@ -39,6 +39,10 @@ app.use('/api', require('./routes/candidate/predictionRoutes'));
 // mockup results routes
 app.use('/api/candidate-result', require('./routes/candidate/candidateResultRoutes'));
 
+// total pre evaluation routes
+app.use('/api/pre-evaluation', require('./routes/candidate/preEvaluationScoreRoutes'));
+
+
 
 //code complexity routes
 
