@@ -970,7 +970,7 @@ useEffect(() => {
 
 
   const saveScores = async () => {
-    // First, find the specific submission from the grouped data
+    //  specific submission from the grouped data
     const answersResponse = await fetch(`http://localhost:5000/api/techAnswers/answers/grouped`);
     if (!answersResponse.ok) {
       throw new Error('Failed to fetch submission details');
@@ -984,7 +984,7 @@ useEffect(() => {
       throw new Error('Submission not found');
     }
   
-    // Extract jobId and userId from the submission
+    // Extract jobId and userId 
     const jobId = submission.jobId;
     const userId = submission.userId;
   
