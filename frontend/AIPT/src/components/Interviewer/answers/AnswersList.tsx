@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { Calendar, User, ChevronRight, Code, Mic, AlertCircle } from 'lucide-react';
+import { Calendar, User, ChevronRight, Code, Mic, AlertCircle, Briefcase } from 'lucide-react';
 import { 
   TechnicalSubmissionGroup, 
   NonTechnicalSubmissionGroup, 
@@ -95,7 +95,20 @@ export const AnswersList: React.FC<AnswersListProps> = ({ onSelectInterview }) =
     fetchSubmissions();
   }, []);
 
-  
+  // Group submissions by jobId
+  const getSubmissionsByJobId = () => {
+    const jobGroups = new Map<string, CombinedSubmission[]>();
+    
+    combinedSubmissions.forEach(submission => {
+      const jobId = submission.jobId;
+      if (!jobGroups.has(jobId)) {
+        jobGroups.set(jobId, []);
+      }
+      jobGroups.get(jobId)!.push(submission);
+    });
+    
+    return Array.from(jobGroups.entries());
+  };
 
   if (isLoading) {
     return (
@@ -113,80 +126,83 @@ export const AnswersList: React.FC<AnswersListProps> = ({ onSelectInterview }) =
     );
   }
 
+  const jobGroups = getSubmissionsByJobId();
+
   return (
     <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
       <h1 className="text-2xl font-bold text-gray-900 mb-8">Interview Submissions</h1>
       <div className="grid gap-6">
-        {combinedSubmissions.map((submission, index) => (
-          <div key={`${submission.userId}-${submission.jobId}-${index}`} className="bg-white shadow rounded-lg overflow-hidden">
-            <div className="px-6 py-4 border-b border-gray-200">
+        {jobGroups.map(([jobId, submissions]) => (
+          <div key={jobId} className="bg-white shadow rounded-lg overflow-hidden">
+            <div className="px-6 py-4 border-b border-gray-200 flex items-center">
+              <Briefcase className="w-5 h-5 text-gray-600 mr-2" />
               <h2 className="text-lg font-semibold text-gray-900">
-                Candidate Submission
+                Job ID: {jobId}
               </h2>
             </div>
-            <div className="px-6 py-4">
-              <div className="flex items-center justify-between mb-4">
-                <div className="space-y-1">
-                  <div className="flex items-center space-x-4 text-sm text-gray-500">
-                    <span className="flex items-center">
-                      <User className="w-4 h-4 mr-1" />
-                      User ID: {submission.userId}
-                    </span>
-                    <span className="flex items-center">
-                      <Calendar className="w-4 h-4 mr-1" />
-                      Job ID: {submission.jobId}
-                    </span>
+            <div className="divide-y divide-gray-100">
+              {submissions.map((submission, index) => (
+                <div key={`${submission.userId}-${index}`} className="px-6 py-4">
+                  <div className="flex items-center justify-between mb-4">
+                    <div className="space-y-1">
+                      <div className="flex items-center space-x-4 text-sm text-gray-500">
+                        <span className="flex items-center">
+                          <User className="w-4 h-4 mr-1" />
+                          User ID: {submission.userId}
+                        </span>
+                      </div>
+                    </div>
+                  </div>
+
+                  <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                    {/* Technical Interview  */}
+                    <div>
+                      {submission.technical ? (
+                        <button
+                          onClick={() => onSelectInterview(submission.technical?._id)}
+                          className="w-full flex items-center justify-between p-4 bg-blue-50 rounded-lg hover:bg-blue-100 transition-colors"
+                        >
+                          <div className="flex items-center">
+                            <Code className="w-5 h-5 text-blue-600 mr-2" />
+                            <span className="font-medium text-blue-700">Technical Interview</span>
+                          </div>
+                          <ChevronRight className="w-5 h-5 text-blue-600" />
+                        </button>
+                      ) : (
+                        <div className="w-full flex items-center justify-between p-4 bg-gray-50 rounded-lg">
+                          <div className="flex items-center">
+                            <AlertCircle className="w-5 h-5 text-amber-600 mr-2" />
+                            <span className="font-medium text-gray-700">Technical Interview Not Yet Attended</span>
+                          </div>
+                        </div>
+                      )}
+                    </div>
+
+                    {/* Non-Technical Interview  */}
+                    <div>
+                      {submission.nonTechnical ? (
+                        <button
+                          onClick={() => onSelectInterview(undefined, submission.nonTechnical?._id)}
+                          className="w-full flex items-center justify-between p-4 bg-purple-50 rounded-lg hover:bg-purple-100 transition-colors"
+                        >
+                          <div className="flex items-center">
+                            <Mic className="w-5 h-5 text-purple-600 mr-2" />
+                            <span className="font-medium text-purple-700">Non-Technical Interview</span>
+                          </div>
+                          <ChevronRight className="w-5 h-5 text-purple-600" />
+                        </button>
+                      ) : (
+                        <div className="w-full flex items-center justify-between p-4 bg-gray-50 rounded-lg">
+                          <div className="flex items-center">
+                            <AlertCircle className="w-5 h-5 text-amber-600 mr-2" />
+                            <span className="font-medium text-gray-700">Non-Technical Interview Not Yet Attended</span>
+                          </div>
+                        </div>
+                      )}
+                    </div>
                   </div>
                 </div>
-              </div>
-
-              <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                {/* Technical Interview  */}
-                <div>
-                  {submission.technical ? (
-                    <button
-                      onClick={() => onSelectInterview(submission.technical?._id)}
-                      className="w-full flex items-center justify-between p-4 bg-blue-50 rounded-lg hover:bg-blue-100 transition-colors"
-                    >
-                      <div className="flex items-center">
-                        <Code className="w-5 h-5 text-blue-600 mr-2" />
-                        <span className="font-medium text-blue-700">Technical Interview</span>
-                      </div>
-                      <ChevronRight className="w-5 h-5 text-blue-600" />
-                    </button>
-                  ) : (
-                    <div className="w-full flex items-center justify-between p-4 bg-gray-50 rounded-lg">
-                      <div className="flex items-center">
-                        <AlertCircle className="w-5 h-5 text-amber-600 mr-2" />
-                        <span className="font-medium text-gray-700">Technical Interview Not Yet Attended</span>
-                      </div>
-                    </div>
-                  )}
-                </div>
-
-                {/* Non-Technical Interview  */}
-                <div>
-                {submission.nonTechnical ? (
-                    <button
-                      onClick={() => onSelectInterview(undefined, submission.nonTechnical?._id)}
-                      className="w-full flex items-center justify-between p-4 bg-purple-50 rounded-lg hover:bg-purple-100 transition-colors"
-                    >
-                      <div className="flex items-center">
-                        <Mic className="w-5 h-5 text-purple-600 mr-2" />
-                        <span className="font-medium text-purple-700">Non-Technical Interview</span>
-                      </div>
-                      <ChevronRight className="w-5 h-5 text-purple-600" />
-                    </button>
-                  ) : (
-                    <div className="w-full flex items-center justify-between p-4 bg-gray-50 rounded-lg">
-                      <div className="flex items-center">
-                        <AlertCircle className="w-5 h-5 text-amber-600 mr-2" />
-                        <span className="font-medium text-gray-700">Non-Technical Interview Not Yet Attended</span>
-                      </div>
-                    </div>
-                  )}
-                </div>
-              </div>
+              ))}
             </div>
           </div>
         ))}
