@@ -104,9 +104,7 @@ interface InterviewState {
   hasSubmitted: boolean;
   submitAllAnswers: () => Promise<void>;
   submitCodeForComplexityAnalysis: (questionId: string, code: string, language: string) => Promise<void>;
-  // Track which code questions have already been submitted for complexity analysis
   submittedCodeQuestions: Set<string>;
-  // Flag to mark when we're submitting the whole exam
   isSubmittingExam: boolean;
   sendWebcamSnapshot: (questionId: string, imageData: string) => Promise<void>;
   interviewContext: InterviewContext | null;
