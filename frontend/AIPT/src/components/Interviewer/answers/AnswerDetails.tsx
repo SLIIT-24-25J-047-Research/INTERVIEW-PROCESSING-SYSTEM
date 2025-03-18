@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { ArrowLeft, Clock, CheckCircle, XCircle, AlertCircle, Loader2, Brain } from 'lucide-react';
-import { Answer, Question } from '../../types/admin';
+import { TechnicalAnswer, Question } from '../../types/admin';
 import { CodeEditor } from '../../Candidate/tech-interview/CodeEditor';
 import { ObjectMechanicQuestion } from '../../Candidate/tech-interview/ObjectMechanicQuestion';
 import CodeComplexityDashboard from './CodeComplexityModel';
@@ -61,7 +61,7 @@ interface StressDetectionData {
 }
 
 export const AnswerDetails: React.FC<AnswerDetailsProps> = ({ submissionId, onBack }) => {
-  const [answers, setAnswers] = useState<Answer[]>([]);
+  const [answers, setAnswers] = useState<TechnicalAnswer[]>([]);
   const [questions, setQuestions] = useState<Record<string, Question>>({});
   const [validations, setValidations] = useState<Record<string, AnswerValidation>>({});
   const [isLoading, setIsLoading] = useState(true);
@@ -195,8 +195,8 @@ export const AnswerDetails: React.FC<AnswerDetailsProps> = ({ submissionId, onBa
         }
         const groupedData = await answersResponse.json();
         const submission = groupedData
-          .flatMap((group: { answers: Answer[] }) => group.answers)
-          .find((sub: Answer) => sub._id === submissionId);
+          .flatMap((group: { answers: TechnicalAnswer[] }) => group.answers)
+          .find((sub: TechnicalAnswer) => sub._id === submissionId);
 
         if (!submission) {
           throw new Error('Submission not found');
@@ -335,7 +335,7 @@ export const AnswerDetails: React.FC<AnswerDetailsProps> = ({ submissionId, onBa
     setSelectedStressQuestionId(questionId);
   };
 
-  const validateObjectMechanicAnswer = (answer: Answer, question: Question): AnswerValidation => {
+  const validateObjectMechanicAnswer = (answer: TechnicalAnswer, question: Question): AnswerValidation => {
     try {
       const code = answer.response as string;
       const worldConfig = JSON.parse(question.content.mechanics?.worldConfig || '{}');
@@ -514,7 +514,7 @@ export const AnswerDetails: React.FC<AnswerDetailsProps> = ({ submissionId, onBa
   };
 
 
-  const validateCodeAnswer = async (answer: Answer, question: Question): Promise<AnswerValidation> => {
+  const validateCodeAnswer = async (answer: TechnicalAnswer, question: Question): Promise<AnswerValidation> => {
     try {
       const response = await fetch('http://localhost:5000/api/techCodeExecution/execute', {
         method: 'POST',
@@ -574,7 +574,7 @@ export const AnswerDetails: React.FC<AnswerDetailsProps> = ({ submissionId, onBa
     }
   };
 
-  const validateAnswer = (answer: Answer, question: Question): AnswerValidation => {
+  const validateAnswer = (answer: TechnicalAnswer, question: Question): AnswerValidation => {
     switch (question.type) {
       case 'dragDrop': {
         const dragDropCorrect = JSON.stringify(answer.response) === JSON.stringify(question.content.correctOrder);
@@ -588,7 +588,7 @@ export const AnswerDetails: React.FC<AnswerDetailsProps> = ({ submissionId, onBa
       case 'multipleChoice': {
         const isCorrect = (answer.response as number) === question.content.correctAnswer;
         const selectedOption = question.content.options[answer.response as number];
-        const correctOption = question.content.options[question.content.correctAnswer];
+        const correctOption = question.content.correctAnswer !== undefined ? question.content.options[question.content.correctAnswer] : 'No correct answer provided';
         return {
           isCorrect,
           feedback: isCorrect
@@ -611,7 +611,7 @@ export const AnswerDetails: React.FC<AnswerDetailsProps> = ({ submissionId, onBa
     }
   };
 
-  const renderAnswer = (answer: Answer, question: Question, validation: AnswerValidation) => {
+  const renderAnswer = (answer: TechnicalAnswer, question: Question, validation: AnswerValidation) => {
     { renderStressMetrics(answer.questionId) }
     switch (question.type) {
 
@@ -887,7 +887,7 @@ export const AnswerDetails: React.FC<AnswerDetailsProps> = ({ submissionId, onBa
               <div>
                 <h3 className="text-sm font-medium text-gray-700 mb-2">Correct Answer:</h3>
                 <div className="p-3 bg-green-50 border border-green-200 rounded-lg text-green-700">
-                  {question.content.options[question.content.correctAnswer]}
+                  {question.content.correctAnswer !== undefined ? question.content.options[question.content.correctAnswer] : 'No correct answer provided'}
                 </div>
               </div>
             )}
