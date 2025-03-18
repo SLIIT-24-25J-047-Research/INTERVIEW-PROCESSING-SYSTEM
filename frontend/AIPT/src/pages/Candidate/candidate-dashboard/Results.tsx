@@ -55,6 +55,28 @@ const Results: React.FC = () => {
     score !== null && testResult ? (score * 0.7 + testResult.score * 10 * 0.3).toFixed(2) : null;
   const isPassed = overallScore !== null && parseFloat(overallScore) >= 50;
 
+  // Send the score to the backend when results are available
+  useEffect(() => {
+    if (overallScore) {
+      const resultData = {
+        email,
+        professionalism: finalPrediction,
+        mockupTestScore: testResult ? testResult.score : 0,
+        totalPreEvaluationScore: overallScore,
+        status: isPassed ? "Pass" : "Fail",
+      };
+
+      axios
+        .post("http://localhost:5000/api/pre-evaluation/savePreEvaluationScore", resultData)
+        .then((response) => {
+          console.log("Pre-evaluation score saved:", response.data);
+        })
+        .catch((error) => {
+          console.error("Error saving pre-evaluation score:", error);
+        });
+    }
+  }, [overallScore, finalPrediction, testResult, email]);
+
   return (
     <CandidateLayout>
       <div className="flex flex-col items-center justify-center min-h-screen bg-gray-100 p-6">
@@ -67,7 +89,6 @@ const Results: React.FC = () => {
             <p className="text-red-600 text-center">{error}</p>
           ) : (
             <>
-              {/* Results Table */}
               <div className="overflow-x-auto">
                 <table className="w-full border-collapse border border-gray-300 bg-white shadow-sm">
                   <thead className="bg-blue-500 text-white">
@@ -87,11 +108,8 @@ const Results: React.FC = () => {
                 </table>
               </div>
 
-              {/* Evaluation Card */}
               <div
-                className={`mt-6 p-6 rounded-lg shadow-md ${
-                  isPassed ? "bg-green-500 text-white" : "bg-red-500 text-white"
-                } text-center`}
+                className={`mt-6 p-6 rounded-lg shadow-md ${isPassed ? "bg-green-500 text-white" : "bg-red-500 text-white"} text-center`}
               >
                 <h2 className="text-xl font-bold">Candidate Pre-Evaluation</h2>
                 <p className="text-lg mt-2">Overall Score: <strong>{overallScore}%</strong></p>
