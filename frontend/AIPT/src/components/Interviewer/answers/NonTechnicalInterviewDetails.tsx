@@ -28,7 +28,6 @@ export const NonTechnicalAnswerDetails: React.FC<NonTechnicalAnswerDetailsProps>
   useEffect(() => {
     const fetchData = async () => {
       try {
-        // Fetch submission data
         const response = await fetch(`http://localhost:5000/api/answers/${submissionId}`);
         if (!response.ok) {
           throw new Error('Failed to fetch submission details');
@@ -40,8 +39,6 @@ export const NonTechnicalAnswerDetails: React.FC<NonTechnicalAnswerDetailsProps>
         }
 
         setSubmission(data.data);
-
-        // Fetch full question details for each question ID
         const questionIds = new Set<string>();
         data.data.responses.forEach((response: NonTechnicalResponse) => {
           if (response.questionId && response.questionId._id) {
@@ -55,8 +52,6 @@ export const NonTechnicalAnswerDetails: React.FC<NonTechnicalAnswerDetailsProps>
         > = {};
 
         const skillGroupIds = new Set<string>();
-
-        // Fetch full question details
         for (const questionId of questionIds) {
           try {
             const questionResponse = await fetch(`http://localhost:5000/api/questions/${questionId}`);
@@ -65,10 +60,9 @@ export const NonTechnicalAnswerDetails: React.FC<NonTechnicalAnswerDetailsProps>
               questionDetailsMap[questionId] = {
                 text: questionData.text,
                 skillGroupId: questionData.skillGroupId,
-                answers: questionData.answers || [], // Ensure answers is included
+                answers: questionData.answers || [], 
               };
 
-              // Check if this question has a skill group ID
               if (questionData.skillGroupId) {
                 const skillGroupId = typeof questionData.skillGroupId === 'string'
                   ? questionData.skillGroupId
@@ -86,7 +80,6 @@ export const NonTechnicalAnswerDetails: React.FC<NonTechnicalAnswerDetailsProps>
 
         setQuestionDetails(questionDetailsMap);
 
-        // Fetch skill group details
         const skillGroupsMap: Record<string, SkillGroup> = {};
 
         for (const skillGroupId of skillGroupIds) {
@@ -103,7 +96,6 @@ export const NonTechnicalAnswerDetails: React.FC<NonTechnicalAnswerDetailsProps>
 
         setSkillGroups(skillGroupsMap);
 
-        // Calculate overall score
         if (data.data.responses && data.data.responses.length > 0) {
           const validResponses = data.data.responses.filter(
             (response: NonTechnicalResponse) =>
@@ -182,18 +174,14 @@ export const NonTechnicalAnswerDetails: React.FC<NonTechnicalAnswerDetailsProps>
 
       <div className="space-y-8">
         {submission.responses.map((response, index) => {
-          // Get the question ID from the response
+       
           const questionId = response.questionId?._id;
-
-          // Get the full question details using the question ID
           const fullQuestionDetails = questionId ? questionDetails[questionId] : null;
-
-          // Get the skill group ID from the full question details
           const skillGroupId = typeof fullQuestionDetails?.skillGroupId === 'object'
             ? fullQuestionDetails.skillGroupId._id
             : fullQuestionDetails?.skillGroupId;
 
-          // Get the skill group details using the skill group ID
+
           const skillGroup = skillGroupId ? skillGroups[skillGroupId] : null;
 
           return (
