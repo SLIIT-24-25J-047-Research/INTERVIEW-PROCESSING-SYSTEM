@@ -210,7 +210,7 @@ export const useInterviewStore = create<InterviewState>((set, get) => ({
       typeof answer?.response === 'string' && 
       !state.submittedCodeQuestions.has(questionId)
     ) {
-      // We make this call AFTER updating the state to ensure consistency
+
       get().submitCodeForComplexityAnalysis(
         questionId, 
         answer.response, 
