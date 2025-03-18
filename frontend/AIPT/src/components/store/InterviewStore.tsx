@@ -332,7 +332,7 @@ export const useInterviewStore = create<InterviewState>((set, get) => ({
         !state.submittedCodeQuestions.has(q._id)
       );
       
-      // Process these one at a time to prevent race conditions
+      //  prevent race conditions
       for (const question of pendingCodeQuestions) {
         const answer = state.answers[question._id];
         if (typeof answer.response === 'string') {
@@ -368,7 +368,7 @@ export const useInterviewStore = create<InterviewState>((set, get) => ({
     
       const responseData = await response.json();
     
-      // Clear all exam-related localStorage items
+    
       localStorage.removeItem('examAnswers');
       localStorage.removeItem('examTimerState');
       localStorage.removeItem('lockedQuestions');
@@ -399,7 +399,7 @@ export const useInterviewStore = create<InterviewState>((set, get) => ({
       
       const questions: Question[] = await response.json();
       
-      // Validate the response structure matches your Question type
+   
       const validatedQuestions = questions.map(question => ({
         ...question,
         content: {
