@@ -1,7 +1,7 @@
 const express = require('express');
 const multer = require('multer');
 const path = require('path');
-const { unifiedAudioController,getByInterviewId, getByQuestionId,getAll } = require('../controllers/confidencePredictController');
+const { unifiedAudioController,getByInterviewId, getByQuestionId,getAll,getById } = require('../controllers/confidencePredictController');
 
 
 const router = express.Router();
@@ -20,6 +20,7 @@ router.post('/predict', upload.single('audio'), unifiedAudioController);
 router.get('/interview/:interviewId', getByInterviewId);
 router.get('/question/:questionId', getByQuestionId);
 router.get('/answers/grouped', getAll);
+router.get('/answers/:id', getById);
 
 
 module.exports = router;
