@@ -268,6 +268,7 @@ export const useInterviewStore = create<InterviewState>((set, get) => ({
   submitCodeForComplexityAnalysis: async (questionId, code, language) => {
     try {
  
+      const state = get();
       if (get().submittedCodeQuestions.has(questionId)) {
         console.log(`Skipping complexity analysis for Question ${questionId} - already submitted`);
         return;
@@ -290,7 +291,7 @@ export const useInterviewStore = create<InterviewState>((set, get) => ({
           questionId,
           code,
           language,
-          userId: "6759439c7cf33b13b125340e", 
+          userId: state.interviewContext?.userId,
         }),
       });
       
@@ -346,8 +347,8 @@ export const useInterviewStore = create<InterviewState>((set, get) => ({
       }
     
       console.log('Submitting answers:', {
-        interviewId: "678f8b2bce0b5bbe13d5515d",
-        userId: "6759439c7cf33b13b125340e",
+        interviewId: state.interviewContext?.interviewId ?? '',
+        userId: state.interviewContext?.userId,
         answers: answersArray,
       });
     
@@ -357,8 +358,8 @@ export const useInterviewStore = create<InterviewState>((set, get) => ({
           'Content-Type': 'application/json',
         },
         body: JSON.stringify({
-          interviewId: "678f8b2bce0b5bbe13d5515d",
-          userId: "6759439c7cf33b13b125340e",
+          interviewId: state.interviewContext?.interviewId,
+          userId: state.interviewContext?.userId,
           answers: answersArray,
         }),
       });
