@@ -10,7 +10,7 @@ router.get('/skills', skillGroupController.getSkillGroupsBySkills);
 router.get('/:id', skillGroupController.getSkillGroupById);
 router.put('/:id', skillGroupController.updateSkillGroup);
 router.delete('/:id', skillGroupController.deleteSkillGroup);
-router.get('/focus/:focus', skillGroupController.getSkillGroupsByFocus);  // Get by focus
+router.get('/focus/:focus', skillGroupController.getSkillGroupsByFocus); 
 
 
 module.exports = router;
