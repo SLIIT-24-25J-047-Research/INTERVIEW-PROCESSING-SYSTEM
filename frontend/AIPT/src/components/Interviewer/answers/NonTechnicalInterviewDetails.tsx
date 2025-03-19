@@ -33,6 +33,7 @@ export const NonTechnicalAnswerDetails: React.FC<NonTechnicalAnswerDetailsProps>
           throw new Error('Failed to fetch submission details');
         }
         const data = await response.json();
+        console.log("Submission data:", data); // Debugging line
 
         if (!data.success) {
           throw new Error('Failed to fetch submission data');
@@ -57,6 +58,7 @@ export const NonTechnicalAnswerDetails: React.FC<NonTechnicalAnswerDetailsProps>
             const questionResponse = await fetch(`http://localhost:5000/api/questions/${questionId}`);
             if (questionResponse.ok) {
               const questionData = await questionResponse.json();
+              console.log("Question data:", questionData); // Debugging line
               questionDetailsMap[questionId] = {
                 text: questionData.text,
                 skillGroupId: questionData.skillGroupId,
@@ -85,6 +87,7 @@ export const NonTechnicalAnswerDetails: React.FC<NonTechnicalAnswerDetailsProps>
         for (const skillGroupId of skillGroupIds) {
           try {
             const skillGroupResponse = await fetch(`http://localhost:5000/api/skillGroups/${skillGroupId}`);
+            console.log("Skill group data:", skillGroupResponse); // Debugging line
             if (skillGroupResponse.ok) {
               const skillGroupData = await skillGroupResponse.json();
               skillGroupsMap[skillGroupId] = skillGroupData.data || skillGroupData;
