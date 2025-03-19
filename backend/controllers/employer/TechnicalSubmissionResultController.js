@@ -46,3 +46,13 @@ exports.saveScores = async (req, res) => {
       res.status(500).json({ message: 'Error retrieving scores', error });
     }
   };
+
+  exports.getAllScores = async (req, res) => {
+    try {
+      const scores = await Score.find();
+      res.status(200).json(scores);
+    } catch (error) {
+      res.status(500).json({ message: 'Error retrieving scores', error });
+    }
+  };
+  
