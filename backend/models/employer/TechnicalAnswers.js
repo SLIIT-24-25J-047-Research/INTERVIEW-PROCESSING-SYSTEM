@@ -3,6 +3,7 @@ const mongoose = require('mongoose');
 const TecInterviewAnswerSchema = new mongoose.Schema({
   interviewId: { type: String, required: true },
   userId: { type: mongoose.Schema.Types.ObjectId, ref: 'User', required: true },
+  jobId: { type: mongoose.Schema.Types.ObjectId, ref: 'Job', required: true },
   answers: [
     {
       questionId: { type: String, required: true },

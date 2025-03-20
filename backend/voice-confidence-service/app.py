@@ -1,12 +1,12 @@
 
-# venv\Scripts\activate
+
 from flask import Flask, request, jsonify
 from sklearn.metrics.pairwise import cosine_similarity
 import joblib
 import librosa
 import numpy as np
 import os
-import whisper  # For speech-to-text transcription
+import whisper  
 
 from transformers import (
     AutoTokenizer, 
@@ -25,7 +25,7 @@ from nltk.stem import WordNetLemmatizer
 from typing import List, Dict, Union, Optional
 import logging
 
-# Download required NLTK data
+
 nltk.download('punkt')
 nltk.download('stopwords')
 nltk.download('wordnet')
@@ -40,7 +40,7 @@ logger = logging.getLogger(__name__)
 
 app = Flask(__name__)
 
-# Load the trained model
+
 # model = joblib.load(r'/app/models/confidence_model.pkl')
 model = joblib.load('D:\\personel\\3y2s\\4Y\\INTERVIEW-PROCESSING-SYSTEM\\backend\\voice-confidence-service\\models\\confidence_model.pkl')
 
@@ -162,11 +162,11 @@ def extract_key_information(text):
 def predict():
     if 'audio' in request.files:
         audio_file = request.files['audio']
-        audio_file.save('temp_audio.wav')  # Save the audio temporarily
+        audio_file.save('temp_audio.wav')  
         features = preprocess_audio('temp_audio.wav')
         features_reshaped = features.reshape(1, -1)
         predicted_class = model.predict(features_reshaped)
-        predicted_label = predicted_class[0]  # Assuming binary classification
+        predicted_label = predicted_class[0]  
         predicted_proba = model.predict_proba(features_reshaped) 
         predicted_confidence = np.max(predicted_proba)
         os.remove('temp_audio.wav')
@@ -200,6 +200,7 @@ def transcribe_audio(file_path):
         print(f"Current working directory: {os.getcwd()}")
         print(f"Attempting to transcribe file: {file_path}")
         result = whisper_model.transcribe(file_path, fp16=False)
+        print (result)
         return result['text']  
     except Exception as e:
         print(f"Error during transcription: {str(e)}")
@@ -231,8 +232,8 @@ def compare_answers(candidate_answer: str, actual_answers: Union[str, List[str]]
         logger.info(f"Comparing answers - Candidate length: {len(candidate_answer)}, Number of actual answers: {len(actual_answers)}")
 
         # Preprocess answers
-        processed_candidate = preprocess_text(candidate_answer)
-        processed_actuals = [preprocess_text(answer) for answer in actual_answers]
+        processed_candidate = preprocess_text(candidate_answer.lower())
+        processed_actuals = [preprocess_text(answer.lower()) for answer in actual_answers]
         
         # Generate paraphrases for candidate answer
         candidate_paraphrases = generate_paraphrases(candidate_answer)
@@ -375,7 +376,7 @@ def compare():
         logger.info(f"Received comparison request - Candidate Answer Length: {len(str(candidate_answer))}")
         
         result = compare_answers(candidate_answer, actual_answers)
-        
+        result['similarity_scores'] = result.pop('similarity_score') 
         logger.info("Comparison completed successfully")
         return jsonify(result)
     

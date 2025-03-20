@@ -11,7 +11,7 @@ const NonTechInterviewPage: React.FC = () => {
             <div className="main-content">
                 <Header title="Assignments" />
                 <div className="content">
-                    <h2>Your Assignments</h2>
+                    <h2>Your Assignment</h2>
                
 
                     <NonTechInterview />
