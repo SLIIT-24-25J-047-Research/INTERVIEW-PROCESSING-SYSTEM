@@ -1,7 +1,7 @@
 const InterviewAnswer = require('../../models/employer/TechnicalAnswers');
 const User = require('../../models/User');  // Import User model
 const Question = require('../../models/employer/TechnicalQuestions');
-
+const InterviewSchedule = require('../../models/employer/TechnicalInterviewSchedule');
 // Submit answers
 
 exports.submitAnswers = async (req, res) => {
@@ -21,6 +21,13 @@ exports.submitAnswers = async (req, res) => {
     if (!user) {
       return res.status(400).json({ message: 'Invalid userId' });
     }
+
+    // Fetch the jobId from the InterviewSchedule collection using the interviewId
+    const interviewSchedule = await InterviewSchedule.findById(interviewId);
+    if (!interviewSchedule) {
+      return res.status(400).json({ message: 'Invalid interviewId' });
+    }
+    const jobId = interviewSchedule.jobId;
 
     for (const answer of answers) {
       const { questionId, type, response } = answer;
@@ -60,13 +67,12 @@ exports.submitAnswers = async (req, res) => {
           }
           break;
 
-          case 'objectMechanic':
-            // Allow objectMechanic response to be a string (for code or structured text)
-            if (typeof response !== 'string') {
-              return res.status(400).json({ message: 'ObjectMechanic response must be a string' });
-            }
-            break;
-          
+        case 'objectMechanic':
+          // Allow objectMechanic response to be a string (for code or structured text)
+          if (typeof response !== 'string') {
+            return res.status(400).json({ message: 'ObjectMechanic response must be a string' });
+          }
+          break;
 
         default:
           return res.status(400).json({ message: 'Invalid question type' });
@@ -77,6 +83,7 @@ exports.submitAnswers = async (req, res) => {
     const interviewSubmission = new InterviewAnswer({
       interviewId,
       userId,
+      jobId, // Save the jobId along with other details
       answers,
     });
 

@@ -25,21 +25,21 @@ interface QuestionContent {
   correctOrder: string[];
   options: string[];
   correctAnswer?: number;
-  // For data visualization challenges
+
   dataset?: {
-    data: string; // JSON string of the dataset
-    expectedVisualization: string; // Description or configuration of expected visualization
+    data: string; 
+    expectedVisualization: string; 
   };
-  // For object mechanics
+  //  object mechanics
   mechanics?: {
-    worldConfig: string; // JSON string of world configuration
-    expectedBehavior: string; // Description of expected behavior
+    worldConfig: string;
+    expectedBehavior: string; 
   };
   // For logical puzzles
   puzzle?: {
-    initialState: string; // JSON string of initial puzzle state
-    goalState: string; // JSON string of goal state
-    rules: string[]; // Array of rules or constraints
+    initialState: string; 
+    goalState: string; 
+    rules: string[]; 
   };
 }
 
