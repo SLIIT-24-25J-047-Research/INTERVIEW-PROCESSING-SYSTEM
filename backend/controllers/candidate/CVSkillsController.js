@@ -1,4 +1,3 @@
-// controllers/candidate/CVSkillsController.js
 const CVSkills = require('../../models/candidate/CVSkills');
 
 const saveExtractedSkills = async (req, res) => {
@@ -9,6 +8,21 @@ const saveExtractedSkills = async (req, res) => {
       return res.status(400).json({ message: 'All fields are required' });
     }
 
+    // Check if data for this fileId already exists
+    let existingEntry = await CVSkills.findOne({ fileId });
+    if (existingEntry) {
+      // Update the existing entry with the new skills if needed
+      existingEntry.skills = skills;
+      existingEntry.jobId = jobId;
+      existingEntry.userId = userId;
+      await existingEntry.save();
+      return res.status(200).json({
+        message: 'Skills updated successfully',
+        data: existingEntry,
+      });
+    }
+
+    // Create a new entry if it doesn't exist
     const newCVSkills = new CVSkills({
       fileId,
       jobId,
@@ -127,10 +141,10 @@ const deleteCVSkills = async (req, res) => {
 };
 
 
-
-
-
-module.exports = { saveExtractedSkills , getCVSkillsByUserId,
+module.exports = {
+  saveExtractedSkills,
+  getCVSkillsByUserId,
   getCVSkillsByJobId,
   getAllCVSkillsGroupedByJobId,
-  deleteCVSkills,};
+  deleteCVSkills,
+};

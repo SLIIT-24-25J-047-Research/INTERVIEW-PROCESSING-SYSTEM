@@ -51,7 +51,7 @@ const FileSkillExtractor: React.FC<FileSkillExtractorProps> = ({ filePath, fileI
         for (let i = 1; i <= pdf.numPages; i++) {
           const page = await pdf.getPage(i);
           const textContent = await page.getTextContent();
-          extractedText += textContent.items.map((item) => 'str' in item ? item.str : '').join(" ") + " ";
+          extractedText += textContent.items.map((item) => ('str' in item ? item.str : '')).join(" ") + " ";
         }
 
         const skills = extractSkills(extractedText);
@@ -79,26 +79,63 @@ const FileSkillExtractor: React.FC<FileSkillExtractorProps> = ({ filePath, fileI
 
   const extractSkills = (text: string): string[] => {
     const skillsList = [
-      "JavaScript",
-      "React",
-      "Node.js",
-      "Python",
-      "Django",
-      "Machine Learning",
-      "Data Analysis",
-      "SQL",
-      "Java",
-      "C++",
-      "HTML",
-      "CSS",
-      "TensorFlow",
-      "Project Management",
-      "MVC",
+      // Programming Languages
+      "JavaScript", "TypeScript", "React", "Angular", "Vue.js",
+      "Node.js", "Express.js", "Python", "Django", "Flask",
+      "Java", "Spring Boot", "C++", "C#", ".NET", "Go", "Rust",
+      "PHP", "Laravel", "Ruby", "Ruby on Rails", "Kotlin", "Swift",
+      "Objective-C", "Shell Scripting", "Perl", "Scala", "Dart",
+      
+      // Frontend Technologies
+      "HTML", "CSS", "SCSS", "SASS", "Bootstrap", "Tailwind CSS",
+      "Material UI", "Chakra UI", "Styled Components",
+  
+      // Backend Technologies
+      "GraphQL", "REST API", "Microservices", "gRPC", "WebSockets",
+  
+      // Databases
+      "SQL", "MySQL", "PostgreSQL", "MongoDB", "Firebase", "Redis",
+      "Cassandra", "MariaDB", "Oracle DB", "DynamoDB",
+  
+      // Cloud & DevOps
+      "AWS", "Azure", "Google Cloud", "Docker", "Kubernetes",
+      "Terraform", "Jenkins", "GitHub Actions", "CI/CD",
+      "Ansible", "Puppet", "Chef", "Prometheus", "Grafana",
+  
+      // Version Control & Collaboration
+      "Git", "GitHub", "GitLab", "Bitbucket", "JIRA", "Trello",
+      "Confluence", "Agile", "Scrum", "Kanban",
+  
+      // QA & Testing
+      "Selenium", "Cypress", "Jest", "Mocha", "Chai",
+      "JUnit", "PyTest", "Postman", "LoadRunner",
+      "TestNG", "Appium", "Cucumber", "Robot Framework",
+  
+      // UI/UX Design
+      "Figma", "Adobe XD", "Sketch", "InVision", "Axure RP",
+      "Wireframing", "Prototyping", "User Research", "Usability Testing",
+  
+      // IT Support & System Administration
+      "Linux", "Windows Server", "Active Directory", "PowerShell",
+      "Bash Scripting", "VMware", "Hyper-V", "Cybersecurity",
+      "Firewalls", "Networking", "TCP/IP", "DNS", "DHCP",
+      "VPN", "Cisco", "Load Balancing",
+  
+      // Machine Learning & Data Science
+      "TensorFlow", "PyTorch", "Keras", "Pandas", "NumPy",
+      "Scikit-Learn", "OpenCV", "Natural Language Processing",
+      "Data Analysis", "Big Data", "Hadoop", "Apache Spark",
+  
+      // Other Essential Skills
+      "Agile Methodologies", "Project Management", "Software Architecture",
+      "Object-Oriented Programming", "Functional Programming",
+      "Database Administration", "Penetration Testing", "Blockchain",
+      "IoT Development", "Embedded Systems"
     ];
-
+  
     return skillsList.filter((skill) => text.toLowerCase().includes(skill.toLowerCase()));
   };
-
+  
   const saveSkillsToBackend = async (skills: string[]) => {
     try {
       const response = await axios.post("http://localhost:5000/api/cv-skills/save-skills", {
