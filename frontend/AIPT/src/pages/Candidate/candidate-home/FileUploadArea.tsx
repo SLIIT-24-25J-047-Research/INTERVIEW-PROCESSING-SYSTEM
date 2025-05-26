@@ -1,21 +1,22 @@
-import React from 'react';
-import { Upload, X } from 'lucide-react';
+import React, { useState } from 'react';
+import { Upload, X, CheckCircle, Loader2 } from 'lucide-react';
 import { cn } from "../../../lib/Utils";
 
 interface FileUploadAreaProps {
-  onFileSelect: (file: File) => void;
+  onFileSelect: (file: File | null) => void;
   file: File | null;
   acceptedFileTypes?: string;
-  uploadProgress?: number;
 }
 
 export const FileUploadArea: React.FC<FileUploadAreaProps> = ({
   onFileSelect,
   file,
-  acceptedFileTypes = ".pdf,.doc,.docx",
-  uploadProgress
+  acceptedFileTypes = ".pdf,.doc,.docx"
 }) => {
-  const [isDragging, setIsDragging] = React.useState(false);
+  const [isDragging, setIsDragging] = useState(false);
+  const [uploadProgress, setUploadProgress] = useState<number | null>(null);
+  const [isUploading, setIsUploading] = useState(false);
+  const [isUploaded, setIsUploaded] = useState(false);
 
   const handleDragOver = (e: React.DragEvent) => {
     e.preventDefault();
@@ -30,10 +31,28 @@ export const FileUploadArea: React.FC<FileUploadAreaProps> = ({
   const handleDrop = (e: React.DragEvent) => {
     e.preventDefault();
     setIsDragging(false);
-    
     if (e.dataTransfer.files && e.dataTransfer.files[0]) {
-      onFileSelect(e.dataTransfer.files[0]);
+      startUpload(e.dataTransfer.files[0]);
     }
+  };
+
+  const startUpload = (selectedFile: File) => {
+    onFileSelect(selectedFile);
+    setIsUploading(true);
+    setIsUploaded(false);
+    setUploadProgress(0);
+
+    const interval = setInterval(() => {
+      setUploadProgress((prev) => {
+        if (prev === null || prev >= 100) {
+          clearInterval(interval);
+          setIsUploading(false);
+          setIsUploaded(true);
+          return 100;
+        }
+        return prev + 10;
+      });
+    }, 500);
   };
 
   return (
@@ -65,16 +84,14 @@ export const FileUploadArea: React.FC<FileUploadAreaProps> = ({
                   accept={acceptedFileTypes}
                   onChange={(e) => {
                     if (e.target.files?.[0]) {
-                      onFileSelect(e.target.files[0]);
+                      startUpload(e.target.files[0]);
                     }
                   }}
                 />
               </label>
               <p className="pl-1">or drag and drop</p>
             </div>
-            <p className="text-xs leading-5 text-gray-600">
-              PDF, DOC, or DOCX up to 10MB
-            </p>
+            <p className="text-xs leading-5 text-gray-600">PDF, DOC, or DOCX up to 10MB</p>
           </div>
         ) : (
           <div className="space-y-4">
@@ -97,17 +114,34 @@ export const FileUploadArea: React.FC<FileUploadAreaProps> = ({
               <button
                 type="button"
                 className="text-gray-400 hover:text-gray-500"
-                onClick={() => onFileSelect(null as any)}
+                onClick={() => {
+                  onFileSelect(null);
+                  setIsUploading(false);
+                  setIsUploaded(false);
+                  setUploadProgress(null);
+                }}
               >
                 <X className="h-5 w-5" />
               </button>
             </div>
-            {uploadProgress !== undefined && (
+            {isUploading && (
+              <div className="flex items-center space-x-2">
+                <Loader2 className="animate-spin text-primary" />
+                <p className="text-sm text-primary">Uploading...</p>
+              </div>
+            )}
+            {uploadProgress !== null && uploadProgress < 100 && (
               <div className="w-full bg-gray-200 rounded-full h-2.5">
                 <div
                   className="bg-primary h-2.5 rounded-full transition-all duration-300"
                   style={{ width: `${uploadProgress}%` }}
                 />
+              </div>
+            )}
+            {isUploaded && (
+              <div className="flex items-center space-x-2 text-green-600">
+                <CheckCircle className="h-5 w-5" />
+                <p className="text-sm">Upload complete!</p>
               </div>
             )}
           </div>
@@ -116,4 +150,3 @@ export const FileUploadArea: React.FC<FileUploadAreaProps> = ({
     </div>
   );
 };
-
