@@ -24,10 +24,7 @@ logging.basicConfig(level=logging.DEBUG)
 
 def calculate_metrics(code, language):
     """
-    Calculate all code metrics such as cyclomatic complexity, 
-    weighted cyclomatic complexity, coupling between classes, 
-    maintainability index, pylint score for the provided code,
-    and a weighted sum of selected metrics using predefined weights.
+    Calculate all code metrics with detailed breakdowns
     """
     print(f"Language: {language}")  
     print(f"Code: {code}") 
@@ -39,143 +36,470 @@ def calculate_metrics(code, language):
     bias = 2.6895663956639577
 
     if language == "python":
-        cc_result = calculate_cc(code)  
-        cfc_result = calculate_cfc(code)  
-        wcc_result = calculate_wcc(code)  
+        # Get detailed breakdowns from each calculation
+        cc_details = calculate_cc(code)
+        cfc_details = calculate_cfc(code)
+        wcc_details = calculate_wcc(code)
+        mi_details = calculate_maintainability(code)
+        pylint_details = calculate_pylint_score(code)
 
-        print(f"CC Result Type: {type(cc_result)} - {cc_result}")
-        print(f"CFC Result Type: {type(cfc_result)} - {cfc_result}")
-        print(f"WCC Result Type: {type(wcc_result)} - {wcc_result}")
+        # Extract values for weighted sum calculation
+        cc_value = cc_details['value'] if isinstance(cc_details, dict) else cc_details
+        cfc_value = cfc_details['value'] if isinstance(cfc_details, dict) else cfc_details
+        wcc_value = wcc_details['value'] if isinstance(wcc_details, dict) else wcc_details
 
-    
-        if isinstance(cc_result, dict):
-            cc_result = cc_result.get('cyclomatic_complexity', 0)  
-        if isinstance(cfc_result, dict):
-            cfc_result = cfc_result.get('internal_interactions', 0)  
-        if isinstance(wcc_result, dict):
-            wcc_result = wcc_result.get('weighted_cyclomatic_complexity', 0) 
-
-        
-        cc_result = float(cc_result) if isinstance(cc_result, (int, float)) else 0
-        cfc_result = float(cfc_result) if isinstance(cfc_result, (int, float)) else 0
-        wcc_result = float(wcc_result) if isinstance(wcc_result, (int, float)) else 0
-
-  
-        print(f"CC Result: {cc_result}")
-        print(f"CFC Result: {cfc_result}")
-        print(f"WCC Result: {wcc_result}")
-
-        # Calculate the single value using weighted sum
-        weighted_sum = (cc_result * weight_CC) + (cfc_result * weight_CFC) + (wcc_result * weight_WCC) + bias
-        print(f"Weighted Sum (Single Value): {weighted_sum}")
+        #  single value using weighted sum
+        weighted_sum = (cc_value * weight_CC) + (cfc_value * weight_CFC) + (wcc_value * weight_WCC) + bias
 
         return {
-            "cyclomatic_complexity": cc_result,
-            "weighted_cyclomatic_complexity": wcc_result,
-            "coupling_between_classes": cfc_result,
-            "maintainability_index": calculate_maintainability(code),
-            "pylint_score": calculate_pylint_score(code),
-            "single_complexity_value": weighted_sum
+            "language": language,
+            "overall_Complexity_score": weighted_sum,
+            "metrics": {
+                "cyclomatic_complexity": enhance_cc_output(cc_details),
+                "cognitive_complexity": enhance_cfc_output(cfc_details),
+                "weighted_complexity": enhance_wcc_output(wcc_details),
+                "maintainability_index": enhance_mi_output(mi_details),
+                "code_quality": enhance_pylint_output(pylint_details)
+            },
+            "interpretation": {
+                "overall": get_overall_interpretation(weighted_sum),
+                "recommendations": get_recommendations({
+                    'cc': cc_value,
+                    'cfc': cfc_value,
+                    'wcc': wcc_value,
+                    'mi': mi_details['value'] if isinstance(mi_details, dict) else mi_details
+                })
+            }
         }
 
     elif language == "javascript":
         try:
-            
-            cc_result = calculate_js_cc(code)
-            cfc_result = calculate_js_cfc(code)
-            wcc_result = calculate_js_wcc(code)
-            maintainability_result = calculate_js_maintainability(code)
+            # Similar detailed breakdown for JavaScript
+            cc_details = calculate_js_cc(code)
+            cfc_details = calculate_js_cfc(code)
+            wcc_details = calculate_js_wcc(code)
+            mi_details = calculate_js_maintainability(code)
 
-          
-            print(f"CC Result Type: {type(cc_result)} - {cc_result}")
-            print(f"CFC Result Type: {type(cfc_result)} - {cfc_result}")
-            print(f"WCC Result Type: {type(wcc_result)} - {wcc_result}")
+            # Extract values
+            cc_value = cc_details['value'] if isinstance(cc_details, dict) else cc_details
+            cfc_value = cfc_details['value'] if isinstance(cfc_details, dict) else cfc_details
+            wcc_value = wcc_details['value'] if isinstance(wcc_details, dict) else wcc_details
 
-         
-            if isinstance(cc_result, dict):
-                cc_result = cc_result.get('cyclomatic_complexity', 0) 
-            if isinstance(cfc_result, dict):
-                cfc_result = cfc_result.get('internal_interactions', 0)  
-            if isinstance(wcc_result, dict):
-                wcc_result = wcc_result.get('weighted_cyclomatic_complexity', 0)  
-
-           
-            cc_result = float(cc_result) if isinstance(cc_result, (int, float)) else 0
-            cfc_result = float(cfc_result) if isinstance(cfc_result, (int, float)) else 0
-            wcc_result = float(wcc_result) if isinstance(wcc_result, (int, float)) else 0
-
-          
-            print(f"CC Result: {cc_result}")
-            print(f"CFC Result: {cfc_result}")
-            print(f"WCC Result: {wcc_result}")
-
-            # Calculate the single value using weighted sum
-            weighted_sum = (cc_result * weight_CC) + (cfc_result * weight_CFC) + (wcc_result * weight_WCC) + bias
-            print(f"Weighted Sum (Single Value): {weighted_sum}")
+            weighted_sum = (cc_value * weight_CC) + (cfc_value * weight_CFC) + (wcc_value * weight_WCC) + bias
 
             return {
-                "cyclomatic_complexity": cc_result,
-                "coupling_between_classes": cfc_result,
-                "weighted_cyclomatic_complexity": wcc_result,
-                "maintainability_index": maintainability_result,
-                "single_complexity_value": weighted_sum
+                "language": language,
+                "overall_Complexity_score": weighted_sum,
+                "metrics": {
+                    "cyclomatic_complexity": enhance_js_cc_output(cc_details),
+                    "cognitive_complexity": enhance_js_cfc_output(cfc_details),
+                    "weighted_complexity": enhance_js_wcc_output(wcc_details),
+                    "maintainability_index": enhance_js_mi_output(mi_details)
+                },
+                "interpretation": {
+                    "overall": get_overall_interpretation(weighted_sum),
+                    "recommendations": get_recommendations({
+                        'cc': cc_value,
+                        'cfc': cfc_value,
+                        'wcc': wcc_value,
+                        'mi': mi_details['value'] if isinstance(mi_details, dict) else mi_details
+                    })
+                }
             }
-
         except Exception as e:
             print(f"Metric Calculation Error: {e}")
             return {"error": str(e)}
     else:
         return {"error": f"Unsupported language: {language}"}
+    
+
+
+# enhancement
+def enhance_cc_output(cc_result):
+    """Add detailed explanation for cyclomatic complexity"""
+    if isinstance(cc_result, dict):
+        value = cc_result.get('value', cc_result)
+        breakdown = cc_result.get('breakdown', [])
+    else:
+        value = cc_result
+        breakdown = []
+    
+    interpretation = ""
+    if value <= 5:
+        interpretation = "Simple, easy to understand and maintain"
+    elif 6 <= value <= 10:
+        interpretation = "Moderately complex, consider refactoring if it grows"
+    elif 11 <= value <= 20:
+        interpretation = "Complex, refactoring recommended"
+    else:
+        interpretation = "Very high complexity, immediate refactoring needed"
+    
+    return {
+        "value": value,
+        "breakdown": breakdown,
+        "interpretation": interpretation,
+        "optimal_range": "1-5",
+        "scale": {
+            "low": "1-5 (excellent)",
+            "medium": "6-10 (acceptable)",
+            "high": "11-20 (needs improvement)",
+            "very_high": "20+ (critical)"
+        }
+    }
+
+def enhance_cfc_output(cfc_result):
+    """Add detailed explanation for cognitive complexity"""
+    if isinstance(cfc_result, dict):
+        value = cfc_result.get('value', cfc_result)
+        breakdown = cfc_result.get('breakdown', [])
+    else:
+        value = cfc_result
+        breakdown = []
+    
+    interpretation = ""
+    if value <= 5:
+        interpretation = "Very easy to understand"
+    elif 6 <= value <= 10:
+        interpretation = "Moderate understanding effort"
+    elif 11 <= value <= 15:
+        interpretation = "Difficult to understand, consider simplifying"
+    else:
+        interpretation = "Very difficult to understand, needs refactoring"
+    
+    return {
+        "value": value,
+        "breakdown": breakdown,
+        "interpretation": interpretation,
+        "optimal_range": "1-5",
+        "scale": {
+            "low": "1-5 (excellent)",
+            "medium": "6-10 (acceptable)",
+            "high": "11-15 (needs improvement)",
+            "very_high": "15+ (critical)"
+        }
+    }
+
+def enhance_mi_output(mi_result):
+    """Add detailed explanation for maintainability index"""
+    if isinstance(mi_result, dict):
+        value = mi_result.get('value', mi_result)
+        breakdown = mi_result.get('breakdown', {})
+    else:
+        value = mi_result
+        breakdown = {}
+    
+    interpretation = ""
+    if value >= 85:
+        interpretation = "Excellent maintainability"
+    elif 65 <= value < 85:
+        interpretation = "Good maintainability"
+    elif 50 <= value < 65:
+        interpretation = "Moderate maintainability, could be improved"
+    else:
+        interpretation = "Low maintainability, needs significant refactoring"
+    
+    return {
+        "value": value,
+        "breakdown": breakdown,
+        "interpretation": interpretation,
+        "optimal_range": "85-100",
+        "scale": {
+            "excellent": "85-100",
+            "good": "65-84",
+            "moderate": "50-64",
+            "low": "0-49"
+        }
+    }
+
+def get_overall_interpretation(score):
+    """Provide overall interpretation based on weighted sum"""
+    if score < 20:
+        return "Excellent code quality with very low complexity"
+    elif 20 <= score < 40:
+        return "Good code quality with manageable complexity"
+    elif 40 <= score < 60:
+        return "Moderate code quality that could benefit from improvements"
+    elif 60 <= score < 80:
+        return "Complex code that needs refactoring"
+    else:
+        return "Very complex code that requires significant refactoring"
+
+def get_recommendations(metrics):
+    """Generate specific recommendations based on metrics"""
+    recommendations = []
+    
+    if metrics['cc'] > 10:
+        recommendations.append(
+            "High cyclomatic complexity detected. Consider breaking down complex functions "
+            "into smaller, single-purpose functions."
+        )
+    
+    if metrics['cfc'] > 15:
+        recommendations.append(
+            "High cognitive complexity detected. Simplify logical structures and reduce "
+            "nesting levels where possible."
+        )
+    
+    if metrics['mi'] < 65:
+        recommendations.append(
+            "Maintainability could be improved. Add comments, reduce complexity, "
+            "and ensure consistent coding style."
+        )
+    
+    if not recommendations:
+        return ["Code quality metrics are generally good. Keep up the good work!"]
+    
+    return recommendations
+
+
+def enhance_js_cc_output(cc_result):
+    """Add detailed explanation for JavaScript cyclomatic complexity"""
+    if isinstance(cc_result, dict):
+        value = cc_result.get('value', cc_result)
+    else:
+        value = cc_result
+    
+    interpretation = ""
+    if value <= 5:
+        interpretation = "Simple JavaScript function, easy to understand and maintain"
+    elif 6 <= value <= 10:
+        interpretation = "Moderately complex JavaScript, consider refactoring if it grows"
+    elif 11 <= value <= 20:
+        interpretation = "Complex JavaScript code, refactoring recommended"
+    else:
+        interpretation = "Very high complexity in JavaScript, immediate refactoring needed"
+    
+    return {
+        "value": value,
+        "interpretation": interpretation,
+        "optimal_range": "1-5",
+        "scale": {
+            "low": "1-5 (excellent)",
+            "medium": "6-10 (acceptable)",
+            "high": "11-20 (needs improvement)",
+            "very_high": "20+ (critical)"
+        }
+    }
+
+def enhance_js_cfc_output(cfc_result):
+    """Add detailed explanation for JavaScript cognitive complexity"""
+    if isinstance(cfc_result, dict):
+        value = cfc_result.get('value', cfc_result)
+    else:
+        value = cfc_result
+    
+    interpretation = ""
+    if value <= 5:
+        interpretation = "Very easy to understand JavaScript code"
+    elif 6 <= value <= 10:
+        interpretation = "Moderate understanding effort for JavaScript"
+    elif 11 <= value <= 15:
+        interpretation = "Difficult to understand JavaScript, consider simplifying"
+    else:
+        interpretation = "Very difficult to understand JavaScript, needs refactoring"
+    
+    return {
+        "value": value,
+        "interpretation": interpretation,
+        "optimal_range": "1-5",
+        "scale": {
+            "low": "1-5 (excellent)",
+            "medium": "6-10 (acceptable)",
+            "high": "11-15 (needs improvement)",
+            "very_high": "15+ (critical)"
+        }
+    }
+
+def enhance_js_wcc_output(wcc_result):
+    """Add detailed explanation for JavaScript weighted complexity"""
+    if isinstance(wcc_result, dict):
+        value = wcc_result.get('value', wcc_result)
+    else:
+        value = wcc_result
+    
+    interpretation = ""
+    if value <= 7:
+        interpretation = "Well-structured JavaScript with good complexity distribution"
+    elif 8 <= value <= 15:
+        interpretation = "Moderate weighted complexity in JavaScript"
+    elif 16 <= value <= 25:
+        interpretation = "High weighted JavaScript complexity - review nested functions"
+    else:
+        interpretation = "Very high weighted JavaScript complexity - needs restructuring"
+    
+    return {
+        "value": value,
+        "interpretation": interpretation,
+        "optimal_range": "1-7",
+        "scale": {
+            "low": "1-7 (excellent)",
+            "medium": "8-15 (acceptable)",
+            "high": "16-25 (needs improvement)",
+            "very_high": "25+ (critical)"
+        }
+    }
+
+def enhance_js_mi_output(mi_result):
+    """Add detailed explanation for JavaScript maintainability index"""
+    if isinstance(mi_result, dict):
+        value = mi_result.get('value', mi_result)
+    else:
+        value = mi_result
+    
+    interpretation = ""
+    if value >= 85:
+        interpretation = "Excellent JavaScript maintainability"
+    elif 65 <= value < 85:
+        interpretation = "Good JavaScript maintainability"
+    elif 50 <= value < 65:
+        interpretation = "Moderate JavaScript maintainability, could be improved"
+    else:
+        interpretation = "Low JavaScript maintainability, needs significant refactoring"
+    
+    return {
+        "value": value,
+        "interpretation": interpretation,
+        "optimal_range": "85-100",
+        "scale": {
+            "excellent": "85-100",
+            "good": "65-84",
+            "moderate": "50-64",
+            "low": "0-49"
+        }
+    }
+
+def enhance_wcc_output(wcc_result):
+    """Add detailed explanation for weighted cyclomatic complexity"""
+    if isinstance(wcc_result, dict):
+        value = wcc_result.get('value', wcc_result)
+    else:
+        value = wcc_result
+    
+    interpretation = ""
+    if value <= 7:
+        interpretation = "Well-structured code with good complexity distribution"
+    elif 8 <= value <= 15:
+        interpretation = "Moderate weighted complexity"
+    elif 16 <= value <= 25:
+        interpretation = "High weighted complexity - review nested functions"
+    else:
+        interpretation = "Very high weighted complexity - needs restructuring"
+    
+    return {
+        "value": value,
+        "interpretation": interpretation,
+        "optimal_range": "1-7",
+        "scale": {
+            "low": "1-7 (excellent)",
+            "medium": "8-15 (acceptable)",
+            "high": "16-25 (needs improvement)",
+            "very_high": "25+ (critical)"
+        }
+    }
+
+def enhance_pylint_output(pylint_result):
+    """Add detailed explanation for pylint score"""
+    if isinstance(pylint_result, dict):
+        score = pylint_result.get('score', 0)
+        details = pylint_result.get('details', '')
+    else:
+        score = pylint_result
+        details = ''
+    
+    interpretation = ""
+    if score >= 9.0:
+        interpretation = "Excellent code quality according to Pylint standards"
+    elif 7.0 <= score < 9.0:
+        interpretation = "Good code quality with minor issues"
+    elif 5.0 <= score < 7.0:
+        interpretation = "Moderate code quality that needs improvement"
+    else:
+        interpretation = "Poor code quality that requires significant refactoring"
+    
+    # Extract key messages from Pylint output
+    key_messages = []
+    if details:
+        # Look for important messages (errors and warnings)
+        import re
+        error_messages = re.findall(r'[A-Z]\d+:.*', details)
+        key_messages = [msg.strip() for msg in error_messages[:3]]  # Get top 3 messages
+    
+    return {
+        "score": score,
+        "interpretation": interpretation,
+        "optimal_range": "9.0-10.0",
+        "scale": {
+            "excellent": "9.0-10.0",
+            "good": "7.0-8.9",
+            "moderate": "5.0-6.9",
+            "poor": "0.0-4.9"
+        },
+        "key_messages": key_messages,
+        "full_report": details if len(details) < 1000 else details[:1000] + "... [truncated]"
+    }
+    
+
+# enhancement over
 
 
 def calculate_cc(code):
-    """
-    Calculate Cyclomatic Complexity manually for Python code.
-    Formula: CC = Number of decision points + 1
-    """
     try:
         tree = ast.parse(code)
-        complexity = 1  
         
         class ComplexityVisitor(ast.NodeVisitor):
             def __init__(self):
                 self.complexity = 1
+                self.breakdown = []
+            
+            def add_complexity(self, node_type, lineno, count=1):
+                self.complexity += count
+                self.breakdown.append({
+                    'type': node_type,
+                    'location': f"Line {lineno}",
+                    'complexity_added': count
+                })
             
             def visit_If(self, node):
-                self.complexity += 1
+                self.add_complexity('if_statement', node.lineno)
                 self.generic_visit(node)
             
             def visit_For(self, node):
-                self.complexity += 1
+                self.add_complexity('for_loop', node.lineno)
                 self.generic_visit(node)
             
             def visit_While(self, node):
-                self.complexity += 1
+                self.add_complexity('while_loop', node.lineno)
                 self.generic_visit(node)
             
             def visit_With(self, node):
-                self.complexity += 1
+                # Optional: usually not counted in CC, but can be included if desired
                 self.generic_visit(node)
             
             def visit_Try(self, node):
-                self.complexity += 1
+                # try itself doesn't add complexity, but each except does
                 self.generic_visit(node)
             
             def visit_ExceptHandler(self, node):
-                self.complexity += 1
+                self.add_complexity('except_handler', node.lineno)
                 self.generic_visit(node)
             
             def visit_BoolOp(self, node):
-                self.complexity += len(node.values) - 1
+                # 'and' / 'or' boolean operators add complexity: count number of ops - 1
+                count = len(node.values) - 1
+                if count > 0:
+                    self.add_complexity('boolean_operator', node.lineno, count)
                 self.generic_visit(node)
             
-            def visit_Compare(self, node):
-                self.complexity += len(node.ops) - 1
-                self.generic_visit(node)
-        
+            # Optionally add more nodes like 'FunctionDef', 'AsyncFunctionDef' if needed
+            
         visitor = ComplexityVisitor()
         visitor.visit(tree)
-        return visitor.complexity
+        
+        return {
+            'value': visitor.complexity,
+            'breakdown': visitor.breakdown,
+            'total_components': len(visitor.breakdown)
+        }
     except Exception as e:
         return {"error": str(e)}
 
