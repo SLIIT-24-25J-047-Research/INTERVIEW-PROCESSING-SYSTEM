@@ -61,6 +61,7 @@ const FileSkillExtractor: React.FC<FileSkillExtractorProps> = ({
           const page = await pdf.getPage(i);
           const textContent = await page.getTextContent();
           extractedText += textContent.items.map((item) => ('str' in item ? item.str : '')).join(" ") + " ";
+          extractedText += textContent.items.map((item) => ('str' in item ? item.str : '')).join(" ") + " ";
         }
 
         await validateSkillsWithJobRequirements(extractedText);

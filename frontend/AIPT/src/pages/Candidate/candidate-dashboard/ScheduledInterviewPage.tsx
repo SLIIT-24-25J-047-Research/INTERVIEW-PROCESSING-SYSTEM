@@ -48,6 +48,7 @@ interface TechnicalSchedule {
   status: string;
   testLink: string;
   jobId: string;
+  
 }
 
 interface JobApplication {
@@ -184,6 +185,8 @@ const ScheduledInterviewPage: React.FC = () => {
         interviewId: interview._id,
         testLink: interview.testLink,
         duration: interview.duration,
+        userId: userId, 
+      jobId: interview.jobId,
       },
     });
   };
@@ -279,7 +282,7 @@ const ScheduledInterviewPage: React.FC = () => {
         case "in-progress":
           return "75%";
         case "scheduled":
-          return "50%";
+          return "25%";
         default:
           return "0%";
       }
@@ -287,11 +290,11 @@ const ScheduledInterviewPage: React.FC = () => {
 
     const getNonTechProgress = () => {
       switch (nonTechStatus) {
-        case "done":
+        case "completed":
           return "100%";
         case "scheduled":
         case "updated":
-          return techStatus === "completed" ? "50%" : "0%";
+          return techStatus === "completed" ? "25%" : "0%";
         default:
           return "0%";
       }
@@ -309,7 +312,7 @@ const ScheduledInterviewPage: React.FC = () => {
       {
         label: "HR Interview",
         status: getStageStatus("nonTechnical", nonTechStatus),
-        completed: nonTechStatus === "done",
+        completed: nonTechStatus === "completed",
         active: techStatus === "completed" &&
           (nonTechStatus === "scheduled" || nonTechStatus === "updated"),
         width: "50%",

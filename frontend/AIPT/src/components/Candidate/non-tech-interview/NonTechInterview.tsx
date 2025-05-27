@@ -99,10 +99,7 @@ function App({ interviewData }: Props) {
       noAnswerFormData.append("questionId", questions[currentQuestionIndex]._id);
       noAnswerFormData.append("noAnswer", "true");
       
-      await Promise.all([
-        axios.post("http://localhost:5000/api/predict", noAnswerFormData),
-        axios.post("http://localhost:5000/api/audio/audio", noAnswerFormData)
-      ]);
+      await axios.post("http://localhost:5000/api/audio", noAnswerFormData);
     } catch (error) {
       console.error("Error sending no-answer response:", error);
     }
@@ -169,23 +166,23 @@ function App({ interviewData }: Props) {
     if (audioBlob) {
       setProcessing(true);
       const confidenceFormData = new FormData();
-      const transcribeFormData = new FormData();
+   
       
       confidenceFormData.append("audio", audioBlob, `answer_${currentQuestionIndex}.wav`);
       confidenceFormData.append("questionId", questions[currentQuestionIndex]._id);
+      if (interviewId) {
+        confidenceFormData.append("interviewId", interviewId); 
+      }
+    confidenceFormData.append("userId", interviewData?.userId || "defaultUserId");
       
-      transcribeFormData.append("audio", audioBlob, `answer_${currentQuestionIndex}.wav`);
-      transcribeFormData.append("questionId", questions[currentQuestionIndex]._id);
+   
+
+      
 
       try {
-        await Promise.all([
-          // axios.post("http://localhost:5000/api/predict", confidenceFormData, {
-          //   headers: { "Content-Type": "multipart/form-data" },
-          // }),
-          axios.post("http://localhost:5000/api/audio/audio", transcribeFormData, {
-            headers: { "Content-Type": "multipart/form-data" },
-          })
-        ]);
+        await axios.post("http://localhost:5000/api/predict", confidenceFormData, {
+          headers: { "Content-Type": "multipart/form-data" },
+        });
       } catch (error) {
         console.error("Error processing audio:", error);
       } finally {
@@ -225,7 +222,7 @@ function App({ interviewData }: Props) {
       <div className="max-w-4xl mx-auto px-4 py-12">
         <header className="text-center mb-16">
           <h1 className="text-4xl font-bold text-gray-900 mb-4">
-            Technical Interview
+            Non-Technical Interview
           </h1>
           <p className="text-lg text-gray-600">
             Please answer the questions clearly into your microphone

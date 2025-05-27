@@ -27,6 +27,7 @@ app.use('/api/techCodeExecution', require('./routes/employer/TechnicalCodeExecut
 app.use('/uploads', express.static('uploads'));
 app.use('/api/feedback', require('./routes/candidate/FeedbackRoutes'));
 app.use('/api/user-job-applications', require('./routes/candidate/UserHasJobApplicationRoutes'));
+app.use('/api/results', require('./routes/employer/TechnicalSubmissionResultRoutes'));
 
 
 // voice confidence routes
@@ -58,8 +59,8 @@ app.get('/api/test', (req, res) => {
 
 
 // stress routes
-const stressRoutes = require('./routes/stressRoutes');
-app.use('/api/stress', stressRoutes);
+
+app.use('/api/stress',  require('./routes/stressRoutes'));
 
 
 // MongoDB Connection

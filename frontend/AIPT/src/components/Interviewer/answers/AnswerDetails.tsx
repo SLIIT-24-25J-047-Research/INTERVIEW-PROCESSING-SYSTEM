@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
-import { ArrowLeft, Clock, CheckCircle, XCircle, AlertCircle, Loader2 } from 'lucide-react';
-import { Answer, Question } from '../../types/admin';
+import { ArrowLeft, Clock, CheckCircle, XCircle, AlertCircle, Loader2, Brain } from 'lucide-react';
+import { TechnicalAnswer, Question } from '../../types/admin';
 import { CodeEditor } from '../../Candidate/tech-interview/CodeEditor';
 import { ObjectMechanicQuestion } from '../../Candidate/tech-interview/ObjectMechanicQuestion';
 import CodeComplexityDashboard from './CodeComplexityModel';
@@ -40,16 +40,37 @@ interface PatternGroup {
   [key: string]: PatternDefinition;
 }
 
+interface StressData {
+  success: boolean;
+  data: {
+    emotion: string;
+    predictionValues: number[];
+    stressLevel: string;
+  }[];
+}
+
+interface StressDetectionData {
+  _id: string;
+  userId: string;
+  interviewScheduleId: string;
+  jobId: string;
+  questions: StressData[];
+  createdAt: string;
+  updatedAt: string;
+  __v: number;
+}
 
 export const AnswerDetails: React.FC<AnswerDetailsProps> = ({ submissionId, onBack }) => {
-  const [answers, setAnswers] = useState<Answer[]>([]);
+  const [answers, setAnswers] = useState<TechnicalAnswer[]>([]);
   const [questions, setQuestions] = useState<Record<string, Question>>({});
   const [validations, setValidations] = useState<Record<string, AnswerValidation>>({});
   const [isLoading, setIsLoading] = useState(true);
+  const [stressData, setStressData] = useState<Record<string, StressData>>({});
   const [error, setError] = useState<string | null>(null);
   const [totalScore, setTotalScore] = useState(0);
   const [maxPossibleScore, setMaxPossibleScore] = useState(0);
   const [executingCode, setExecutingCode] = useState<Record<string, boolean>>({});
+  const [selectedStressQuestionId, setSelectedStressQuestionId] = useState<string | null>(null);
   interface EvaluationResult {
     evaluationResult: {
       cyclomatic_complexity?: number;
@@ -74,6 +95,94 @@ export const AnswerDetails: React.FC<AnswerDetailsProps> = ({ submissionId, onBa
   };
 
 
+  const StressAnalysisModal: React.FC<{
+    isOpen: boolean;
+    onClose: () => void;
+    questionId: string;
+  }> = ({ isOpen, onClose, questionId }) => {
+    const stress = stressData[questionId];
+    if (!stress || !stress.data || stress.data.length === 0) return null;
+
+    const stressDetails = stress.data[0];
+
+    const getStressLevelColor = (level: string) => {
+      switch (level.toLowerCase()) {
+        case 'no stress detected': return 'text-green-600';
+        case 'normal': return 'text-blue-600';
+        case 'medium': return 'text-yellow-600';
+        case 'high': return 'text-red-600';
+        default: return 'text-gray-600';
+      }
+    };
+
+    return (
+      <div className={`fixed inset-0 bg-white bg-opacity-50 flex items-center justify-center ${isOpen ? 'block' : 'hidden'}`}>
+        <div className="bg-white rounded-lg p-6 w-11/12 max-w-2xl">
+          <div className="flex justify-between items-center mb-4">
+            <h2 className="text-lg font-semibold">Detailed Stress Analysis</h2>
+            <button onClick={onClose} className="text-gray-500 hover:text-gray-700">
+              &times;
+            </button>
+          </div>
+
+          <div className="grid grid-cols-2 gap-4">
+            <div>
+              <p className="text-xs text-gray-500 mb-1">Stress Level</p>
+              <p className={`text-sm font-medium ${getStressLevelColor(stressDetails.stressLevel)}`}>
+                {stressDetails.stressLevel}
+              </p>
+            </div>
+
+            <div>
+              <p className="text-xs text-gray-500 mb-1">Emotional State</p>
+              <p className="text-sm font-medium">
+                {stressDetails.emotion}
+              </p>
+            </div>
+          </div>
+
+          <div className="mt-4">
+            <p className="text-xs text-gray-500 mb-2">Emotional Analysis</p>
+            <div className="grid grid-cols-7 gap-1">
+              {stressDetails.predictionValues.map((value, index) => {
+                const emotions = ['Angry', 'Disgust', 'Fear', 'Happy', 'Sad', 'Surprise', 'Neutral'];
+                return (
+                  <div key={index} className="flex flex-col items-center">
+                    <div className="w-full bg-gray-200 rounded-full h-24 relative">
+                      <div
+                        className="absolute bottom-0 w-full bg-blue-500 rounded-b-full transition-all"
+                        style={{
+                          height: `${value * 100}%`,
+                          backgroundColor: `hsl(${200 + (index * 30)}, 70%, 50%)`
+                        }}
+                      />
+                    </div>
+                    <span className="text-xs text-gray-500 mt-1 whitespace-nowrap transform -rotate-45 origin-top-left">
+                      {emotions[index]}
+                    </span>
+                    <span className="text-xs font-medium mt-1">
+                      {(value * 100).toFixed(1)}%
+                    </span>
+                  </div>
+                );
+              })}
+            </div>
+          </div>
+
+          <div className="mt-6 flex justify-end">
+            <button
+              onClick={onClose}
+              className="px-4 py-2 bg-gray-100 text-gray-700 rounded-lg hover:bg-gray-200"
+            >
+              Close
+            </button>
+          </div>
+        </div>
+      </div>
+    );
+  };
+
+
 
 
   useEffect(() => {
@@ -86,14 +195,34 @@ export const AnswerDetails: React.FC<AnswerDetailsProps> = ({ submissionId, onBa
         }
         const groupedData = await answersResponse.json();
         const submission = groupedData
-          .flatMap((group: { answers: Answer[] }) => group.answers)
-          .find((sub: Answer) => sub._id === submissionId);
+          .flatMap((group: { answers: TechnicalAnswer[] }) => group.answers)
+          .find((sub: TechnicalAnswer) => sub._id === submissionId);
 
         if (!submission) {
           throw new Error('Submission not found');
         }
 
         setAnswers(submission.answers);
+        // Fetch stress detection data for each question
+        const stressMap: Record<string, StressData> = {};
+        for (const answer of submission.answers) {
+          try {
+            const stressResponse = await fetch(
+              `http://localhost:5000/api/stress/question/${answer.questionId}`
+            );
+            if (stressResponse.ok) {
+              const stressData: StressData = await stressResponse.json();
+              console.log('stress', stressData);
+              if (stressData.success && stressData.data) {
+                stressMap[answer.questionId] = stressData;
+              }
+            }
+          } catch (err) {
+            console.error(`Error fetching stress data for question ${answer.questionId}:`, err);
+          }
+        }
+
+        setStressData(stressMap);
 
         // Fetch and validate each question
         const questionValidations: Record<string, AnswerValidation> = {};
@@ -151,7 +280,92 @@ export const AnswerDetails: React.FC<AnswerDetailsProps> = ({ submissionId, onBa
     fetchData();
   }, [submissionId]);
 
-  const validateObjectMechanicAnswer = (answer: Answer, question: Question): AnswerValidation => {
+  useEffect(() => {
+    if (!isLoading && !error) {
+      saveScores();
+    }
+  }, [isLoading, error]);
+
+  // Inside your AnswerDetails component
+useEffect(() => {
+  const fetchScores = async () => {
+    try {
+      const response = await fetch(`http://localhost:5000/api/results/${submissionId}`);
+      if (!response.ok) {
+        throw new Error('Failed to fetch scores');
+      }
+
+      const data = await response.json();
+      if (data) {
+        // Use the existing scores instead of recalculating
+        setTotalScore(data.totalScore);
+        setMaxPossibleScore(data.maxPossibleScore);
+        // Set other necessary states...
+      }
+    } catch (error) {
+      console.error('Error fetching scores:', error);
+    }
+  };
+
+  fetchScores();
+}, [submissionId]);
+
+
+  const renderStressMetrics = (questionId: string) => {
+    const stress = stressData[questionId];
+    if (!stress || !stress.data || stress.data.length === 0) return null;
+
+    const stressDetails = stress.data[0];
+
+    const getStressLevelColor = (level: string) => {
+      switch (level.toLowerCase()) {
+        case 'no stress detected': return 'text-green-600';
+        case 'normal': return 'text-blue-600';
+        case 'medium': return 'text-yellow-600';
+        case 'high': return 'text-red-600';
+        default: return 'text-gray-600';
+      }
+    };
+
+    const getEmotionIcon = (emotion: string) => {
+      switch (emotion.toLowerCase()) {
+        case 'happy': return '😊';
+        case 'neutral': return '😐';
+        case 'surprise': return '😲';
+        case 'stressed': return '😰';
+        case 'confused': return '🤔';
+        default: return '❓';
+      }
+    };
+
+    return (
+      <div
+        className="mt-4 p-4 bg-gray-50 rounded-lg border border-gray-200 cursor-pointer hover:bg-gray-100"
+        onClick={() => openStressAnalysisModal(questionId)} // Open modal on click
+      >
+        <div className="flex items-center justify-between">
+          <div>
+            <p className="text-xs text-gray-500 mb-1">Stress Level</p>
+            <p className={`text-sm font-medium ${getStressLevelColor(stressDetails.stressLevel)}`}>
+              {stressDetails.stressLevel}
+            </p>
+          </div>
+          <div>
+            <p className="text-xs text-gray-500 mb-1">Emotional State</p>
+            <p className="text-sm font-medium flex items-center">
+              {getEmotionIcon(stressDetails.emotion)} <span className="ml-2">{stressDetails.emotion}</span>
+            </p>
+          </div>
+        </div>
+      </div>
+    );
+  };
+
+  const openStressAnalysisModal = (questionId: string) => {
+    setSelectedStressQuestionId(questionId);
+  };
+
+  const validateObjectMechanicAnswer = (answer: TechnicalAnswer, question: Question): AnswerValidation => {
     try {
       const code = answer.response as string;
       const worldConfig = JSON.parse(question.content.mechanics?.worldConfig || '{}');
@@ -330,7 +544,7 @@ export const AnswerDetails: React.FC<AnswerDetailsProps> = ({ submissionId, onBa
   };
 
 
-  const validateCodeAnswer = async (answer: Answer, question: Question): Promise<AnswerValidation> => {
+  const validateCodeAnswer = async (answer: TechnicalAnswer, question: Question): Promise<AnswerValidation> => {
     try {
       const response = await fetch('http://localhost:5000/api/techCodeExecution/execute', {
         method: 'POST',
@@ -390,7 +604,7 @@ export const AnswerDetails: React.FC<AnswerDetailsProps> = ({ submissionId, onBa
     }
   };
 
-  const validateAnswer = (answer: Answer, question: Question): AnswerValidation => {
+  const validateAnswer = (answer: TechnicalAnswer, question: Question): AnswerValidation => {
     switch (question.type) {
       case 'dragDrop': {
         const dragDropCorrect = JSON.stringify(answer.response) === JSON.stringify(question.content.correctOrder);
@@ -404,7 +618,7 @@ export const AnswerDetails: React.FC<AnswerDetailsProps> = ({ submissionId, onBa
       case 'multipleChoice': {
         const isCorrect = (answer.response as number) === question.content.correctAnswer;
         const selectedOption = question.content.options[answer.response as number];
-        const correctOption = question.content.options[question.content.correctAnswer];
+        const correctOption = question.content.correctAnswer !== undefined ? question.content.options[question.content.correctAnswer] : 'No correct answer provided';
         return {
           isCorrect,
           feedback: isCorrect
@@ -427,12 +641,16 @@ export const AnswerDetails: React.FC<AnswerDetailsProps> = ({ submissionId, onBa
     }
   };
 
-  const renderAnswer = (answer: Answer, question: Question, validation: AnswerValidation) => {
+  const renderAnswer = (answer: TechnicalAnswer, question: Question, validation: AnswerValidation) => {
+    { renderStressMetrics(answer.questionId) }
     switch (question.type) {
 
       case 'objectMechanic':
         return (
           <div className="space-y-4">
+            {/* Stress Metrics */}
+            {renderStressMetrics(answer.questionId)}
+
             <div className="p-4 bg-gray-50 rounded-lg">
               <h3 className="text-sm font-medium text-gray-700 mb-2">Implementation Analysis:</h3>
               <div className="space-y-2">
@@ -489,6 +707,7 @@ export const AnswerDetails: React.FC<AnswerDetailsProps> = ({ submissionId, onBa
       case 'code':
         return (
           <div className="space-y-4">
+            {renderStressMetrics(answer.questionId)}
             {executingCode[answer.questionId] ? (
               <div className="flex items-center justify-center py-8">
                 <Loader2 className="w-8 h-8 animate-spin text-blue-500" />
@@ -502,80 +721,82 @@ export const AnswerDetails: React.FC<AnswerDetailsProps> = ({ submissionId, onBa
                   onChange={() => { }}
                   readOnly={true}
                 />
-                {evaluations[answer.questionId] && evaluations[answer.questionId].length > 0 ? (
-                  <div className="mt-4 p-4 bg-gray-50 rounded-lg border border-gray-200">
-                    <h3 className="text-sm font-medium text-gray-700 mb-3">Code Quality Metrics:</h3>
+           {evaluations[answer.questionId] && evaluations[answer.questionId].length > 0 ? (
+  <div className="mt-4 p-4 bg-gray-50 rounded-lg border border-gray-200">
+    <h3 className="text-sm font-medium text-gray-700 mb-3">Code Quality Metrics:</h3>
 
-                    <button
-                      onClick={() => openComplexityDashboard(answer.questionId)}
-                      className="text-blue-500 hover:text-blue-700 text-sm"
-                    >
-                      View Detailed Analysis
-                    </button>
-                    {(() => {
-                      const latestEval = evaluations[answer.questionId][evaluations[answer.questionId].length - 1];
+    <button
+      onClick={() => openComplexityDashboard(answer.questionId)}
+      className="text-blue-500 hover:text-blue-700 text-sm"
+    >
+      View Detailed Analysis
+    </button>
+    {(() => {
+      const latestEval = evaluations[answer.questionId][evaluations[answer.questionId].length - 1];
 
-                      if (!latestEval.evaluationResult) {
-                        return (
-                          <div className="p-3 bg-white rounded border border-gray-200 text-center">
-                            <p className="text-sm text-gray-500">No score available</p>
-                          </div>
-                        );
-                      }
+      if (!latestEval.evaluationResult) {
+        return (
+          <div className="p-3 bg-white rounded border border-gray-200 text-center">
+            <p className="text-sm text-gray-500">No score available</p>
+          </div>
+        );
+      }
 
-                      return (
-                        <div className="grid grid-cols-2 gap-4">
-                          <div className="p-3 bg-white rounded border border-gray-200">
-                            <p className="text-xs text-gray-500">Cyclomatic Complexity</p>
-                            <p className="text-lg font-semibold">{latestEval.evaluationResult.cyclomatic_complexity || 'N/A'}</p>
-                          </div>
-                          <div className="p-3 bg-white rounded border border-gray-200">
-                            <p className="text-xs text-gray-500">Maintainability Index</p>
-                            <p className="text-lg font-semibold">
-                              {latestEval.evaluationResult.maintainability_index?.maintainability_index?.toFixed(2) || 'N/A'}
-                            </p>
-                          </div>
-                          <div className="p-3 bg-white rounded border border-gray-200">
-                            <p className="text-xs text-gray-500">Coupling Between Classes</p>
-                            <p className="text-lg font-semibold">{latestEval.evaluationResult.coupling_between_classes || 'N/A'}</p>
-                          </div>
-                          <div className="p-3 bg-white rounded border border-gray-200">
-                            <p className="text-xs text-gray-500">Quality Score</p>
-                            <p className="text-lg font-semibold">
-                              {latestEval.evaluationResult.single_value?.toFixed(2) || 'N/A'}
-                            </p>
-                          </div>
+      const metrics = latestEval.evaluationResult.metrics;
+      
+      return (
+        <div className="grid grid-cols-2 gap-4">
+          <div className="p-3 bg-white rounded border border-gray-200">
+            <p className="text-xs text-gray-500">Cyclomatic Complexity</p>
+            <p className="text-lg font-semibold">{metrics?.cyclomatic_complexity?.value || 'N/A'}</p>
+          </div>
+          <div className="p-3 bg-white rounded border border-gray-200">
+            <p className="text-xs text-gray-500">Maintainability Index</p>
+            <p className="text-lg font-semibold">
+              {metrics?.maintainability_index?.value?.toFixed(2) || 'N/A'}
+            </p>
+          </div>
+          <div className="p-3 bg-white rounded border border-gray-200">
+            <p className="text-xs text-gray-500">Cognitive Complexity</p>
+            <p className="text-lg font-semibold">{metrics?.cognitive_complexity?.value || 'N/A'}</p>
+          </div>
+          <div className="p-3 bg-white rounded border border-gray-200">
+            <p className="text-xs text-gray-500">Overall Quality Score</p>
+            <p className="text-lg font-semibold">
+              {latestEval.evaluationResult.overall_Complexity_score?.toFixed(2) || 'N/A'}
+            </p>
+          </div>
 
-                          {/* Only show submission history if there's more than one submission */}
-                          {evaluations[answer.questionId].length > 1 && (
-                            <div className="col-span-2 mt-3">
-                              <h4 className="text-sm font-medium text-gray-700 mb-2">Submission History:</h4>
-                              <div className="max-h-40 overflow-y-auto">
-                                {evaluations[answer.questionId].map((evaluation, index) => (
-                                  <div key={evaluation._id} className="p-2 mb-2 bg-white rounded border border-gray-200 text-sm">
-                                    <div className="flex justify-between items-center">
-                                      <span className="font-medium">Submission {index + 1}</span>
-                                      <span className="text-xs text-gray-500">
-                                        {new Date(evaluation.submittedAt).toLocaleString()}
-                                      </span>
-                                    </div>
-                                    <div className="text-xs mt-1">
-                                      Quality Score: {evaluation.evaluationResult?.single_value?.toFixed(2) || 'N/A'}
-                                    </div>
-                                  </div>
-                                ))}
-                              </div>
-                            </div>
-                          )}
-                        </div>
-                      );
-                    })()}
+          {/* Only show submission history if there's more than one submission */}
+          {evaluations[answer.questionId].length > 1 && (
+            <div className="col-span-2 mt-3">
+              <h4 className="text-sm font-medium text-gray-700 mb-2">Submission History:</h4>
+              <div className="max-h-40 overflow-y-auto">
+                {evaluations[answer.questionId].map((evaluation, index) => (
+                  <div key={evaluation._id} className="p-2 mb-2 bg-white rounded border border-gray-200 text-sm">
+                    <div className="flex justify-between items-center">
+                      <span className="font-medium">Submission {index + 1}</span>
+                      <span className="text-xs text-gray-500">
+                        {new Date(evaluation.submittedAt).toLocaleString()}
+                      </span>
+                    </div>
+                    <div className="text-xs mt-1">
+                      Quality Score: {evaluation.evaluationResult?.overall_Complexity_score?.toFixed(2) || 'N/A'}
+                    </div>
                   </div>
-                ) : (
-                  <div className="mt-4 p-4 bg-gray-50 rounded-lg border border-gray-200 text-center">
-                    <p className="text-sm text-gray-500">No code quality metrics available</p>
-                  </div>
-                )}
+                ))}
+              </div>
+            </div>
+          )}
+        </div>
+      );
+    })()}
+  </div>
+) : (
+  <div className="mt-4 p-4 bg-gray-50 rounded-lg border border-gray-200 text-center">
+    <p className="text-sm text-gray-500">No code quality metrics available</p>
+  </div>
+)}
 
                 {validation.testResults && (
                   <div className="mt-4">
@@ -655,6 +876,7 @@ export const AnswerDetails: React.FC<AnswerDetailsProps> = ({ submissionId, onBa
       case 'dragDrop':
         return (
           <div className="space-y-4">
+            {renderStressMetrics(answer.questionId)}
             <div className="space-y-2">
               <h3 className="text-sm font-medium text-gray-700 mb-2">Submitted Order:</h3>
               {(answer.response as string[]).map((itemId, index) => {
@@ -683,6 +905,7 @@ export const AnswerDetails: React.FC<AnswerDetailsProps> = ({ submissionId, onBa
       case 'multipleChoice':
         return (
           <div className="space-y-4">
+            {renderStressMetrics(answer.questionId)}
             <div>
               <h3 className="text-sm font-medium text-gray-700 mb-2">Selected Answer:</h3>
               <div className={`p-3 rounded-lg border ${validation.isCorrect
@@ -696,7 +919,7 @@ export const AnswerDetails: React.FC<AnswerDetailsProps> = ({ submissionId, onBa
               <div>
                 <h3 className="text-sm font-medium text-gray-700 mb-2">Correct Answer:</h3>
                 <div className="p-3 bg-green-50 border border-green-200 rounded-lg text-green-700">
-                  {question.content.options[question.content.correctAnswer]}
+                  {question.content.correctAnswer !== undefined ? question.content.options[question.content.correctAnswer] : 'No correct answer provided'}
                 </div>
               </div>
             )}
@@ -745,6 +968,76 @@ export const AnswerDetails: React.FC<AnswerDetailsProps> = ({ submissionId, onBa
       </div>
     );
   }
+
+
+
+  const saveScores = async () => {
+    //  specific submission from the grouped data
+    const answersResponse = await fetch(`http://localhost:5000/api/techAnswers/answers/grouped`);
+    if (!answersResponse.ok) {
+      throw new Error('Failed to fetch submission details');
+    }
+    const groupedData = await answersResponse.json();
+    const submission = groupedData
+      .flatMap((group: { answers: TechnicalAnswer[] }) => group.answers)
+      .find((sub: TechnicalAnswer) => sub._id === submissionId);
+  
+    if (!submission) {
+      throw new Error('Submission not found');
+    }
+  
+    // Extract jobId and userId 
+    const jobId = submission.jobId;
+    const userId = submission.userId;
+  
+    const scores = answers.map(answer => ({
+      questionId: answer.questionId,
+      score: validations[answer.questionId].points,
+      maxScore: questions[answer.questionId].points
+    }));
+  
+    const payload = {
+      interviewScheduleId: submissionId,
+      jobId,
+      userId,
+      scores,
+      totalScore,
+      maxPossibleScore
+    };
+  
+    try {
+      // Check if scores already exist
+      const existingScoresResponse = await fetch(`http://localhost:5000/api/results/${submissionId}`);
+      if (existingScoresResponse.ok) {
+        const existingScores = await existingScoresResponse.json();
+        if (existingScores) {
+          console.log('Scores already exist, not saving again');
+          return;
+        }
+      }
+  
+      // Save scores if they don't exist
+      const response = await fetch('http://localhost:5000/api/results/submission-results', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify(payload),
+      });
+  
+      if (!response.ok) {
+        throw new Error('Failed to save scores');
+      }
+  
+      const data = await response.json();
+      console.log('Scores saved successfully:', data);
+    } catch (error) {
+      console.error('Error saving scores:', error);
+    }
+  };
+
+
+  
 
   return (
     <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
@@ -809,6 +1102,11 @@ export const AnswerDetails: React.FC<AnswerDetailsProps> = ({ submissionId, onBa
               <div className="px-6 py-4">
                 {renderAnswer(answer, question, validation)}
               </div>
+              <StressAnalysisModal
+                isOpen={!!selectedStressQuestionId}
+                onClose={() => setSelectedStressQuestionId(null)}
+                questionId={selectedStressQuestionId || ''}
+              />
             </div>
           );
         })}

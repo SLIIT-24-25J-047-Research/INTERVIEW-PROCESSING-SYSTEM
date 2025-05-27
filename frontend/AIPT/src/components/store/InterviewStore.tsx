@@ -70,6 +70,15 @@ interface Answer {
   timeTaken: number;
 }
 
+interface InterviewContext {
+  interviewId: string;
+  testLink: string;
+  duration: number;
+  userId: string;
+  jobId: string;
+}
+
+
 interface InterviewState {
   currentQuestionIndex: number;
   questions: Question[];
@@ -95,10 +104,12 @@ interface InterviewState {
   hasSubmitted: boolean;
   submitAllAnswers: () => Promise<void>;
   submitCodeForComplexityAnalysis: (questionId: string, code: string, language: string) => Promise<void>;
-  // Track which code questions have already been submitted for complexity analysis
   submittedCodeQuestions: Set<string>;
-  // Flag to mark when we're submitting the whole exam
   isSubmittingExam: boolean;
+  sendWebcamSnapshot: (questionId: string, imageData: string) => Promise<void>;
+  interviewContext: InterviewContext | null;
+  setInterviewContext: (context: InterviewContext) => void;
+  
 }
 
 const loadTimerState = (): TimerState => {
@@ -135,7 +146,9 @@ export const useInterviewStore = create<InterviewState>((set, get) => ({
   hasSubmitted: localStorage.getItem('hasSubmitted') === 'true',
   submittedCodeQuestions: loadSubmittedCodeQuestions(),
   isSubmittingExam: false,
+  interviewContext: null,
 
+  setInterviewContext: (context) => set({ interviewContext: context }),
   setCurrentQuestion: (index) => set({ currentQuestionIndex: index }),
   
   setAnswer: (questionId, type, response) => {
@@ -197,7 +210,7 @@ export const useInterviewStore = create<InterviewState>((set, get) => ({
       typeof answer?.response === 'string' && 
       !state.submittedCodeQuestions.has(questionId)
     ) {
-      // We make this call AFTER updating the state to ensure consistency
+
       get().submitCodeForComplexityAnalysis(
         questionId, 
         answer.response, 
@@ -252,17 +265,15 @@ export const useInterviewStore = create<InterviewState>((set, get) => ({
 
   submitCodeForComplexityAnalysis: async (questionId, code, language) => {
     try {
-      // Double-check if we've already submitted this question for complexity analysis
-      // Using direct get() here to ensure we have the latest state
+ 
+      const state = get();
       if (get().submittedCodeQuestions.has(questionId)) {
         console.log(`Skipping complexity analysis for Question ${questionId} - already submitted`);
         return;
       }
       
       console.log(`Submitting code for complexity analysis: Question ${questionId}`);
-      
-      // First mark this question as submitted BEFORE making the API call
-      // This prevents race conditions where multiple submissions might be triggered
+  
       set(state => {
         const newSubmittedCodeQuestions = new Set([...state.submittedCodeQuestions, questionId]);
         localStorage.setItem('submittedCodeQuestions', JSON.stringify([...newSubmittedCodeQuestions]));
@@ -278,7 +289,7 @@ export const useInterviewStore = create<InterviewState>((set, get) => ({
           questionId,
           code,
           language,
-          userId: "6759439c7cf33b13b125340e", 
+          userId: state.interviewContext?.userId,
         }),
       });
       
@@ -321,7 +332,7 @@ export const useInterviewStore = create<InterviewState>((set, get) => ({
         !state.submittedCodeQuestions.has(q._id)
       );
       
-      // Process these one at a time to prevent race conditions
+      //  prevent race conditions
       for (const question of pendingCodeQuestions) {
         const answer = state.answers[question._id];
         if (typeof answer.response === 'string') {
@@ -334,8 +345,8 @@ export const useInterviewStore = create<InterviewState>((set, get) => ({
       }
     
       console.log('Submitting answers:', {
-        interviewId: "678f8b2bce0b5bbe13d5515d",
-        userId: "6759439c7cf33b13b125340e",
+        interviewId: state.interviewContext?.interviewId ?? '',
+        userId: state.interviewContext?.userId,
         answers: answersArray,
       });
     
@@ -345,8 +356,8 @@ export const useInterviewStore = create<InterviewState>((set, get) => ({
           'Content-Type': 'application/json',
         },
         body: JSON.stringify({
-          interviewId: "678f8b2bce0b5bbe13d5515d",
-          userId: "6759439c7cf33b13b125340e",
+          interviewId: state.interviewContext?.interviewId,
+          userId: state.interviewContext?.userId,
           answers: answersArray,
         }),
       });
@@ -357,7 +368,7 @@ export const useInterviewStore = create<InterviewState>((set, get) => ({
     
       const responseData = await response.json();
     
-      // Clear all exam-related localStorage items
+    
       localStorage.removeItem('examAnswers');
       localStorage.removeItem('examTimerState');
       localStorage.removeItem('lockedQuestions');
@@ -388,7 +399,7 @@ export const useInterviewStore = create<InterviewState>((set, get) => ({
       
       const questions: Question[] = await response.json();
       
-      // Validate the response structure matches your Question type
+   
       const validatedQuestions = questions.map(question => ({
         ...question,
         content: {
@@ -412,4 +423,53 @@ export const useInterviewStore = create<InterviewState>((set, get) => ({
       });
     }
   },
+
+  sendWebcamSnapshot: async (questionId: string, imageData: string) => {
+    try {
+      const byteCharacters = atob(imageData.split(",")[1]);
+      const byteNumbers = new Array(byteCharacters.length);
+      for (let i = 0; i < byteCharacters.length; i++) {
+        byteNumbers[i] = byteCharacters.charCodeAt(i);
+      }
+      const byteArray = new Uint8Array(byteNumbers);
+      const blob = new Blob([byteArray], { type: "image/jpeg" });
+  
+      const formData = new FormData();
+      formData.append("file", blob, "snapshot.jpg");
+  
+      const state = get();
+      if (state.interviewContext) {
+        formData.append("questionID", questionId);
+        formData.append("jobID", state.interviewContext.jobId);
+        formData.append("interviewScheduleID", state.interviewContext.interviewId);
+        formData.append("userID", state.interviewContext.userId);
+      } else {
+        throw new Error("Interview context is not available.");
+      }
+  
+     
+      const formDataObject: Record<string, string | Blob> = {};
+      formData.forEach((value, key) => {
+        formDataObject[key] = value;
+      });
+  
+      console.log("🚀 FormData JSON being sent:", JSON.stringify(formDataObject, null, 2));
+  
+      const response = await fetch("http://localhost:5000/api/stress/detect/", {
+        method: "POST",
+        body: formData,
+      });
+  
+      if (!response.ok) {
+        const errorResponse = await response.text();
+        throw new Error(`Failed to send webcam snapshot: ${errorResponse}`);
+      }
+  
+      const result = await response.json();
+      console.log("✅ Snapshot sent successfully:", result);
+    } catch (error) {
+      console.error("❌ Error sending webcam snapshot:", error);
+    }
+  },
+  
 }));

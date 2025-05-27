@@ -13,6 +13,10 @@ const technicalInterviewScheduleSchema = new mongoose.Schema({
     default: 'scheduled', 
   },
   testLink: { type: String, required: true }, 
+  skills: {
+    type: [String],
+    default: [], 
+  },
   jobId: { type: mongoose.Schema.Types.ObjectId, ref: 'jobs', required: true },
 });
 
