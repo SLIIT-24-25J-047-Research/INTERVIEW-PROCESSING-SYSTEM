@@ -1,14 +1,46 @@
-// controllers/candidate/CVSkillsController.js
 const CVSkills = require('../../models/candidate/CVSkills');
+const Notification = require('../../models/candidate/Notification');
 
 const saveExtractedSkills = async (req, res) => {
   try {
     const { fileId, jobId, userId, skills } = req.body;
 
-    if (!fileId || !jobId || !userId || !skills) {
-      return res.status(400).json({ message: 'All fields are required' });
+    if (!fileId || !jobId || !userId) {
+      return res.status(400).json({ message: 'fileId, jobId, and userId are required' });
     }
 
+    // if skills array is empty or not provided
+    if (!skills || skills.length === 0) {
+      // Create a notification 
+      const notificationMessage = 'No skills were extracted from your uploaded CV. Please consider updating your CV with relevant skills.';
+      const newNotification = new Notification({ 
+        userId, 
+        message: notificationMessage,
+        interviewType: 'CV Upload' 
+      });
+      await newNotification.save();
+
+      return res.status(200).json({
+        message: 'No skills were extracted. User has been notified.',
+        notification: newNotification
+      });
+    }
+
+    // Check if data for this fileId already exists
+    let existingEntry = await CVSkills.findOne({ fileId });
+    if (existingEntry) {
+      // Update the existing entry with the new skills if needed
+      existingEntry.skills = skills;
+      existingEntry.jobId = jobId;
+      existingEntry.userId = userId;
+      await existingEntry.save();
+      return res.status(200).json({
+        message: 'Skills updated successfully',
+        data: existingEntry,
+      });
+    }
+
+    // Create a new entry if it doesn't exist
     const newCVSkills = new CVSkills({
       fileId,
       jobId,
@@ -127,10 +159,10 @@ const deleteCVSkills = async (req, res) => {
 };
 
 
-
-
-
-module.exports = { saveExtractedSkills , getCVSkillsByUserId,
+module.exports = {
+  saveExtractedSkills,
+  getCVSkillsByUserId,
   getCVSkillsByJobId,
   getAllCVSkillsGroupedByJobId,
-  deleteCVSkills,};
+  deleteCVSkills,
+};
