@@ -28,6 +28,7 @@ import SendFeedback from "./pages/Interviewer/SendFeedback";
 import JobAdminDashboard from "./pages/Interviewer/jobdetails/Job-admin-dashboard";
 import { NonTechnicalAnswerDetails } from "./components/Interviewer/answers/NonTechnicalInterviewDetails";
 import SpaceGameLevelMap from "./components/Int2";
+import CandidateResultsPage from "./components/Interviewer/answers/CandidateResultsPage";
 
 const App: React.FC = () => {
   return (
@@ -94,6 +95,15 @@ const App: React.FC = () => {
         element={
           <PrivateRoute allowedRoles={["interviewer"]}>
             <JobAdminDashboard />       
+          </PrivateRoute>
+        }
+      />
+
+         <Route
+        path="/interviewer-result"
+        element={
+          <PrivateRoute allowedRoles={["interviewer"]}>
+            <CandidateResultsPage />       
           </PrivateRoute>
         }
       />
@@ -253,6 +263,8 @@ const App: React.FC = () => {
           </PrivateRoute>
         }
       />
+
+
 
 
 
