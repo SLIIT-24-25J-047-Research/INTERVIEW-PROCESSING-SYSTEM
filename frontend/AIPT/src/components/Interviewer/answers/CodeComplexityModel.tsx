@@ -71,8 +71,27 @@ const CodeComplexityDashboard: React.FC<CodeComplexityDashboardProps> = ({ isOpe
           data = [data];
         }
 
+        // Define the type for the incoming data item
+        interface RawSubmission {
+          _id: string;
+          submittedAt: string;
+          evaluationResult?: {
+            metrics?: {
+              cognitive_complexity?: { value: number };
+              cyclomatic_complexity?: { value: number };
+              maintainability_index?: { value: number };
+              weighted_complexity?: { value: number };
+            };
+            overall_Complexity_score?: number;
+            interpretation?: {
+              overall?: string;
+              recommendations?: string[];
+            };
+          };
+        }
+
         // Format data for visualization
-        const formattedData = data.map((item, index) => {
+        const formattedData = data.map((item: RawSubmission, index: number) => {
           const result = item.evaluationResult || {};
           const metrics = result.metrics || {};
 
