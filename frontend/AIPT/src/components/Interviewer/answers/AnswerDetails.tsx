@@ -763,7 +763,9 @@ useEffect(() => {
           <div className="p-3 bg-white rounded border border-gray-200">
             <p className="text-xs text-gray-500">Overall Quality Score</p>
             <p className="text-lg font-semibold">
-              {latestEval.evaluationResult.overall_Complexity_score?.toFixed(2) || 'N/A'}
+              {typeof metrics?.cyclomatic_complexity?.value === 'number'
+                ? metrics.cyclomatic_complexity.value.toFixed(2)
+                : 'N/A'}
             </p>
           </div>
 
@@ -781,7 +783,9 @@ useEffect(() => {
                       </span>
                     </div>
                     <div className="text-xs mt-1">
-                      Quality Score: {evaluation.evaluationResult?.overall_Complexity_score?.toFixed(2) || 'N/A'}
+                      Quality Score: {typeof evaluation.evaluationResult.cyclomatic_complexity === 'number'
+                        ? evaluation.evaluationResult.cyclomatic_complexity.toFixed(2)
+                        : 'N/A'}
                     </div>
                   </div>
                 ))}
