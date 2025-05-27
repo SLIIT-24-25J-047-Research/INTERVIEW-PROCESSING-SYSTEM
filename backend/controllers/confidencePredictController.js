@@ -83,6 +83,7 @@ exports.unifiedAudioController = async (req, res) => {
 
         // 2. Process transcription
         let transcriptionResult = null;
+        let marks = 0; // Initialize marks
         try {
             const transcription = await transcribeAudio(transcriptionPath);
             console.log('Transcription result:', transcription);
@@ -91,6 +92,9 @@ exports.unifiedAudioController = async (req, res) => {
             const comparisonResult = await compareAnswers(transcription, question.answers);
             console.log('Comparison results:', comparisonResult);
 
+            // Calculate marks - 10 if correct, 0 otherwise
+            marks = comparisonResult.is_correct ? 10 : 0;
+            
             transcriptionResult = {
                 transcription: transcription,
                 similarity: comparisonResult.similarity_scores,
@@ -105,34 +109,64 @@ exports.unifiedAudioController = async (req, res) => {
         cleanupFiles(predictionPath);
         cleanupFiles(transcriptionPath);
 
-        // Prepare the question response object
+        // Prepare the question response object with marks
         const questionResponse = {
             questionId: questionId,
             prediction: confidencePrediction || null,
             transcription: transcriptionResult ? transcriptionResult.transcription : null,
             similarityScores: transcriptionResult ? transcriptionResult.similarity : null,
-            isCorrect: transcriptionResult ? transcriptionResult.isCorrect : null
+            isCorrect: transcriptionResult ? transcriptionResult.isCorrect : null,
+            marks: marks // Add marks to the response
         };
 
-        // Save to database
-        const audioResponse = await AudioResponse.findOneAndUpdate(
-            { interviewId: interviewId }, // Query
-            {
-                $setOnInsert: { userId: userId, jobId: jobId },
-                $push: { responses: questionResponse }
-            },
-            { upsert: true, new: true }
-        );
-        console.log('Audio response saved/updated in database:', audioResponse);
+        // Check if a response for this question already exists
+        const existingResponse = await AudioResponse.findOne({
+            interviewId: interviewId,
+            'responses.questionId': questionId
+        });
 
-        // Return success response
+        let audioResponse;
+        if (existingResponse) {
+            // Update the existing response
+            audioResponse = await AudioResponse.findOneAndUpdate(
+                { 
+                    interviewId: interviewId,
+                    'responses.questionId': questionId
+                },
+                {
+                    $set: {
+                        'responses.$.prediction': confidencePrediction || null,
+                        'responses.$.transcription': transcriptionResult ? transcriptionResult.transcription : null,
+                        'responses.$.similarityScores': transcriptionResult ? transcriptionResult.similarity : null,
+                        'responses.$.isCorrect': transcriptionResult ? transcriptionResult.isCorrect : null,
+                        'responses.$.marks': marks
+                    }
+                },
+                { new: true }
+            );
+            console.log('Existing audio response updated:', audioResponse);
+        } else {
+            // Create a new response
+            audioResponse = await AudioResponse.findOneAndUpdate(
+                { interviewId: interviewId }, // Query
+                {
+                    $setOnInsert: { userId: userId, jobId: jobId },
+                    $push: { responses: questionResponse }
+                },
+                { upsert: true, new: true }
+            );
+            console.log('New audio response created:', audioResponse);
+        }
+
+        // Return success response with marks
         return res.status(200).json({
             success: true,
             prediction: confidencePrediction || { message: "Prediction failed" },
             ...(transcriptionResult && {
                 transcription: transcriptionResult.transcription,
                 similarity: transcriptionResult.similarity,
-                isCorrect: transcriptionResult.isCorrect
+                isCorrect: transcriptionResult.isCorrect,
+                marks: marks // Include marks in the response
             })
         });
     } catch (error) {
