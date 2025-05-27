@@ -13,9 +13,8 @@ const saveExtractedSkills = async (req, res) => {
       return res.status(400).json({ message: 'fileId, jobId, and userId are required' });
     }
 
-    // if skills array is empty or not provided
+    
     if (!skills || skills.length === 0) {
-      // Create a notification 
       const notificationMessage = 'No skills were extracted from your uploaded CV. Please consider updating your CV with relevant skills.';
       const newNotification = new Notification({ 
         userId, 
@@ -30,10 +29,9 @@ const saveExtractedSkills = async (req, res) => {
       });
     }
 
-    // Check if data for this fileId already exists
+   
     let existingEntry = await CVSkills.findOne({ fileId });
     if (existingEntry) {
-      // Update the existing entry with the new skills if needed
       existingEntry.skills = skills;
       existingEntry.jobId = jobId;
       existingEntry.userId = userId;
@@ -44,7 +42,7 @@ const saveExtractedSkills = async (req, res) => {
       });
     }
 
-    // Create a new entry if it doesn't exist
+   
     const newCVSkills = new CVSkills({
       fileId,
       jobId,
@@ -54,7 +52,7 @@ const saveExtractedSkills = async (req, res) => {
 
     await newCVSkills.save();
 
-    // Get user details for interview scheduling
+  
     const user = await User.findById(userId);
     if (!user) {
       return res.status(404).json({ message: 'User not found' });
@@ -65,46 +63,12 @@ const saveExtractedSkills = async (req, res) => {
       return res.status(404).json({ message: 'Job not found' });
     }
 
-    // Schedule Non-Technical Interview (3 days from now)
-    const nonTechInterviewDate = new Date();
-    nonTechInterviewDate.setDate(nonTechInterviewDate.getDate() + 3);
-    const nonTechInterviewTime = "10:00 AM"; // Default time
-    const media = "MS Teams"; // Default platform
-
-    // Check for existing non-technical interview
-    const existingNonTechInterview = await InterviewSchedule.findOne({
-      jobId,
-      userId,
-      interviewDate: { $gte: new Date(), $lt: new Date(new Date().setDate(new Date().getDate() + 3)) },
-    });
-
-    if (!existingNonTechInterview) {
-      const newNonTechInterview = new InterviewSchedule({
-        userId,
-        userName: user.name,
-        interviewDate: nonTechInterviewDate,
-        interviewTime: nonTechInterviewTime,
-        media,
-        jobId,
-        skills,
-      });
-
-      await newNonTechInterview.save();
-
-      const nonTechNotification = new Notification({
-        userId,
-        message: `Your non-technical interview for job "${job.title}" has been scheduled on ${media} for ${nonTechInterviewDate.toDateString()} at ${nonTechInterviewTime}.`,
-        interviewType: 'non-technical',
-      });
-      await nonTechNotification.save();
-    }
-
-    // Schedule Technical Interview (5 days from now to allow time after non-technical)
+    // Schedule Technical Interview 
     const techInterviewDate = new Date();
-    techInterviewDate.setDate(techInterviewDate.getDate() + 5);
-    const techInterviewTime = "2:00 PM"; // Default time
-    const duration = 60; // Default duration in minutes
-    const testLink = `https://tech-test-platform.com/${userId}-${jobId}-${Date.now()}`; // Generate unique test link
+    techInterviewDate.setDate(techInterviewDate.getDate() + 3);
+    const techInterviewTime = "2:00 PM";
+    const duration = 60;
+    const testLink = `https://elevate.com/${userId}-${jobId}-${Date.now()}`;
 
     // Check for existing technical interview
     const existingTechInterview = await TechnicalInterviewSchedule.findOne({
@@ -123,6 +87,7 @@ const saveExtractedSkills = async (req, res) => {
         testLink,
         jobId,
         skills,
+        status: 'scheduled'
       });
 
       await newTechInterview.save();
@@ -134,13 +99,47 @@ const saveExtractedSkills = async (req, res) => {
       });
       await techNotification.save();
     }
+   // Schedule Non-Technical Interview
+    const nonTechInterviewDate = new Date(techInterviewDate);
+    nonTechInterviewDate.setDate(nonTechInterviewDate.getDate() + 5);
+    const nonTechInterviewTime = "10:00 AM";
+    const media = "MS Teams";
+
+    // Check for existing non-technical interview
+    const existingNonTechInterview = await InterviewSchedule.findOne({
+      jobId,
+      userId,
+      status: { $in: ['scheduled'] },
+    });
+
+    if (!existingNonTechInterview) {
+      const newNonTechInterview = new InterviewSchedule({
+        userId,
+        userName: user.name,
+        interviewDate: nonTechInterviewDate,
+        interviewTime: nonTechInterviewTime,
+        media,
+        jobId,
+        skills,
+        status: 'scheduled'
+      });
+
+      await newNonTechInterview.save();
+
+      const nonTechNotification = new Notification({
+        userId,
+        message: `Your non-technical interview for job "${job.title}" has been scheduled on ${media} for ${nonTechInterviewDate.toDateString()} at ${nonTechInterviewTime}.`,
+        interviewType: 'non-technical',
+      });
+      await nonTechNotification.save();
+    }
 
     res.status(201).json({
       message: 'Skills saved successfully and interviews scheduled',
       data: {
         cvSkills: newCVSkills,
-        nonTechnicalInterview: existingNonTechInterview ? 'Existing interview found' : 'New interview scheduled',
-        technicalInterview: existingTechInterview ? 'Existing interview found' : 'New interview scheduled'
+        technicalInterview: existingTechInterview ? 'Existing interview found' : await TechnicalInterviewSchedule.findOne({ userId, jobId }),
+        nonTechnicalInterview: existingNonTechInterview ? 'Existing interview found' : await InterviewSchedule.findOne({ userId, jobId })
       },
     });
   } catch (error) {
