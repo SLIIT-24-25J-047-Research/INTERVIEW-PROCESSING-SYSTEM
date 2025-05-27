@@ -13,6 +13,10 @@ const interviewScheduleSchema = new mongoose.Schema({
     default: 'scheduled', 
   },
   jobId: { type: mongoose.Schema.Types.ObjectId, required: true, ref: 'jobs' },
+  skills: {
+    type: [String],
+    default: [], 
+  },
 });
 
 const InterviewSchedule = mongoose.model('Non-Technical-InterviewSchedule', interviewScheduleSchema);
