@@ -10,9 +10,16 @@ interface FileSkillExtractorProps {
   fileId: string; // Add fileId as a prop
   jobId: string; // Add jobId as a prop
   userId: string; // Add userId as a prop
+  onSkillValidation: (isValid: boolean, errorMessage?: string) => void; // Callback for skill validation
 }
 
-const FileSkillExtractor: React.FC<FileSkillExtractorProps> = ({ filePath, fileId, jobId, userId }) => {
+const FileSkillExtractor: React.FC<FileSkillExtractorProps> = ({ 
+  filePath, 
+  fileId, 
+  jobId, 
+  userId, 
+  onSkillValidation 
+}) => {
   useEffect(() => {
     if (filePath) {
       loadFile(filePath);
@@ -34,9 +41,11 @@ const FileSkillExtractor: React.FC<FileSkillExtractorProps> = ({ filePath, fileI
         extractTextFromDocx(file);
       } else {
         console.error("Unsupported file format. Please use a PDF or DOCX file.");
+        onSkillValidation(false, "Unsupported file format. Please use a PDF or DOCX file.");
       }
     } catch (error) {
       console.error("Error loading file:", error);
+      onSkillValidation(false, "Error loading file. Please try again.");
     }
   };
 
@@ -52,12 +61,13 @@ const FileSkillExtractor: React.FC<FileSkillExtractorProps> = ({ filePath, fileI
           const page = await pdf.getPage(i);
           const textContent = await page.getTextContent();
           extractedText += textContent.items.map((item) => ('str' in item ? item.str : '')).join(" ") + " ";
+          extractedText += textContent.items.map((item) => ('str' in item ? item.str : '')).join(" ") + " ";
         }
 
-        const skills = extractSkills(extractedText);
-        saveSkillsToBackend(skills);
+        await validateSkillsWithJobRequirements(extractedText);
       } catch (error) {
         console.error("Error extracting text from PDF:", error);
+        onSkillValidation(false, "Error processing PDF file. Please try again.");
       }
     };
     reader.readAsArrayBuffer(file);
@@ -68,86 +78,90 @@ const FileSkillExtractor: React.FC<FileSkillExtractorProps> = ({ filePath, fileI
     reader.onload = async (event) => {
       try {
         const result = await mammoth.extractRawText({ arrayBuffer: event.target?.result as ArrayBuffer });
-        const skills = extractSkills(result.value);
-        saveSkillsToBackend(skills);
+        await validateSkillsWithJobRequirements(result.value);
       } catch (error) {
         console.error("Error extracting text from DOCX:", error);
+        onSkillValidation(false, "Error processing DOCX file. Please try again.");
       }
     };
     reader.readAsArrayBuffer(file);
   };
 
-  const extractSkills = (text: string): string[] => {
-    const skillsList = [
-      // Programming Languages
-      "JavaScript", "TypeScript", "React", "Angular", "Vue.js",
-      "Node.js", "Express.js", "Python", "Django", "Flask",
-      "Java", "Spring Boot", "C++", "C#", ".NET", "Go", "Rust",
-      "PHP", "Laravel", "Ruby", "Ruby on Rails", "Kotlin", "Swift",
-      "Objective-C", "Shell Scripting", "Perl", "Scala", "Dart",
+  const validateSkillsWithJobRequirements = async (cvText: string) => {
+    try {
+      // Fetch job requirements from the backend
+      const jobResponse = await axios.get(`http://localhost:5000/api/jobs/${jobId}`);
+      const jobData = jobResponse.data;
       
-      // Frontend Technologies
-      "HTML", "CSS", "SCSS", "SASS", "Bootstrap", "Tailwind CSS",
-      "Material UI", "Chakra UI", "Styled Components",
-  
-      // Backend Technologies
-      "GraphQL", "REST API", "Microservices", "gRPC", "WebSockets",
-  
-      // Databases
-      "SQL", "MySQL", "PostgreSQL", "MongoDB", "Firebase", "Redis",
-      "Cassandra", "MariaDB", "Oracle DB", "DynamoDB",
-  
-      // Cloud & DevOps
-      "AWS", "Azure", "Google Cloud", "Docker", "Kubernetes",
-      "Terraform", "Jenkins", "GitHub Actions", "CI/CD",
-      "Ansible", "Puppet", "Chef", "Prometheus", "Grafana",
-  
-      // Version Control & Collaboration
-      "Git", "GitHub", "GitLab", "Bitbucket", "JIRA", "Trello",
-      "Confluence", "Agile", "Scrum", "Kanban",
-  
-      // QA & Testing
-      "Selenium", "Cypress", "Jest", "Mocha", "Chai",
-      "JUnit", "PyTest", "Postman", "LoadRunner",
-      "TestNG", "Appium", "Cucumber", "Robot Framework",
-  
-      // UI/UX Design
-      "Figma", "Adobe XD", "Sketch", "InVision", "Axure RP",
-      "Wireframing", "Prototyping", "User Research", "Usability Testing",
-  
-      // IT Support & System Administration
-      "Linux", "Windows Server", "Active Directory", "PowerShell",
-      "Bash Scripting", "VMware", "Hyper-V", "Cybersecurity",
-      "Firewalls", "Networking", "TCP/IP", "DNS", "DHCP",
-      "VPN", "Cisco", "Load Balancing",
-  
-      // Machine Learning & Data Science
-      "TensorFlow", "PyTorch", "Keras", "Pandas", "NumPy",
-      "Scikit-Learn", "OpenCV", "Natural Language Processing",
-      "Data Analysis", "Big Data", "Hadoop", "Apache Spark",
-  
-      // Other Essential Skills
-      "Agile Methodologies", "Project Management", "Software Architecture",
-      "Object-Oriented Programming", "Functional Programming",
-      "Database Administration", "Penetration Testing", "Blockchain",
-      "IoT Development", "Embedded Systems"
-    ];
-  
-    return skillsList.filter((skill) => text.toLowerCase().includes(skill.toLowerCase()));
+      if (!jobData || !jobData.requirements || !Array.isArray(jobData.requirements)) {
+        onSkillValidation(false, "Unable to fetch job requirements. No Requirements, Please try again.");
+        return;
+      }
+
+      // Parse job requirements - handle the nested array structure
+      let jobRequirements: string[] = [];
+      
+      // Check if requirements is an array of strings or contains nested arrays
+      if (jobData.requirements.length > 0) {
+        if (typeof jobData.requirements[0] === 'string') {
+          // If it's a string that contains comma-separated values with quotes
+          const requirementsString = jobData.requirements[0];
+          // Remove quotes and split by comma
+          jobRequirements = requirementsString
+            .replace(/"/g, '') // Remove all quotes
+            .split(',')
+            .map((skill: string) => skill.trim())
+            .filter((skill: string) => skill.length > 0);
+        } else {
+          // If it's already an array of individual requirements
+          jobRequirements = jobData.requirements.flat();
+        }
+      }
+
+      console.log("Job Requirements:", jobRequirements);
+
+      // Extract skills from CV text that match job requirements only
+      const matchingSkills = jobRequirements.filter(requirement => 
+        cvText.toLowerCase().includes(requirement.toLowerCase())
+      );
+
+      console.log("Matching Skills found in CV:", matchingSkills);
+
+      // Check if candidate has at least 5 matching skills
+      if (matchingSkills.length < 5) {
+        const missingSkills = jobRequirements.filter(req => 
+          !cvText.toLowerCase().includes(req.toLowerCase())
+        );
+        
+        const errorMessage = `Your CV contains only ${matchingSkills.length} skills that match with job requirements. You need at least 5 matching skills to apply for this position. Missing skills from job requirements: ${missingSkills.join(', ')}.`;
+        
+        onSkillValidation(false, errorMessage);
+        return;
+      }
+
+      // If validation passes, save only the matching skills to backend
+      await saveMatchingSkillsToBackend(matchingSkills);
+      onSkillValidation(true);
+
+    } catch (error) {
+      console.error("Error validating skills:", error);
+      onSkillValidation(false, "Error validating skills against job requirements. Please try again.");
+    }
   };
   
-  const saveSkillsToBackend = async (skills: string[]) => {
+  const saveMatchingSkillsToBackend = async (matchingSkills: string[]) => {
     try {
       const response = await axios.post("http://localhost:5000/api/cv-skills/save-skills", {
         fileId, // Use the fileId passed as a prop
         jobId, // Use the jobId passed as a prop
         userId, // Use the userId passed as a prop
-        skills,
+        skills: matchingSkills, // Save only matching skills
       });
 
-      console.log("Skills saved successfully:", response.data);
+      console.log("Matching skills saved successfully:", response.data);
     } catch (error) {
-      console.error("Error saving skills:", error);
+      console.error("Error saving matching skills:", error);
+      throw error; // Re-throw to handle in the calling function
     }
   };
 
