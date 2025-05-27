@@ -13,13 +13,13 @@ const saveExtractedSkills = async (req, res) => {
       return res.status(400).json({ message: 'fileId, jobId, and userId are required' });
     }
 
-    
+
     if (!skills || skills.length === 0) {
       const notificationMessage = 'No skills were extracted from your uploaded CV. Please consider updating your CV with relevant skills.';
-      const newNotification = new Notification({ 
-        userId, 
+      const newNotification = new Notification({
+        userId,
         message: notificationMessage,
-        interviewType: 'CV Upload' 
+        interviewType: 'CV Upload'
       });
       await newNotification.save();
 
@@ -29,7 +29,7 @@ const saveExtractedSkills = async (req, res) => {
       });
     }
 
-   
+
     let existingEntry = await CVSkills.findOne({ fileId });
     if (existingEntry) {
       existingEntry.skills = skills;
@@ -42,7 +42,7 @@ const saveExtractedSkills = async (req, res) => {
       });
     }
 
-   
+
     const newCVSkills = new CVSkills({
       fileId,
       jobId,
@@ -52,7 +52,7 @@ const saveExtractedSkills = async (req, res) => {
 
     await newCVSkills.save();
 
-  
+
     const user = await User.findById(userId);
     if (!user) {
       return res.status(404).json({ message: 'User not found' });
@@ -99,7 +99,7 @@ const saveExtractedSkills = async (req, res) => {
       });
       await techNotification.save();
     }
-   // Schedule Non-Technical Interview
+    // Schedule Non-Technical Interview
     const nonTechInterviewDate = new Date(techInterviewDate);
     nonTechInterviewDate.setDate(nonTechInterviewDate.getDate() + 5);
     const nonTechInterviewTime = "10:00 AM";
@@ -155,13 +155,13 @@ const saveExtractedSkills = async (req, res) => {
 
 const getCVSkillsByUserId = async (req, res) => {
   try {
-    const { userId } = req.params; 
+    const { userId } = req.params;
     const cvSkills = await CVSkills.find({ userId }).populate('fileId jobId', 'skills fileId jobId');
-    
+
     if (!cvSkills.length) {
       return res.status(404).json({ message: 'No CV skills found for this user' });
     }
-    
+
     res.status(200).json(cvSkills);
   } catch (error) {
     console.error(error);
@@ -172,9 +172,9 @@ const getCVSkillsByUserId = async (req, res) => {
 
 const getCVSkillsByJobId = async (req, res) => {
   try {
-    const { jobId } = req.params; 
+    const { jobId } = req.params;
     const cvSkills = await CVSkills.find({ jobId }).populate('fileId userId', 'skills fileId userId');
-    
+
     if (!cvSkills.length) {
       return res.status(404).json({ message: 'No CV skills found for this job' });
     }
@@ -193,8 +193,8 @@ const getAllCVSkillsGroupedByJobId = async (req, res) => {
       {
         $group: {
           _id: "$jobId",
-          skills: { $push: "$skills" }, 
-          users: { $push: "$userId" }, 
+          skills: { $push: "$skills" },
+          users: { $push: "$userId" },
         },
       },
       {
@@ -217,7 +217,7 @@ const getAllCVSkillsGroupedByJobId = async (req, res) => {
         },
       },
     ]);
-    
+
     if (!cvSkills.length) {
       return res.status(404).json({ message: 'No CV skills found' });
     }
@@ -232,10 +232,10 @@ const getAllCVSkillsGroupedByJobId = async (req, res) => {
 
 const deleteCVSkills = async (req, res) => {
   try {
-    const { cvSkillsId } = req.params; 
-    
+    const { cvSkillsId } = req.params;
+
     const deletedCVSkills = await CVSkills.findByIdAndDelete(cvSkillsId);
-    
+
     if (!deletedCVSkills) {
       return res.status(404).json({ message: 'CV skills not found' });
     }
