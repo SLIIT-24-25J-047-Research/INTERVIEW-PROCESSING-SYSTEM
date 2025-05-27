@@ -29,8 +29,8 @@ def calculate_metrics(code, language):
     maintainability index, pylint score for the provided code,
     and a weighted sum of selected metrics using predefined weights.
     """
-    print(f"Language: {language}")  # Debug print
-    print(f"Code: {code}")  # Debug print
+    print(f"Language: {language}")  
+    print(f"Code: {code}") 
 
     # Weights and bias for the calculation
     weight_CC = 4.983
@@ -39,30 +39,28 @@ def calculate_metrics(code, language):
     bias = 2.6895663956639577
 
     if language == "python":
-        # Ensure that the functions return numeric values (not a dict or sequence)
-        cc_result = calculate_cc(code)  # Expected to return numeric value
-        cfc_result = calculate_cfc(code)  # Expected to return numeric value
-        wcc_result = calculate_wcc(code)  # Expected to return numeric value
+        cc_result = calculate_cc(code)  
+        cfc_result = calculate_cfc(code)  
+        wcc_result = calculate_wcc(code)  
 
-        # Print types to debug the issue
         print(f"CC Result Type: {type(cc_result)} - {cc_result}")
         print(f"CFC Result Type: {type(cfc_result)} - {cfc_result}")
         print(f"WCC Result Type: {type(wcc_result)} - {wcc_result}")
 
-        # Extract values from the results if they are dictionaries or sequences
+    
         if isinstance(cc_result, dict):
-            cc_result = cc_result.get('cyclomatic_complexity', 0)  # Default to 0 if not found
+            cc_result = cc_result.get('cyclomatic_complexity', 0)  
         if isinstance(cfc_result, dict):
-            cfc_result = cfc_result.get('internal_interactions', 0)  # Default to 0 if not found
+            cfc_result = cfc_result.get('internal_interactions', 0)  
         if isinstance(wcc_result, dict):
-            wcc_result = wcc_result.get('weighted_cyclomatic_complexity', 0)  # Default to 0 if not found
+            wcc_result = wcc_result.get('weighted_cyclomatic_complexity', 0) 
 
-        # Convert to float if necessary
+        
         cc_result = float(cc_result) if isinstance(cc_result, (int, float)) else 0
         cfc_result = float(cfc_result) if isinstance(cfc_result, (int, float)) else 0
         wcc_result = float(wcc_result) if isinstance(wcc_result, (int, float)) else 0
 
-        # Print debug values
+  
         print(f"CC Result: {cc_result}")
         print(f"CFC Result: {cfc_result}")
         print(f"WCC Result: {wcc_result}")
@@ -77,36 +75,36 @@ def calculate_metrics(code, language):
             "coupling_between_classes": cfc_result,
             "maintainability_index": calculate_maintainability(code),
             "pylint_score": calculate_pylint_score(code),
-            "single_value": weighted_sum
+            "single_complexity_value": weighted_sum
         }
 
     elif language == "javascript":
         try:
-            # Ensure the JavaScript versions of the metrics return numeric values (not dicts)
+            
             cc_result = calculate_js_cc(code)
             cfc_result = calculate_js_cfc(code)
             wcc_result = calculate_js_wcc(code)
             maintainability_result = calculate_js_maintainability(code)
 
-            # Print types to debug the issue
+          
             print(f"CC Result Type: {type(cc_result)} - {cc_result}")
             print(f"CFC Result Type: {type(cfc_result)} - {cfc_result}")
             print(f"WCC Result Type: {type(wcc_result)} - {wcc_result}")
 
-            # Extract values from the results if they are dictionaries or sequences
+         
             if isinstance(cc_result, dict):
-                cc_result = cc_result.get('cyclomatic_complexity', 0)  # Default to 0 if not found
+                cc_result = cc_result.get('cyclomatic_complexity', 0) 
             if isinstance(cfc_result, dict):
-                cfc_result = cfc_result.get('internal_interactions', 0)  # Default to 0 if not found
+                cfc_result = cfc_result.get('internal_interactions', 0)  
             if isinstance(wcc_result, dict):
-                wcc_result = wcc_result.get('weighted_cyclomatic_complexity', 0)  # Default to 0 if not found
+                wcc_result = wcc_result.get('weighted_cyclomatic_complexity', 0)  
 
-            # Convert to float if necessary
+           
             cc_result = float(cc_result) if isinstance(cc_result, (int, float)) else 0
             cfc_result = float(cfc_result) if isinstance(cfc_result, (int, float)) else 0
             wcc_result = float(wcc_result) if isinstance(wcc_result, (int, float)) else 0
 
-            # Print debug values
+          
             print(f"CC Result: {cc_result}")
             print(f"CFC Result: {cfc_result}")
             print(f"WCC Result: {wcc_result}")
@@ -120,7 +118,7 @@ def calculate_metrics(code, language):
                 "coupling_between_classes": cfc_result,
                 "weighted_cyclomatic_complexity": wcc_result,
                 "maintainability_index": maintainability_result,
-                "single_value": weighted_sum
+                "single_complexity_value": weighted_sum
             }
 
         except Exception as e:
@@ -132,33 +130,103 @@ def calculate_metrics(code, language):
 
 def calculate_cc(code):
     """
-    Calculate Cyclomatic Complexity using Radon
+    Calculate Cyclomatic Complexity manually for Python code.
+    Formula: CC = Number of decision points + 1
     """
     try:
-        results = cc_visit(code)
-        complexities = [
-            {
-                "name": obj.name,
-                "complexity": obj.complexity,
-                "lineno": obj.lineno,
-            }
-            for obj in results
-        ]
-        return complexities
+        tree = ast.parse(code)
+        complexity = 1  
+        
+        class ComplexityVisitor(ast.NodeVisitor):
+            def __init__(self):
+                self.complexity = 1
+            
+            def visit_If(self, node):
+                self.complexity += 1
+                self.generic_visit(node)
+            
+            def visit_For(self, node):
+                self.complexity += 1
+                self.generic_visit(node)
+            
+            def visit_While(self, node):
+                self.complexity += 1
+                self.generic_visit(node)
+            
+            def visit_With(self, node):
+                self.complexity += 1
+                self.generic_visit(node)
+            
+            def visit_Try(self, node):
+                self.complexity += 1
+                self.generic_visit(node)
+            
+            def visit_ExceptHandler(self, node):
+                self.complexity += 1
+                self.generic_visit(node)
+            
+            def visit_BoolOp(self, node):
+                self.complexity += len(node.values) - 1
+                self.generic_visit(node)
+            
+            def visit_Compare(self, node):
+                self.complexity += len(node.ops) - 1
+                self.generic_visit(node)
+        
+        visitor = ComplexityVisitor()
+        visitor.visit(tree)
+        return visitor.complexity
     except Exception as e:
         return {"error": str(e)}
 
+
+
 def calculate_wcc(code):
     """
-    Calculate Weighted Cyclomatic Complexity (WCC).
+    Calculate Weighted Cyclomatic Complexity manually.
+    Formula: WCC = Sum of (complexity of each function * nesting level multiplier)
     """
     try:
-        results = cc_visit(code)
-        weighted_complexity = sum(
-            obj.complexity * 1.5 if obj.complexity > 10 else obj.complexity
-            for obj in results
-        )
-        return weighted_complexity
+        tree = ast.parse(code)
+        total_weighted_complexity = 0
+        
+        class FunctionVisitor(ast.NodeVisitor):
+            def __init__(self):
+                self.functions = []
+            
+            def visit_FunctionDef(self, node):
+                self.functions.append(node)
+                self.generic_visit(node)
+        
+        # Find all functions
+        visitor = FunctionVisitor()
+        visitor.visit(tree)
+        
+        # Calculate complexity for each function
+        for func in visitor.functions:
+            #  base complexity
+            cc = 1
+            for node in ast.walk(func):
+                if isinstance(node, ast.If) or isinstance(node, ast.For) or isinstance(node, ast.While):
+                    cc += 1
+                elif isinstance(node, ast.BoolOp):
+                    cc += len(node.values) - 1
+                elif isinstance(node, ast.Compare):
+                    cc += len(node.ops) - 1
+            
+            #  nesting level
+            nesting_level = 0
+            parent = func
+            while hasattr(parent, 'parent'):
+                parent = parent.parent
+                if isinstance(parent, (ast.FunctionDef, ast.ClassDef)):
+                    nesting_level += 1
+            
+            # Apply weight based on nesting level
+            weight = 1 + (0.1 * nesting_level)
+            total_weighted_complexity += cc * weight
+        
+        return total_weighted_complexity if visitor.functions else 1
     except Exception as e:
         return {"error": str(e)}
 
@@ -167,43 +235,83 @@ def calculate_wcc(code):
 
 def calculate_cfc(code):
     """
-    Calculate Coupling Between Classes (CFC).
+    Calculate Cognitive Complexity manually.
+    Based on SonarSource's Cognitive Complexity specification.
     """
     try:
-        class CouplingVisitor(ast.NodeVisitor):
-            def __init__(self):
-                self.coupling_data = {
-                    "external_imports": set(),
-                    "internal_interactions": 0
-                }
-
-            def visit_Import(self, node):
-                for alias in node.names:
-                    self.coupling_data["external_imports"].add(alias.name)
-
-            def visit_ClassDef(self, node):
-                self.coupling_data["internal_interactions"] += len(node.body)
-                self.generic_visit(node)
-
         tree = ast.parse(code)
-        visitor = CouplingVisitor()
+        complexity = 0
+        
+        class CognitiveVisitor(ast.NodeVisitor):
+            def __init__(self):
+                self.complexity = 0
+                self.nesting_level = 0
+            
+            def visit_If(self, node):
+                self.complexity += 1 + self.nesting_level
+                self.nesting_level += 1
+                self.generic_visit(node)
+                self.nesting_level -= 1
+            
+            def visit_For(self, node):
+                self.complexity += 1 + self.nesting_level
+                self.nesting_level += 1
+                self.generic_visit(node)
+                self.nesting_level -= 1
+            
+            def visit_While(self, node):
+                self.complexity += 1 + self.nesting_level
+                self.nesting_level += 1
+                self.generic_visit(node)
+                self.nesting_level -= 1
+            
+            def visit_Try(self, node):
+                self.complexity += 1 + self.nesting_level
+                self.nesting_level += 1
+                self.generic_visit(node)
+                self.nesting_level -= 1
+            
+            def visit_ExceptHandler(self, node):
+                self.complexity += 1 + self.nesting_level
+                self.generic_visit(node)
+            
+            def visit_BoolOp(self, node):
+                self.complexity += len(node.values) - 1
+                self.generic_visit(node)
+            
+            def visit_Compare(self, node):
+                self.complexity += len(node.ops) - 1
+                self.generic_visit(node)
+        
+        visitor = CognitiveVisitor()
         visitor.visit(tree)
-
-        return {
-            "external_imports": list(visitor.coupling_data["external_imports"]),
-            "internal_interactions": visitor.coupling_data["internal_interactions"]
-        }
+        return visitor.complexity
     except Exception as e:
         return {"error": str(e)}
 
 
+
 def calculate_maintainability(code):
     """
-    Calculate Maintainability Index
+    Calculate Maintainability Index manually.
+    Formula: MI = 171 - 5.2 * ln(Halstead Volume) - 0.23 * (Cyclomatic Complexity) - 16.2 * ln(LOC)
+    Simplified version using just CC and LOC
     """
     try:
-        # Radon Maintainability Index
-        mi = radon.metrics.mi_visit(code, True)
+        # Calculate LOC
+        loc = len(code.splitlines())
+        
+        # Calculate Cyclomatic Complexity
+        cc = calculate_cc(code)
+        if isinstance(cc, dict):
+            cc = 1  # Default if error
+        
+        # Calculate comment percentage (simplified)
+        comment_lines = sum(1 for line in code.splitlines() if line.strip().startswith('#'))
+        comment_percentage = (comment_lines / loc) * 100 if loc > 0 else 0
+        
+        # Simplified MI calculation
+        mi = max(0, 171 - 5.2 * (cc or 1) - 0.23 * (loc or 1) + 0.1 * comment_percentage)
         return mi
     except Exception as e:
         return {"error": str(e)}
@@ -249,183 +357,150 @@ def calculate_pylint_score(code):
     
 def calculate_js_cc(code):
     """
-    Calculate Cyclomatic Complexity for JavaScript code.
+    Calculate Cyclomatic Complexity for JavaScript code manually using text analysis.
+    Formula: CC = Number of decision points + 1
     """
     try:
-        # Use a more comprehensive complexity calculation
-        tree = esprima.parseScript(code, {'loc': True})
-        complexity = 1  # Base complexity
-
-        def count_complexity(node):
-            nonlocal complexity
-            
-            # Complexity increasing node types
-            complexity_increasing_types = [
-                'IfStatement',           # if statements
-                'ConditionalExpression', # ternary operators
-                'ForStatement',           # for loops
-                'ForInStatement',         # for...in loops
-                'ForOfStatement',         # for...of loops
-                'WhileStatement',         # while loops
-                'DoWhileStatement',       # do...while loops
-                'SwitchStatement',        # switch statements
-                'CatchClause',            # catch blocks
-                'LogicalExpression',      # && and || operators
-                'TernaryExpression'       # Additional ternary expressions
-            ]
-
-            # Check node type
-            if isinstance(node, dict):
-                node_type = node.get('type')
-                
-                # Increment complexity for specific node types
-                if node_type in complexity_increasing_types:
-                    complexity += 1
-                
-                # Special handling for logical expressions
-                if node_type == 'LogicalExpression':
-                    # Add extra complexity for multiple logical conditions
-                    if node.get('operator') in ['&&', '||']:
-                        complexity += 1
-                
-                # Recursive traversal
-                for value in node.values():
-                    if isinstance(value, (dict, list)):
-                        if isinstance(value, dict):
-                            count_complexity(value)
-                        elif isinstance(value, list):
-                            for item in value:
-                                count_complexity(item)
-            
-            # Handle list of nodes
-            elif isinstance(node, list):
-                for item in node:
-                    count_complexity(item)
-
-        # Start complexity counting
-        count_complexity(tree)
+        # Base complexity
+        complexity = 1
         
-        return {"cyclomatic_complexity": complexity}
-    
+        # Count decision points
+        complexity += code.count('if ') + code.count('if(')
+        complexity += code.count('else ') + code.count('else{')
+        complexity += code.count('case ')
+        complexity += code.count('default:')
+        complexity += code.count('?')  # ternary operators
+        complexity += code.count('&&')  # logical AND
+        complexity += code.count('||')  # logical OR
+        complexity += code.count('for ') + code.count('for(')
+        complexity += code.count('while ') + code.count('while(')
+        complexity += code.count('catch ') + code.count('catch(')
+        
+        # Count function declarations (adds to complexity)
+        complexity += code.count('function ') + code.count('=>')  # arrow functions
+        
+        return complexity
     except Exception as e:
-        return {"error": f"JS Complexity Error: {str(e)}"}
+        return {"error": f"JS CC Calculation Error: {str(e)}"}
   
 
 def calculate_js_maintainability(code):
     """
-    Calculate a simplified Maintainability Index for JavaScript code.
+    Calculate Maintainability Index for JavaScript manually.
+    Simplified formula: MI = 171 - 5.2 * ln(CC) - 0.23 * ln(LOC) - 16.2 * ln(1 + comment_ratio)
     """
     try:
-        # Parse the JavaScript code into lines
-        lines = code.splitlines()
-        total_lines = len(lines)
-
+        import math
+        
+        # Calculate lines of code
+        lines = [line for line in code.splitlines() if line.strip()]
+        loc = len(lines)
+        
         # Count comment lines
         comment_lines = sum(
-            1 for line in lines if line.strip().startswith("//") or line.strip().startswith("/*")
+            1 for line in lines 
+            if line.strip().startswith(('//', '/*')) or line.strip().endswith('*/')
         )
-
-        # Lines of code (LOC)
-        loc = total_lines - comment_lines
-
-        # Cyclomatic complexity
-        cc_result = calculate_js_cc(code)
-        cyclomatic_complexity = cc_result.get("cyclomatic_complexity", 1)  # Default to 1 if not available
-
-        # Approximate Maintainability Index
-        from math import log
-        if loc > 0:
-            maintainability_index = max(
-                0,
-                171
-                - 5.2 * log(loc)
-                - 0.23 * cyclomatic_complexity
-                - 16.2 * log(comment_lines + 1)
-            )
-        else:
-            maintainability_index = 0  # No meaningful maintainability index for empty code
-
-        return {"maintainability_index": maintainability_index}
-
+        comment_ratio = comment_lines / loc if loc > 0 else 0
+        
+        # Calculate cyclomatic complexity
+        cc = calculate_js_cc(code)
+        if isinstance(cc, dict):
+            cc = 1  # default if error
+        
+        # Simplified MI calculation
+        mi = max(0, 
+            171 - 
+            5.2 * math.log(cc + 1) - 
+            0.23 * math.log(loc + 1) - 
+            16.2 * math.log(1 + comment_ratio)
+        )
+        
+        return mi
     except Exception as e:
-        return {"error": str(e)}
+        return {"error": f"JS Maintainability Calculation Error: {str(e)}"}
 
     
-
 def calculate_js_cfc(code):
     """
-    Calculate Coupling Between Classes for JavaScript code.
+    Calculate Cognitive Complexity for JavaScript manually using text analysis.
+    Based on SonarSource's Cognitive Complexity specification.
     """
     try:
-        tree = esprima.parseScript(code, {'loc': True})
-        external_imports = set()
-        internal_interactions = 0
-
-        def analyze_coupling(node):
-            nonlocal external_imports, internal_interactions
-            
-            # Check if node is a dictionary
-            if isinstance(node, dict):
-                node_type = node.get('type')
-                
-                # Detect import statements
-                if node_type == 'ImportDeclaration':
-                    for specifier in node.get('specifiers', []):
-                        imported_name = specifier.get('local', {}).get('name')
-                        if imported_name:
-                            external_imports.add(imported_name)
-                
-                # Detect class and function declarations
-                if node_type in ['ClassDeclaration', 'FunctionDeclaration']:
-                    # Count methods or function body statements
-                    body = node.get('body', {}).get('body', [])
-                    internal_interactions += len(body)
-                
-                # Recursive traversal
-                for value in node.values():
-                    if isinstance(value, (dict, list)):
-                        if isinstance(value, dict):
-                            analyze_coupling(value)
-                        elif isinstance(value, list):
-                            for item in value:
-                                analyze_coupling(item)
-            
-            # Handle list of nodes
-            elif isinstance(node, list):
-                for item in node:
-                    analyze_coupling(item)
-
-        # Start coupling analysis
-        analyze_coupling(tree)
+        complexity = 0
+        nesting_level = 0
+        lines = code.splitlines()
         
-        return {
-            "external_imports": list(external_imports),
-            "internal_interactions": internal_interactions
-        }
+        for line in lines:
+            stripped = line.strip()
+            # Skip empty lines and comments
+            if not stripped or stripped.startswith(('//', '/*', '*')):
+                continue
+            
+            # Check for nesting-increasing constructs
+            if ('if ' in stripped or 'if(' in stripped or 
+                'else ' in stripped or 'else{' in stripped or
+                'for ' in stripped or 'for(' in stripped or
+                'while ' in stripped or 'while(' in stripped or
+                'catch ' in stripped or 'catch(' in stripped):
+                complexity += 1 + nesting_level
+                nesting_level += 1
+            
+            # Check for logical operators
+            if ('&&' in stripped or '||' in stripped or 
+                '?' in stripped):  # ternary operator
+                complexity += 1
+            
+            # Check for switch cases
+            if 'case ' in stripped or 'default:' in stripped:
+                complexity += 1
+            
+            # Count closing braces (decrease nesting)
+            if '}' in stripped:
+                nesting_level = max(0, nesting_level - stripped.count('}'))
+        
+        return complexity
     except Exception as e:
-        return {"error": f"JS Coupling Error: {str(e)}"}
+        return {"error": f"JS CFC Calculation Error: {str(e)}"}
 
-
-  
 def calculate_js_wcc(code):
     """
-    Calculate Weighted Cyclomatic Complexity for JavaScript code.
+    Calculate Weighted Cyclomatic Complexity for JavaScript manually.
+    Formula: WCC = Sum of (complexity of each function * nesting level multiplier)
     """
     try:
-        # First calculate base complexity
-        cc_result = calculate_js_cc(code)
+        # First calculate base CC
+        base_cc = calculate_js_cc(code)
+        if isinstance(base_cc, dict):
+            base_cc = 1  # default if error
         
-        # Extract cyclomatic complexity
-        complexity = cc_result.get("cyclomatic_complexity", 1)
+        # Estimate nesting level by counting indentations and braces
+        lines = code.splitlines()
+        nesting_level = 0
+        max_nesting = 0
+        in_function = False
         
-        # Apply weighted complexity logic
-        # If complexity is greater than 10, multiply by 1.5
-        weighted_complexity = complexity * 1.5 if complexity > 10 else complexity
+        for line in lines:
+            stripped = line.strip()
+            # Skip empty lines and comments
+            if not stripped or stripped.startswith(('//', '/*', '*')):
+                continue
+            
+            # Count opening braces (increase nesting)
+            nesting_level += line.count('{')
+            # Count closing braces (decrease nesting)
+            nesting_level -= line.count('}')
+            
+            # Track max nesting
+            if nesting_level > max_nesting:
+                max_nesting = nesting_level
         
-        return {"weighted_cyclomatic_complexity": weighted_complexity}
-    
+        # Apply weight based on max nesting level (0.1 per level)
+        weight = 1 + (0.1 * max_nesting)
+        return base_cc * weight
     except Exception as e:
-        return {"error": f"JS Weighted Complexity Error: {str(e)}"}
+        return {"error": f"JS WCC Calculation Error: {str(e)}"}  
+
 
 
 @app.route('/evaluate', methods=['POST'])
