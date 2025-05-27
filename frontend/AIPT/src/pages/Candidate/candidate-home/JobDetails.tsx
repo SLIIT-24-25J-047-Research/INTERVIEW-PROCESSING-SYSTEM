@@ -37,6 +37,8 @@ const CandidateCVPage = () => {
   const [error, setError] = useState("");
   const [userId, setUserId] = useState<string>("");
   const [fileId, setFileId] = useState<string>(""); // State to store the uploaded fileId
+  const [skillsValidated, setSkillsValidated] = useState<boolean>(false); // Track if skills are validated
+  const [skillValidationError, setSkillValidationError] = useState<string>(""); // Track skill validation errors
 
   // Get the email and userId from the token
   useEffect(() => {
@@ -48,6 +50,39 @@ const CandidateCVPage = () => {
       }
     }
   }, []);
+
+  // Handle skill validation callback from FileSkillExtractor
+  const handleSkillValidation = (isValid: boolean, errorMessage?: string) => {
+    setSkillsValidated(isValid);
+    if (!isValid && errorMessage) {
+      setSkillValidationError(errorMessage);
+      toast.error(errorMessage);
+    } else if (isValid) {
+      setSkillValidationError("");
+      toast.success("Skills validated successfully! You can proceed with your application.");
+      
+      // Proceed with job application after successful validation
+      proceedWithJobApplication();
+    }
+  };
+
+  // Function to proceed with job application
+  const proceedWithJobApplication = async () => {
+    try {
+      await axios.post("http://localhost:5000/api/user-job-applications/apply", {
+        userId,
+        jobId,
+      });
+      
+      // Redirect to /candidate-home after 2 seconds
+      setTimeout(() => {
+        navigate('/candidate-home');  // Navigate to the candidate home page
+      }, 2000);
+    } catch (error) {
+      console.error("Error applying for job:", error);
+      toast.error("Failed to apply for the job. Please try again.");
+    }
+  };
 
   const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
@@ -78,7 +113,7 @@ const CandidateCVPage = () => {
       });
   
       if (response.status === 200) {
-        setMessage("CV Submitted Successfully!");
+        setMessage("CV Uploaded Successfully! Validating skills...");
         const fileId = response.data.fileId;  // Assuming the response includes the fileId
         setFileId(fileId); // Save the fileId to state
         setFullName("");
@@ -87,18 +122,10 @@ const CandidateCVPage = () => {
         setUploadProgress(undefined);
         setError("");
   
-        // Show success Toast notification
-        toast.success("CV Submitted Successfully!");
-  
-        await axios.post("http://localhost:5000/api/user-job-applications/apply", {
-          userId,
-          jobId,
-        });
+        // Show success Toast notification for upload
+        toast.success("CV Uploaded Successfully! Now validating your skills...");
         
-        // Redirect to /candidate-home after 2 seconds
-        setTimeout(() => {
-          navigate('/candidate-home');  // Navigate to the candidate home page
-        }, 2000);
+        // Note: Job application will be handled after skill validation in handleSkillValidation
       }
     } catch (error: unknown) {
       console.error("Error uploading CV:", error);
@@ -205,6 +232,12 @@ const CandidateCVPage = () => {
                     {error}
                   </p>
                 )}
+
+                {skillValidationError && (
+                  <p className="text-center text-sm font-medium text-red-600">
+                    {skillValidationError}
+                  </p>
+                )}
               </div>
             </form>
           </CardContent>
@@ -218,6 +251,7 @@ const CandidateCVPage = () => {
           fileId={fileId}
           jobId={jobId!} // Pass jobId as a prop
           userId={userId} // Pass userId as a prop
+          onSkillValidation={handleSkillValidation} // Pass callback for skill validation
         />
       )}
 
