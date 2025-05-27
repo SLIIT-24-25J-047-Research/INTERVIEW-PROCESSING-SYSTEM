@@ -21,6 +21,11 @@ const questionResponseSchema = new mongoose.Schema({
     isCorrect: {
         type: Boolean,
         required: false
+    },
+    marks: {
+        type: Number,
+        required: false,
+        default: 0
     }
 });
 
