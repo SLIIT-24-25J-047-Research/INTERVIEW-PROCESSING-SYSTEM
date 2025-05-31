@@ -29,26 +29,26 @@ def calculate_metrics(code, language):
     print(f"Language: {language}")  
     print(f"Code: {code}") 
 
-    # Weights and bias for the calculation
+    # Weights 
     weight_CC = 4.983
     weight_CFC = -5.597
     weight_WCC = 2.925
     bias = 2.6895663956639577
 
     if language == "python":
-        # Get detailed breakdowns from each calculation
+  
         cc_details = calculate_cc(code)
         cfc_details = calculate_cfc(code)
         wcc_details = calculate_wcc(code)
         mi_details = calculate_maintainability(code)
         pylint_details = calculate_pylint_score(code)
 
-        # Extract values for weighted sum calculation
+        # Extract values 
         cc_value = cc_details['value'] if isinstance(cc_details, dict) else cc_details
         cfc_value = cfc_details['value'] if isinstance(cfc_details, dict) else cfc_details
         wcc_value = wcc_details['value'] if isinstance(wcc_details, dict) else wcc_details
 
-        #  single value using weighted sum
+        #  single value
         weighted_sum = (cc_value * weight_CC) + (cfc_value * weight_CFC) + (wcc_value * weight_WCC) + bias
 
         return {
@@ -74,13 +74,13 @@ def calculate_metrics(code, language):
 
     elif language == "javascript":
         try:
-            # Similar detailed breakdown for JavaScript
+            
             cc_details = calculate_js_cc(code)
             cfc_details = calculate_js_cfc(code)
             wcc_details = calculate_js_wcc(code)
             mi_details = calculate_js_maintainability(code)
 
-            # Extract values
+           
             cc_value = cc_details['value'] if isinstance(cc_details, dict) else cc_details
             cfc_value = cfc_details['value'] if isinstance(cfc_details, dict) else cfc_details
             wcc_value = wcc_details['value'] if isinstance(wcc_details, dict) else wcc_details
@@ -472,11 +472,11 @@ def calculate_cc(code):
                 self.generic_visit(node)
             
             def visit_With(self, node):
-                # Optional: usually not counted in CC, but can be included if desired
+               
                 self.generic_visit(node)
             
             def visit_Try(self, node):
-                # try itself doesn't add complexity, but each except does
+                
                 self.generic_visit(node)
             
             def visit_ExceptHandler(self, node):
@@ -484,13 +484,13 @@ def calculate_cc(code):
                 self.generic_visit(node)
             
             def visit_BoolOp(self, node):
-                # 'and' / 'or' boolean operators add complexity: count number of ops - 1
+                
                 count = len(node.values) - 1
                 if count > 0:
                     self.add_complexity('boolean_operator', node.lineno, count)
                 self.generic_visit(node)
             
-            # Optionally add more nodes like 'FunctionDef', 'AsyncFunctionDef' if needed
+            
             
         visitor = ComplexityVisitor()
         visitor.visit(tree)
@@ -522,7 +522,7 @@ def calculate_wcc(code):
                 self.functions.append(node)
                 self.generic_visit(node)
         
-        # Find all functions
+       
         visitor = FunctionVisitor()
         visitor.visit(tree)
         
@@ -546,7 +546,7 @@ def calculate_wcc(code):
                 if isinstance(parent, (ast.FunctionDef, ast.ClassDef)):
                     nesting_level += 1
             
-            # Apply weight based on nesting level
+          
             weight = 1 + (0.1 * nesting_level)
             total_weighted_complexity += cc * weight
         
