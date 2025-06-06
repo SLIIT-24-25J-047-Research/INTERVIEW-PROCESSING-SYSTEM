@@ -93,7 +93,7 @@ exports.getRandomQuestions = async (req, res) => {
         }
         // Shuffle 
         const shuffledQuestions = questions.sort(() => 0.5 - Math.random());
-        const numQuestionsToFetch = 3; 
+        const numQuestionsToFetch = 10; 
         const randomQuestions = shuffledQuestions.slice(0, numQuestionsToFetch);
         
         res.status(200).json(randomQuestions);

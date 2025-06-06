@@ -15,7 +15,7 @@ const menuItems: MenuItem[] = [
   { path: '/candidate-mockup', icon: PenTool, label: 'Mockup-Test' },
   { path: '/interview', icon: Users, label: ' Interview' },
   // { path: '/non-tech-interview', icon: Users, label: 'Non Technical Interview' },
-  // { path: '/tech-interview', icon: Code, label: 'Technical Interview' },
+  { path: '/myResults', icon: Code, label: 'Resutls' },
   { path: '/profile', icon: User, label: 'Profile' },
 ];
 

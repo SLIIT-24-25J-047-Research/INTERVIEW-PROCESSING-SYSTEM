@@ -63,7 +63,7 @@ exports.detectStress = async (req, res) => {
         const existingQuestionIndex = interview.questions.findIndex(q => q.questionId.toString() === questionID);
 
         if (existingQuestionIndex !== -1) {
-            // Update existing question
+      
             interview.questions[existingQuestionIndex] = {
                 questionId: questionID,
                 emotion,

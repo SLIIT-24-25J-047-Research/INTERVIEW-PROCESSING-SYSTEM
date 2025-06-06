@@ -1,7 +1,7 @@
 import React, { useState, useEffect, useRef } from 'react';
 import { Mic, MicOff, ChevronRight, Loader2, Clock, AlertCircle } from 'lucide-react';
 import axios from 'axios';
-import { useParams  } from 'react-router-dom';
+import { useParams } from 'react-router-dom';
 
 interface Question {
   _id: string;
@@ -18,22 +18,18 @@ interface InterviewData {
   jobId: string;
   status: string;
   scheduledDate: string;
-  // Add other fields as needed
 }
 
 interface Props {
   interviewData?: InterviewData;
 }
 
-const QUESTION_TIMEOUT = 60; // 60 seconds per question
+const QUESTION_TIMEOUT = 90; // 60 seconds per question
 
 function App({ interviewData }: Props) {
-
   const { id } = useParams<{ id: string }>();
   const interviewId = interviewData?._id || id;
 
-
-  
   const [recording, setRecording] = useState(false);
   const [questions, setQuestions] = useState<Question[]>([]);
   const [currentQuestionIndex, setCurrentQuestionIndex] = useState(0);
@@ -42,6 +38,7 @@ function App({ interviewData }: Props) {
   const [audioBlob, setAudioBlob] = useState<Blob | null>(null);
   const [timeLeft, setTimeLeft] = useState(QUESTION_TIMEOUT);
   const [isInterviewComplete, setIsInterviewComplete] = useState(false);
+  const [answeredQuestions, setAnsweredQuestions] = useState<number[]>([]);
   const mediaRecorderRef = useRef<MediaRecorder | null>(null);
   const chunksRef = useRef<Blob[]>([]);
   const timerRef = useRef<ReturnType<typeof setInterval>>();
@@ -71,7 +68,6 @@ function App({ interviewData }: Props) {
     };
   }, [interviewId]);
 
-
   const startQuestionTimer = () => {
     setTimeLeft(QUESTION_TIMEOUT);
     if (timerRef.current) {
@@ -81,7 +77,7 @@ function App({ interviewData }: Props) {
       setTimeLeft((prev) => {
         if (prev <= 1) {
           handleTimeUp();
-          return QUESTION_TIMEOUT;
+          return 0;
         }
         return prev - 1;
       });
@@ -89,25 +85,31 @@ function App({ interviewData }: Props) {
   };
 
   const handleTimeUp = async () => {
+    if (timerRef.current) {
+      clearInterval(timerRef.current);
+    }
+
     if (recording) {
       stopRecording();
     }
-    
-    // Send "no answer provided" response
-    try {
-      const noAnswerFormData = new FormData();
-      noAnswerFormData.append("questionId", questions[currentQuestionIndex]._id);
-      noAnswerFormData.append("noAnswer", "true");
-      
-      await axios.post("http://localhost:5000/api/audio", noAnswerFormData);
-    } catch (error) {
-      console.error("Error sending no-answer response:", error);
+
+    // Mark question as answered
+    setAnsweredQuestions(prev => [...prev, currentQuestionIndex]);
+
+    // Submit empty answer if no recording was made
+    if (!audioBlob) {
+      try {
+        const noAnswerFormData = new FormData();
+        noAnswerFormData.append("questionId", questions[currentQuestionIndex]._id);
+        noAnswerFormData.append("noAnswer", "true");
+
+        await axios.post("http://localhost:5000/api/audio", noAnswerFormData);
+      } catch (error) {
+        console.error("Error sending no-answer response:", error);
+      }
     }
 
-    moveToNextQuestion();
-  };
-
-  const moveToNextQuestion = () => {
+    // Only move to next question if there are more questions
     if (currentQuestionIndex < questions.length - 1) {
       setCurrentQuestionIndex(prev => prev + 1);
       setAudioBlob(null);
@@ -117,12 +119,53 @@ function App({ interviewData }: Props) {
     }
   };
 
+  const moveToNextQuestion = async () => {
+    // If we have audio to submit, process it first
+    if (audioBlob && !answeredQuestions.includes(currentQuestionIndex)) {
+      await submitCurrentAnswer();
+    }
+
+    if (currentQuestionIndex < questions.length - 1) {
+      setCurrentQuestionIndex(prev => prev + 1);
+      setAudioBlob(null);
+      startQuestionTimer();
+    } else {
+      completeInterview();
+    }
+  };
+
+  const submitCurrentAnswer = async () => {
+    if (!audioBlob) return;
+
+    setProcessing(true);
+    const confidenceFormData = new FormData();
+    confidenceFormData.append("audio", audioBlob, `answer_${currentQuestionIndex}.wav`);
+    confidenceFormData.append("questionId", questions[currentQuestionIndex]._id);
+
+    if (interviewId) {
+      confidenceFormData.append("interviewId", interviewId);
+    }
+    confidenceFormData.append("userId", interviewData?.userId || "defaultUserId");
+
+    try {
+      await axios.post("http://localhost:5000/api/predict", confidenceFormData, {
+        headers: { "Content-Type": "multipart/form-data" },
+      });
+      // Mark question as answered
+      setAnsweredQuestions(prev => [...prev, currentQuestionIndex]);
+    } catch (error) {
+      console.error("Error processing audio:", error);
+    } finally {
+      setProcessing(false);
+    }
+  };
+
   const completeInterview = async () => {
     if (timerRef.current) {
       clearInterval(timerRef.current);
     }
     setIsInterviewComplete(true);
-    
+
     try {
       await axios.post(`http://localhost:5000/api/non-t-interviews/update-status/${interviewId}`, {
         status: 'completed'
@@ -163,33 +206,12 @@ function App({ interviewData }: Props) {
   };
 
   const handleNextQuestion = async () => {
-    if (audioBlob) {
-      setProcessing(true);
-      const confidenceFormData = new FormData();
-   
-      
-      confidenceFormData.append("audio", audioBlob, `answer_${currentQuestionIndex}.wav`);
-      confidenceFormData.append("questionId", questions[currentQuestionIndex]._id);
-      if (interviewId) {
-        confidenceFormData.append("interviewId", interviewId); 
-      }
-    confidenceFormData.append("userId", interviewData?.userId || "defaultUserId");
-      
-   
-
-      
-
-      try {
-        await axios.post("http://localhost:5000/api/predict", confidenceFormData, {
-          headers: { "Content-Type": "multipart/form-data" },
-        });
-      } catch (error) {
-        console.error("Error processing audio:", error);
-      } finally {
-        setProcessing(false);
-        moveToNextQuestion();
-      }
+    if (answeredQuestions.includes(currentQuestionIndex)) {
+      // Already answered, just move forward
+      moveToNextQuestion();
     } else {
+      // Submit current answer before moving
+      await submitCurrentAnswer();
       moveToNextQuestion();
     }
   };
@@ -251,16 +273,6 @@ function App({ interviewData }: Props) {
                   <h2 className="text-xl font-medium text-gray-900">
                     {currentQuestion.text}
                   </h2>
-                  <div className="mt-4 space-y-2">
-                    {currentQuestion.answers.map((answer, index) => (
-                      <div
-                        key={index}
-                        className="p-3 bg-gray-50 rounded-lg text-gray-700 hover:bg-gray-100 transition-colors"
-                      >
-                        {answer}
-                      </div>
-                    ))}
-                  </div>
                 </div>
               </div>
             </div>
@@ -272,12 +284,11 @@ function App({ interviewData }: Props) {
         <div className="flex justify-center space-x-6">
           <button
             onClick={recording ? stopRecording : startRecording}
-            disabled={loading || processing || !currentQuestion}
-            className={`flex items-center space-x-2 px-6 py-3 rounded-lg font-medium transition-all ${
-              recording
+            disabled={loading || processing || !currentQuestion || answeredQuestions.includes(currentQuestionIndex)}
+            className={`flex items-center space-x-2 px-6 py-3 rounded-lg font-medium transition-all ${recording
                 ? 'bg-red-500 hover:bg-red-600 text-white'
                 : 'bg-blue-500 hover:bg-blue-600 text-white'
-            } disabled:opacity-50 disabled:cursor-not-allowed`}
+              } disabled:opacity-50 disabled:cursor-not-allowed`}
           >
             {recording ? (
               <MicOff className="w-5 h-5" />
