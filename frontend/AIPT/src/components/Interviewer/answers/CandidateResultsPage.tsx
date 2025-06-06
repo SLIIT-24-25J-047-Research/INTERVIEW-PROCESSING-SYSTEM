@@ -1,219 +1,94 @@
 import React, { useState, useEffect } from 'react';
-import {
-  Table,
-  TableBody,
-  TableCell,
-  TableContainer,
-  TableHead,
-  TableRow,
-  Paper,
-  Typography,
-  Box,
-  CircularProgress
-} from '@mui/material';
+import JobResultsCard from './data/JobResultsCard';
+import RankingControls from './data/RankingControls';
+import { Job, RankingCriteria } from './types';
+import { groupResultsByJobId } from './utils/rankingUtils';
 
-// Mock data types
-interface AnswerResult {
-  _id: { $oid: string };
-  interviewId: { $oid: string };
-  jobId: { $oid: string };
-  userId: string | { $oid: string };
-  responses: {
-    questionId: { $oid: string };
-    marks: number;
-    _id: { $oid: string };
-  }[];
-  totalScore?: number;
-  maxPossibleScore?: number;
-  createdAt: { $date: string };
-}
+// Sample data - in a real app, this would come from an API
+import mockTechnicalResults from './data/technicalResults';
+import mockNonTechnicalResults from './data/nonTechnicalResults';
 
-interface Candidate {
-  id: string;
-  userId: string;
-  interviewId: string;
-  jobId: string;
-  technicalScore: number;
-  nonTechnicalScore: number;
-  totalScore: number;
-  maxPossibleScore: number;
-  submittedAt: Date;
-}
-
-// Mock data generator
-const generateMockCandidates = (count: number): Candidate[] => {
-  const candidates: Candidate[] = [];
-  
-  for (let i = 0; i < count; i++) {
-    const techScore = Math.floor(Math.random() * 350);
-    const nonTechScore = Math.floor(Math.random() * 100);
-    
-    candidates.push({
-      id: `candidate_${i}`,
-      userId: `user_${i}`,
-      interviewId: `interview_${i % 3}`,
-      jobId: 'job_123',
-      technicalScore: techScore,
-      nonTechnicalScore: nonTechScore,
-      totalScore: techScore + nonTechScore,
-      maxPossibleScore: 350 + 100, // Assuming max tech is 350 and non-tech is 100
-      submittedAt: new Date(Date.now() - Math.random() * 7 * 24 * 60 * 60 * 1000)
-    });
-  }
-  
-  return candidates;
-};
-
-const CandidateResultsPage: React.FC = () => {
-  const [candidates, setCandidates] = useState<Candidate[]>([]);
-  const [loading, setLoading] = useState(true);
-  const [sortConfig, setSortConfig] = useState<{ key: keyof Candidate; direction: 'ascending' | 'descending' }>({
-    key: 'totalScore',
-    direction: 'descending'
-  });
+function CandidateResultsPage() {
+  const [jobs, setJobs] = useState<Job[]>([]);
+  const [rankingCriteria, setRankingCriteria] = useState<RankingCriteria>('score');
+  const [isLoading, setIsLoading] = useState(true);
 
   useEffect(() => {
-    // Simulate API call
+    // Simulate loading data from an API
     const fetchData = async () => {
-      setLoading(true);
+      setIsLoading(true);
       try {
-        // In a real app, you would fetch and combine technical and non-technical results here
-        // For now, we'll use mock data
-        const mockData = generateMockCandidates(15);
+        // In a real app, fetch from your API here
+        // const technicalResponse = await fetch('/api/technical-results');
+        // const technicalResults = await technicalResponse.json();
+        // const nonTechnicalResponse = await fetch('/api/non-technical-results');
+        // const nonTechnicalResults = await nonTechnicalResponse.json();
         
-        // Add some fixed data based on your examples
-        mockData.push({
-          id: '68357d8e2818f98bcf55a072',
-          userId: '675932b49c1a60d97c147419',
-          interviewId: '68357ce32818f98bcf559f81',
-          jobId: '675aa4a1ea75fb1d58881897',
-          technicalScore: 20,
-          nonTechnicalScore: 0, // Assuming no non-technical answers in the example
-          totalScore: 20,
-          maxPossibleScore: 350,
-          submittedAt: new Date('2025-05-27T08:53:34.179Z')
-        });
+        // Using mock data for demonstration
+        const technicalResults = mockTechnicalResults;
+        const nonTechnicalResults = mockNonTechnicalResults;
         
-        mockData.push({
-          id: '6835cbf3252cc292f623d7ec',
-          userId: 'defaultUserId',
-          interviewId: '68357c332818f98bcf559f19',
-          jobId: '675aa4a1ea75fb1d58881897',
-          technicalScore: 0, // Assuming no technical answers in the example
-          nonTechnicalScore: 0,
-          totalScore: 0,
-          maxPossibleScore: 100,
-          submittedAt: new Date('2025-05-27T14:28:03.031Z')
-        });
-        
-        setCandidates(mockData);
+        // Group and organize the results
+        const groupedJobs = groupResultsByJobId(technicalResults, nonTechnicalResults);
+        setJobs(groupedJobs);
       } catch (error) {
-        console.error('Error fetching candidate results:', error);
+        console.error('Error fetching data:', error);
       } finally {
-        setLoading(false);
+        setIsLoading(false);
       }
     };
 
     fetchData();
   }, []);
 
-  const sortedCandidates = React.useMemo(() => {
-    const sortableItems = [...candidates];
-    if (sortConfig.key) {
-      sortableItems.sort((a, b) => {
-        if (a[sortConfig.key] < b[sortConfig.key]) {
-          return sortConfig.direction === 'ascending' ? -1 : 1;
-        }
-        if (a[sortConfig.key] > b[sortConfig.key]) {
-          return sortConfig.direction === 'ascending' ? 1 : -1;
-        }
-        return 0;
-      });
-    }
-    return sortableItems;
-  }, [candidates, sortConfig]);
-
-  const requestSort = (key: keyof Candidate) => {
-    let direction: 'ascending' | 'descending' = 'ascending';
-    if (sortConfig.key === key && sortConfig.direction === 'ascending') {
-      direction = 'descending';
-    }
-    setSortConfig({ key, direction });
-  };
-
-  const getSortIndicator = (key: keyof Candidate) => {
-    if (sortConfig.key === key) {
-      return sortConfig.direction === 'ascending' ? ' ↑' : ' ↓';
-    }
-    return '';
-  };
-
-  if (loading) {
-    return (
-      <Box display="flex" justifyContent="center" alignItems="center" minHeight="200px">
-        <CircularProgress />
-      </Box>
-    );
-  }
-
   return (
-    <Box sx={{ p: 3 }}>
-      <Typography variant="h4" gutterBottom>
-        Candidate Results
-      </Typography>
+    <div className="min-h-screen bg-gray-100">
+      <header className="bg-white shadow-sm">
+        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-6">
+          <h1 className="text-2xl font-bold text-gray-900">Interview Results Dashboard</h1>
+        </div>
+      </header>
       
-      <Typography variant="subtitle1" gutterBottom>
-        Sorted by: {sortConfig.key} ({sortConfig.direction})
-      </Typography>
+      <main className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
+        {/* Ranking Controls */}
+        <RankingControls 
+          currentCriteria={rankingCriteria}
+          onChangeCriteria={setRankingCriteria}
+        />
+        
+        {/* Results Section */}
+        <div>
+          {isLoading ? (
+            <div className="flex justify-center items-center py-12">
+              <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-blue-500"></div>
+            </div>
+          ) : jobs.length > 0 ? (
+            <div className="space-y-6">
+              {jobs.map((job) => (
+                <JobResultsCard 
+                  key={job.jobId}
+                  job={job}
+                  rankingCriteria={rankingCriteria}
+                />
+              ))}
+            </div>
+          ) : (
+            <div className="bg-white rounded-lg shadow-md p-12 text-center">
+              <p className="text-lg text-gray-600">No interview results found.</p>
+            </div>
+          )}
+        </div>
+      </main>
       
-      <TableContainer component={Paper} sx={{ mt: 2 }}>
-        <Table>
-          <TableHead>
-            <TableRow sx={{ backgroundColor: '#f5f5f5' }}>
-              <TableCell onClick={() => requestSort('userId')}>
-                User ID{getSortIndicator('userId')}
-              </TableCell>
-              <TableCell onClick={() => requestSort('technicalScore')}>
-                Technical Score{getSortIndicator('technicalScore')}
-              </TableCell>
-              <TableCell onClick={() => requestSort('nonTechnicalScore')}>
-                Non-Technical Score{getSortIndicator('nonTechnicalScore')}
-              </TableCell>
-              <TableCell onClick={() => requestSort('totalScore')}>
-                Total Score{getSortIndicator('totalScore')}
-              </TableCell>
-              <TableCell onClick={() => requestSort('maxPossibleScore')}>
-                Max Possible{getSortIndicator('maxPossibleScore')}
-              </TableCell>
-              <TableCell onClick={() => requestSort('submittedAt')}>
-                Submitted At{getSortIndicator('submittedAt')}
-              </TableCell>
-              <TableCell>
-                Percentage
-              </TableCell>
-            </TableRow>
-          </TableHead>
-          <TableBody>
-            {sortedCandidates.map((candidate) => (
-              <TableRow key={candidate.id}>
-                <TableCell>{candidate.userId}</TableCell>
-                <TableCell>{candidate.technicalScore}</TableCell>
-                <TableCell>{candidate.nonTechnicalScore}</TableCell>
-                <TableCell>{candidate.totalScore}</TableCell>
-                <TableCell>{candidate.maxPossibleScore}</TableCell>
-                <TableCell>
-                  {candidate.submittedAt.toLocaleDateString()} {candidate.submittedAt.toLocaleTimeString()}
-                </TableCell>
-                <TableCell>
-                  {Math.round((candidate.totalScore / candidate.maxPossibleScore) * 100)}%
-                </TableCell>
-              </TableRow>
-            ))}
-          </TableBody>
-        </Table>
-      </TableContainer>
-    </Box>
+      <footer className="bg-white border-t border-gray-200 mt-12">
+        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-6">
+          <p className="text-center text-gray-500 text-sm">
+            © {new Date().getFullYear()} Interview Results Dashboard
+          </p>
+        </div>
+      </footer>
+    </div>
   );
-};
+}
 
 export default CandidateResultsPage;
