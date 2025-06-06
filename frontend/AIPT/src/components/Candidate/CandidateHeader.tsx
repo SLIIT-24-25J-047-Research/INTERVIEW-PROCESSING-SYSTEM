@@ -2,7 +2,7 @@ import React, { useEffect, useState, useCallback } from 'react';
 import '../../Styles/candidateHeader.css';
 import { Link, useLocation } from 'react-router-dom';
 import { FaUserCircle, FaBell } from 'react-icons/fa';
-import Logo from '../../assets/logoAPIT.png';
+import Logo from '../../assets/logoAPIT (2).png';
 import { useAuth } from '../../contexts/AuthContext';
 
 interface HeaderProps {
@@ -96,7 +96,7 @@ const CandidateHeader: React.FC<HeaderProps> = ({ title }) => {
       <div className="header-title flex items-center justify-between">
         <Link to="/candidate-home" className="logo-container flex items-center">
           <img
-            src={isCandidatePage ? Logo : '../../assets/AIPT.png'}
+            src={isCandidatePage ? Logo : '../../assets/logoAPIT (2).png'}
             alt="Company Logo"
             className={`logo ${isCandidatePage ? 'home-logo w-16 h-6 mb-2' : ''}`}
           />
