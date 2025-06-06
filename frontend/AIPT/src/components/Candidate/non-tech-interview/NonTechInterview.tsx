@@ -24,7 +24,7 @@ interface Props {
   interviewData?: InterviewData;
 }
 
-const QUESTION_TIMEOUT = 60; // 60 seconds per question
+const QUESTION_TIMEOUT = 90; // 60 seconds per question
 
 function App({ interviewData }: Props) {
   const { id } = useParams<{ id: string }>();
