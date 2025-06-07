@@ -37,6 +37,7 @@ def calculate_metrics(code, language):
     bias = 2.6895663956639577
 
     if language == "python":
+        
   
         cc_details = calculate_cc(code)
         cfc_details = calculate_cfc(code)
